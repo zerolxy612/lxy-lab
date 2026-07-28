@@ -40,9 +40,9 @@ export const stations: readonly StationContent[] = [
   {
     id: 'systems',
     index: '03',
-    title: 'AI Systems Core',
-    eyebrow: 'How things work',
-    summary: 'The engineering ideas behind useful AI-native products.',
+    title: 'Living AI Core',
+    eyebrow: 'How the lab thinks',
+    summary: 'A living map of the engineering ideas behind useful AI-native products.',
     details: [
       'Retrieval, agents, evaluation, and knowledge workflows.',
       'Architecture decisions explained through working systems.',

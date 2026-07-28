@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { StationId } from '../content/stations'
 import { stationById } from '../content/stations'
 import { selectedProjects } from '../content/projects'
@@ -8,6 +9,20 @@ interface PanelHostProps {
 }
 
 export function PanelHost({ stationId, onClose }: PanelHostProps) {
+  const closeButton = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!stationId) return
+
+    closeButton.current?.focus()
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [stationId, onClose])
+
   if (!stationId) return null
 
   const station = stationById[stationId]
@@ -19,7 +34,7 @@ export function PanelHost({ stationId, onClose }: PanelHostProps) {
           <span>{station.index} / {station.eyebrow}</span>
           <h2 id="station-panel-title">{station.title}</h2>
         </div>
-        <button className="panel-close" onClick={onClose} aria-label="Close panel">
+        <button ref={closeButton} className="panel-close" onClick={onClose} aria-label="Close panel">
           Close
         </button>
       </header>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { StationId } from '../content/stations'
 import { labBridge } from '../game/bridge'
 import { GameViewport } from '../ui/GameViewport'
@@ -9,6 +9,7 @@ import { QuickAccess } from '../ui/QuickAccess'
 export function App() {
   const [nearbyStation, setNearbyStation] = useState<StationId | null>(null)
   const [activeStation, setActiveStation] = useState<StationId | null>(null)
+  const closePanel = useCallback(() => setActiveStation(null), [])
 
   useEffect(() => {
     const removeNearbyListener = labBridge.on(
@@ -51,7 +52,7 @@ export function App() {
       </div>
 
       <InteractionPrompt stationId={nearbyStation} />
-      <PanelHost stationId={activeStation} onClose={() => setActiveStation(null)} />
+      <PanelHost stationId={activeStation} onClose={closePanel} />
     </main>
   )
 }

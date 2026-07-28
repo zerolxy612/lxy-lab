@@ -71,6 +71,29 @@ button {
   height: 100% !important;
 }
 
+.game-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.game-loading {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  color: var(--cyan);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
+}
+
+.game-stage[data-ready="true"] .game-loading {
+  display: none;
+}
+
 .identity-lockup {
   position: fixed;
   z-index: 30;
@@ -115,44 +138,87 @@ button {
   z-index: 40;
   top: clamp(1rem, 2vw, 2rem);
   right: clamp(1rem, 2vw, 2rem);
-  display: flex;
-  max-width: min(62vw, 46rem);
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem;
-  overflow-x: auto;
-  border: 1px solid rgb(92 223 255 / 30%);
-  background: rgb(7 9 22 / 92%);
+  display: grid;
+  justify-items: end;
 }
 
-.quick-access span {
-  padding-inline: 0.55rem;
-  color: var(--muted);
-  font-size: 0.68rem;
+.quick-access-trigger {
+  display: flex;
+  min-width: 10.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgb(92 223 255 / 34%);
+  background: #090c1d;
+  cursor: pointer;
+}
+
+.quick-access-trigger span {
+  color: #c7d5f5;
+  font-size: 0.7rem;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  white-space: nowrap;
 }
 
-.quick-access button,
+.quick-access-trigger b {
+  color: var(--cyan);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.quick-access nav {
+  display: grid;
+  width: min(17rem, calc(100vw - 2rem));
+  margin-top: 0.4rem;
+  border: 1px solid rgb(138 99 255 / 45%);
+  background: #090c1d;
+  box-shadow: 0 18px 50px rgb(3 4 12 / 70%);
+}
+
+.quick-access nav[hidden] {
+  display: none;
+}
+
+.quick-access nav button,
 .panel-close {
   border: 0;
   background: transparent;
   cursor: pointer;
 }
 
-.quick-access button {
-  padding: 0.55rem 0.7rem;
-  color: #b9c8ea;
-  font-size: 0.76rem;
-  white-space: nowrap;
+.quick-access nav button {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  color: #c1cdea;
+  border-bottom: 1px solid rgb(48 64 100 / 65%);
+  font-size: 0.78rem;
+  text-align: left;
 }
 
-.quick-access button:hover,
-.quick-access button:focus-visible {
+.quick-access nav button:last-child {
+  border-bottom: 0;
+}
+
+.quick-access nav button span {
+  color: var(--magenta);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.quick-access nav button:hover,
+.quick-access nav button:focus-visible {
   color: var(--ink);
   background: var(--cyan);
   outline: none;
+}
+
+.quick-access nav button:hover span,
+.quick-access nav button:focus-visible span {
+  color: #4e175d;
 }
 
 .interaction-prompt {
@@ -196,6 +262,19 @@ kbd {
   border-left: 1px solid rgb(205 85 255 / 45%);
   background: #0b0e20;
   box-shadow: -30px 0 80px rgb(3 4 12 / 75%);
+  animation: panel-enter 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .station-panel header {
@@ -287,8 +366,7 @@ kbd {
 }
 
 @media (max-width: 800px) {
-  .identity-lockup p,
-  .quick-access span {
+  .identity-lockup p {
     display: none;
   }
 
@@ -296,8 +374,8 @@ kbd {
     font-size: 1rem;
   }
 
-  .quick-access {
-    max-width: 64vw;
+  .quick-access-trigger {
+    min-width: auto;
   }
 
   .interaction-prompt {

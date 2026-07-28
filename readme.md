@@ -5,6 +5,11 @@
 
 > 一个赛博朋克像素风互动个人主页，通过探索一个未来 AI 实验室空间，展示个人经历、项目、技术能力以及 AI 工程理念。
 
+当前状态：**v0.1 可探索房间骨架**。已经支持自由移动、碰撞、五个交互站点、React 内容侧栏和 Quick Access。
+
+- 开发与下一轮计划：[Development Roadmap](./docs/development-roadmap.md)
+- 本地启动：`nvm use && npm install && npm run dev`
+
 ---
 
 # 1. Project Overview
@@ -112,7 +117,7 @@ Chat
 
 核心：
 
-- 一个固定场景
+- 一个完整且可自由移动的房间
 - 少量交互对象
 - NPC 对话
 - 项目展示
@@ -193,7 +198,8 @@ Hong Kong
 主要元素：
 
 - 深色背景
-- 青紫霓虹光
+- 青紫系统光与霓虹氛围
+- 暖琥珀 / 朱红作为个人空间和记忆区域的辅助色
 - 全息屏幕
 - AI 服务器
 - 机器人
@@ -209,6 +215,8 @@ AI research lab
 +
 Pixel RPG style
 ```
+
+青紫是有意选择的主色方向，但不能只依赖通用渐变和发光效果。香港雨夜、双语环境细节、个人物品和真实工程内容负责建立辨识度。
 
 ---
 
@@ -243,9 +251,9 @@ Pixel RPG style
 
 ```
 
-用户通过点击对象进行交互。
+角色可以在房间内使用 WASD / 方向键自由移动。
 
-不需要复杂移动系统。
+靠近设备后按 `E` / 空格交互，也可以直接点击设备。移动用于探索空间，但不扩展成任务、战斗或大型 RPG 系统。
 
 ---
 
@@ -261,11 +269,11 @@ Pixel RPG style
 
 位置：
 
-实验室中央。
+实验室左上方的 Companion Dock，后续可以在房间内进行轻量移动。
 
 ## Interaction
 
-点击机器人：
+靠近或点击机器人：
 
 ```
 AI Assistant:
@@ -342,11 +350,11 @@ Agent System
 
 ---
 
-# 7.3 RAG Core
+# 7.3 Living AI Core
 
 ## Role
 
-展示 AI 技术能力。
+房间中央的视觉与叙事核心，展示 AI 技术能力以及整个实验室如何连接。RAG 是其中一条系统管线，而不是网站主题本身。
 
 展示：
 
@@ -654,47 +662,17 @@ Hong Kong cyber city atmosphere
 
 # 11. Development Roadmap
 
-# Version 0.1 - MVP
+详细开发状态、限制、验收标准和决策记录维护在：
 
-目标：
+> [docs/development-roadmap.md](./docs/development-roadmap.md)
 
-完成第一个可访问 Demo。
+当前阶段：
 
-包含：
-
-- 一个实验室场景
-- 一个角色
-- 4 个交互对象
-- NPC 对话
-- 项目展示
-
-预计：
-
-2 周
-
----
-
-# Version 0.2
-
-增强体验：
-
-- Loading 页面
-- 动画
-- 音效
-- 更丰富 UI
-
----
-
-# Version 0.3
-
-AI Integration：
-
-增加：
-
-- AI Assistant
-- LLM Chat
-- 动态项目介绍
-- 隐藏彩蛋
+- `v0.1` — 已完成可移动房间、碰撞、五个站点、React / Phaser 事件桥
+- `v0.2` — 下一轮完成稳定的交互垂直切片，仍使用占位美术
+- `v0.3` — 房间比例锁定后接入 Tiled 和正式像素素材
+- `v0.4` — 填充个人经历、代表性工作和工程证据
+- `v0.5` — 最后评估真实 AI Assistant、音效和隐藏内容
 
 ---
 
@@ -780,9 +758,9 @@ AI Integration
 
 # Next Steps
 
-1. 确定实验室视觉草图
-2. 收集 / 生成像素素材
-3. 创建 Phaser 基础场景
-4. 实现 NPC 系统
-5. 填充个人项目内容
-6. 接入 AI Assistant
+1. Playtest 当前房间尺寸、动线和碰撞
+2. 增加四方向角色动画与访问状态
+3. 完成一个代表性内容面板的垂直切片
+4. 锁定房间网格后再接入 Tiled 和正式像素素材
+5. 逐步填充经历、项目与工程证据
+6. 最后评估 AI Assistant 和音效
