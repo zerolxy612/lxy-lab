@@ -1,6 +1,7 @@
 import {
   experiencePrinciples,
   experienceTimeline,
+  publicEvidenceRequirement,
 } from '../content/experience'
 
 export function ExperienceArchive() {
@@ -39,9 +40,22 @@ export function ExperienceArchive() {
         </ol>
       </section>
 
-      <p className="evidence-note">
-        Public case studies, screenshots, and measurable outcomes will be linked as each piece is cleared for publication.
-      </p>
+      <section className="evidence-card" aria-labelledby="experience-evidence-title">
+        <div className="section-heading">
+          <span>03</span>
+          <h3 id="experience-evidence-title">Public evidence</h3>
+        </div>
+        <div className="evidence-status">
+          <span>{publicEvidenceRequirement.statusLabel}</span>
+          <strong>{publicEvidenceRequirement.title}</strong>
+        </div>
+        <p>{publicEvidenceRequirement.description}</p>
+        <ul aria-label="Accepted evidence formats">
+          {publicEvidenceRequirement.acceptedFormats.map((format) => (
+            <li key={format}>{format}</li>
+          ))}
+        </ul>
+      </section>
     </div>
   )
 }

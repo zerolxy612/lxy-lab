@@ -9,9 +9,9 @@ export interface ExperienceEntry {
 export const experienceTimeline: readonly ExperienceEntry[] = [
   {
     period: '2025 — Present',
-    organization: 'Hong Kong Generative AI R&D Center',
+    organization: 'HKGAI · HKUST-affiliated',
     role: 'AI Application Engineering',
-    context: 'Turning generative AI research into application workflows and product experiences.',
+    context: 'Turning generative AI research at HKGAI into application workflows and product experiences.',
     focus: [
       'AI-native applications',
       'Agent systems and retrieval workflows',
@@ -36,3 +36,14 @@ export const experiencePrinciples = [
   'Make system behavior legible to the people using it.',
   'Treat frontend quality and AI architecture as one product experience.',
 ] as const
+
+export const publicEvidenceRequirement = {
+  statusLabel: 'Awaiting owner approval',
+  title: 'One verified work sample needed',
+  description: 'The field record describes scope and direction. Publication proof is intentionally withheld until Xiangyu confirms what can be shared.',
+  acceptedFormats: [
+    'A public case-study or product link',
+    'An approved screenshot with a short ownership note',
+    'A publishable outcome or metric with context',
+  ],
+} as const

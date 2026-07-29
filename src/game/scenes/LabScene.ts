@@ -5,10 +5,19 @@ import { labBridge } from '../bridge'
 import { LAB_HEIGHT, LAB_WIDTH } from '../config'
 import { Player } from '../entities/Player'
 import {
-  labWorldBounds,
-  playerSpawn,
-  staticObstacles,
-  stationLayouts,
+  EXPERIENCE_ARCHIVE_ORIGIN_Y,
+  EXPERIENCE_ARCHIVE_TEXTURE_KEY,
+} from '../art/experienceArchiveArt'
+import {
+  LIVING_CORE_ORIGIN_Y,
+  LIVING_CORE_TEXTURE_KEY,
+} from '../art/livingCoreArt'
+import {
+  getStationCollisionRect,
+  LAB_MAP_KEY,
+  parseLabMap,
+  ROOM_TILESET_KEY,
+  type LabLayout,
   type StationLayout,
 } from '../layout/labLayout'
 import {
@@ -43,21 +52,27 @@ export class LabScene extends Phaser.Scene {
   private debugLabel!: Phaser.GameObjects.Text
   private readonly collisionDebugRects: Phaser.Geom.Rectangle[] = []
   private readonly interactionDebugRects: Phaser.Geom.Rectangle[] = []
+  private layout!: LabLayout
 
   constructor() {
     super('lab')
   }
 
   create() {
+    const cachedMap = this.cache.tilemap.get(LAB_MAP_KEY) as { data?: unknown } | undefined
+    this.layout = parseLabMap(cachedMap?.data)
+    const { worldBounds, playerSpawn, staticObstacles, stations: stationLayouts } = this.layout
+
     this.physics.world.setBounds(
-      labWorldBounds.x,
-      labWorldBounds.y,
-      labWorldBounds.width,
-      labWorldBounds.height,
+      worldBounds.x,
+      worldBounds.y,
+      worldBounds.width,
+      worldBounds.height,
     )
     this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    this.drawArchitecture()
+    this.drawRoomBackdrop()
+    this.drawTiledSurfaces()
     this.drawHongKongWindow()
     this.drawFloorConduits()
     this.drawPersonalCorner()
@@ -111,7 +126,7 @@ export class LabScene extends Phaser.Scene {
     }
   }
 
-  private drawArchitecture() {
+  private drawRoomBackdrop() {
     this.cameras.main.setBackgroundColor('#050612')
 
     const room = this.add.graphics().setDepth(0)
@@ -126,14 +141,6 @@ export class LabScene extends Phaser.Scene {
 
     room.fillStyle(0x10152a)
     room.fillRect(58, 176, LAB_WIDTH - 116, LAB_HEIGHT - 216)
-
-    room.lineStyle(1, 0x253154, 0.48)
-    for (let x = 76; x < LAB_WIDTH - 58; x += 32) {
-      room.lineBetween(x, 176, x, LAB_HEIGHT - 40)
-    }
-    for (let y = 192; y < LAB_HEIGHT - 40; y += 32) {
-      room.lineBetween(58, y, LAB_WIDTH - 58, y)
-    }
 
     room.lineStyle(3, 0x2c3961, 0.95)
     room.strokeRect(42, 54, LAB_WIDTH - 84, LAB_HEIGHT - 70)
@@ -151,6 +158,21 @@ export class LabScene extends Phaser.Scene {
       fontSize: '9px',
       letterSpacing: 2,
     }).setDepth(3)
+  }
+
+  private drawTiledSurfaces() {
+    const map = this.make.tilemap({ key: LAB_MAP_KEY })
+    const tileset = map.addTilesetImage('room-base-v1', ROOM_TILESET_KEY)
+    if (!tileset) throw new Error('Unable to attach room-base-v1 tileset')
+
+    const floor = map.createLayer('Floor', tileset)
+    const structure = map.createLayer('Structure', tileset)
+    if (!floor || !structure) {
+      throw new Error('Tiled map must include Floor and Structure tile layers')
+    }
+
+    floor.setDepth(1)
+    structure.setDepth(1)
   }
 
   private drawHongKongWindow() {
@@ -290,26 +312,37 @@ export class LabScene extends Phaser.Scene {
   private createStation(layout: StationLayout): InteractiveStation {
     const { id, x, y, width, height, interactionPadding } = layout
     const container = this.drawStation(layout)
-    const obstacle = this.createStaticBlock(x, y, width, height)
+    const collision = getStationCollisionRect(layout)
+    const obstacle = this.createStaticBlock(
+      collision.x,
+      collision.y,
+      collision.width,
+      collision.height,
+    )
     this.physics.add.collider(this.player, obstacle)
 
     const focusFrame = this.add.rectangle(x, y, width + 10, height + 10)
       .setStrokeStyle(2, layout.color, 0.2)
-      .setDepth(14)
+      .setDepth(1000)
 
-    const label = this.add.text(x, y + height / 2 + 12, stationById[id].title.toUpperCase(), {
-      color: Phaser.Display.Color.IntegerToColor(layout.color).rgba,
-      fontFamily: 'sans-serif',
-      fontSize: '9px',
-      fontStyle: 'bold',
-      letterSpacing: 1.5,
-    }).setOrigin(0.5, 0).setAlpha(0.55).setDepth(15)
+    const label = this.add.text(
+      x,
+      y + height / 2 + (layout.labelGap ?? 12),
+      stationById[id].title.toUpperCase(),
+      {
+        color: Phaser.Display.Color.IntegerToColor(layout.color).rgba,
+        fontFamily: 'sans-serif',
+        fontSize: '9px',
+        fontStyle: 'bold',
+        letterSpacing: 1.5,
+      },
+    ).setOrigin(0.5, 0).setAlpha(0.55).setDepth(1001)
 
     const visitedMark = this.add.text(x + width / 2 - 2, y - height / 2 - 3, '◆', {
       color: '#8a63ff',
       fontFamily: 'sans-serif',
       fontSize: '11px',
-    }).setOrigin(1, 0).setAlpha(0).setDepth(15)
+    }).setOrigin(1, 0).setAlpha(0).setDepth(1001)
 
     const zoneWidth = width + interactionPadding
     const zoneHeight = height + interactionPadding
@@ -371,64 +404,44 @@ export class LabScene extends Phaser.Scene {
     return container
   }
 
-  private drawExperienceArchive({ x, y, width, height, color }: StationLayout) {
-    const container = this.add.container(x, y).setDepth(8).setAlpha(0.88)
-    const art = this.add.graphics()
-    art.fillStyle(0x171c34)
-    art.fillRoundedRect(-width / 2, -height / 2, width, height, 4)
-    art.lineStyle(2, color, 0.7)
-    art.strokeRoundedRect(-width / 2, -height / 2, width, height, 4)
+  private drawExperienceArchive({ x, y }: StationLayout) {
+    const container = this.add.container(x, y).setDepth(y).setAlpha(0.98)
+    const memoryGlow = this.add.ellipse(-42, 5, 92, 78, 0xffc45c, 0.07)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const researchGlow = this.add.ellipse(50, 0, 76, 68, 0x5cdfff, 0.05)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const art = this.add.image(0, 0, EXPERIENCE_ARCHIVE_TEXTURE_KEY)
+      .setOrigin(0.5, EXPERIENCE_ARCHIVE_ORIGIN_Y)
+    container.add([memoryGlow, researchGlow, art])
 
-    for (let row = 0; row < 3; row += 1) {
-      art.fillStyle(0x0b1024)
-      art.fillRect(-width / 2 + 12, -height / 2 + 13 + row * 29, 74, 21)
-      art.fillStyle(row === 1 ? 0xcd55ff : 0x5cdfff, 0.8)
-      art.fillRect(-width / 2 + 20, -height / 2 + 21 + row * 29, 30, 3)
+    if (!this.reducedMotion) {
+      this.tweens.add({
+        targets: [memoryGlow, researchGlow],
+        alpha: { from: 0.035, to: 0.095 },
+        duration: 2400,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.InOut',
+      })
     }
 
-    art.fillStyle(0x242946)
-    art.fillRect(16, -height / 2 + 15, 60, 48)
-    art.fillStyle(0xffc45c, 0.8)
-    art.fillRect(25, -height / 2 + 24, 42, 4)
-    art.fillStyle(0x0c1020)
-    art.fillRect(12, 28, 68, 19)
-    container.add(art)
     return container
   }
 
   private drawLivingCore({ x, y, color }: StationLayout) {
-    const container = this.add.container(x, y).setDepth(9)
-    const base = this.add.graphics()
-    base.fillStyle(0x080d20)
-    base.fillEllipse(0, 44, 152, 44)
-    base.lineStyle(4, 0x8a63ff, 0.8)
-    base.strokeEllipse(0, 44, 138, 34)
-    base.lineStyle(2, color, 0.9)
-    base.strokeEllipse(0, 38, 112, 26)
-    base.fillStyle(0x101a35)
-    base.fillRoundedRect(-53, -47, 106, 91, 12)
-    base.lineStyle(3, color, 0.9)
-    base.strokeRoundedRect(-53, -47, 106, 91, 12)
-    container.add(base)
-
-    const graph = this.add.graphics()
-    graph.lineStyle(2, 0x5cdfff, 0.78)
-    const edges = [
-      [0, 28, 0, 5], [0, 5, -23, -10], [0, 5, 25, -12],
-      [-23, -10, -35, -31], [-23, -10, -10, -30],
-      [25, -12, 12, -34], [25, -12, 39, -29],
-    ] as const
-    edges.forEach(([x1, y1, x2, y2]) => graph.lineBetween(x1, y1, x2, y2))
-    graph.fillStyle(0xcd55ff)
-    ;[[0, 28], [0, 5], [-23, -10], [25, -12], [-35, -31], [-10, -30], [12, -34], [39, -29]]
-      .forEach(([nodeX, nodeY], index) => graph.fillCircle(nodeX, nodeY, index < 2 ? 4 : 3))
-    container.add(graph)
+    const container = this.add.container(x, y).setDepth(y).setAlpha(0.96)
+    const aura = this.add.ellipse(0, 4, 152, 118, color, 0.08)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const art = this.add.image(0, 0, LIVING_CORE_TEXTURE_KEY)
+      .setOrigin(0.5, LIVING_CORE_ORIGIN_Y)
+    container.add([aura, art])
 
     if (!this.reducedMotion) {
       this.tweens.add({
-        targets: graph,
-        alpha: { from: 0.48, to: 1 },
-        duration: 1400,
+        targets: aura,
+        alpha: { from: 0.04, to: 0.14 },
+        scale: { from: 0.96, to: 1.04 },
+        duration: 1800,
         yoyo: true,
         repeat: -1,
         ease: 'Sine.InOut',
@@ -550,13 +563,13 @@ export class LabScene extends Phaser.Scene {
 
   private createDebugOverlay() {
     this.debugKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.F2)
-    this.debugGraphics = this.add.graphics().setDepth(90).setVisible(false)
+    this.debugGraphics = this.add.graphics().setDepth(2000).setVisible(false)
     this.debugLabel = this.add.text(LAB_WIDTH - 68, LAB_HEIGHT - 31, 'F2 / DEBUG', {
       color: '#586687',
       fontFamily: 'sans-serif',
       fontSize: '9px',
       letterSpacing: 1,
-    }).setOrigin(1, 0).setDepth(91)
+    }).setOrigin(1, 0).setDepth(2001)
   }
 
   private renderDebugOverlay() {
@@ -564,6 +577,7 @@ export class LabScene extends Phaser.Scene {
     this.debugLabel.setColor(this.debugVisible ? '#ffc45c' : '#586687')
 
     if (!this.debugVisible) return
+    const { worldBounds, playerSpawn } = this.layout
 
     this.debugGraphics.fillStyle(0xff4d72, 0.1)
     this.debugGraphics.lineStyle(2, 0xff4d72, 0.85)
@@ -582,10 +596,10 @@ export class LabScene extends Phaser.Scene {
     this.debugGraphics.lineStyle(2, 0xffc45c, 0.9)
     this.debugGraphics.strokeRectShape(
       new Phaser.Geom.Rectangle(
-        labWorldBounds.x,
-        labWorldBounds.y,
-        labWorldBounds.width,
-        labWorldBounds.height,
+        worldBounds.x,
+        worldBounds.y,
+        worldBounds.width,
+        worldBounds.height,
       ),
     )
     this.debugGraphics.fillStyle(0x8a63ff, 1)

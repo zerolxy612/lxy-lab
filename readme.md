@@ -5,9 +5,10 @@
 
 > 一个赛博朋克像素风互动个人主页，通过探索一个未来 AI 实验室空间，展示个人经历、项目、技术能力以及 AI 工程理念。
 
-当前状态：**v0.2 交互垂直切片**。已经支持四方向自由移动、碰撞、五个带访问状态的交互站点、Experience Archive、React 内容侧栏和 Quick Access。
+当前状态：**v0.3 正式美术与地图管线（技术验收完成）**。Xiangyu 四方向角色、Living AI Core、Experience Archive 和 room base tileset v1 已接入；Tiled 已接管视觉表面、世界边界、碰撞、出生点和五个站点。招聘者内容仍有一个明确发布门槛：至少补充一条经 Xiangyu 确认、可公开的工作证据。下一步进入 v0.4：作品内容、Resume、Contact、SEO 与发布准备。
 
 - 开发与下一轮计划：[Development Roadmap](./docs/development-roadmap.md)
+- Tiled 对象层规范：[Tiled Map Schema](./docs/tiled-map-schema.md)
 - 本地启动：`nvm use && npm install && npm run dev`
 - 房间内操作：WASD / 方向键移动，`E` / 空格交互，`F2` 显示碰撞与交互范围
 
@@ -596,6 +597,8 @@ xiangyu-ai-lab/
 │   │   ├── projects.ts
 │   │   └── stations.ts
 │   ├── game/
+│   │   ├── art/
+│   │   │   └── playerArt.ts
 │   │   ├── bridge.ts
 │   │   ├── config.ts
 │   │   ├── createGame.ts
@@ -675,7 +678,7 @@ Hong Kong cyber city atmosphere
 
 - `v0.1` — 已完成可移动房间、碰撞、五个站点、React / Phaser 事件桥
 - `v0.2` — 已完成稳定的交互垂直切片，当前仍使用程序化占位美术
-- `v0.3` — 下一轮锁定像素规范，制作代表性正式美术切片并建立 Tiled 地图管线
+- `v0.3` — 已完成像素规范、代表性正式美术切片与 Tiled 地图管线
 - `v0.4` — 填充个人经历、代表性工作和工程证据
 - `v0.5` — 最后评估真实 AI Assistant、音效和隐藏内容
 
@@ -763,10 +766,9 @@ AI Integration
 
 # Next Steps
 
-进入 `v0.3`：正式美术与地图管线。
+进入 `v0.4`：招聘者内容与发布准备。
 
-1. 锁定 tile size、人物尺寸、家具占地、缩放规则和色彩 tokens。
-2. 以 Xiangyu 四方向玩家角色作为全套素材的比例基准。
-3. 制作 Living AI Core 与 Experience Archive 代表性美术切片。
-4. 用正式素材替换占位图，并保持移动、碰撞、站点状态和 Quick Access 不回退。
-5. 将碰撞层、出生点和五个站点迁移到 Tiled 地图数据。
+1. 为 Experience Archive 补至少一条经本人确认、可公开的链接、截图或结果证据。
+2. 把 Selected Work 扩展为“问题、责任、决策、结果、证据”的案例结构。
+3. 增加 Resume、Contact、SEO、Open Graph 和分享预览。
+4. 完成招聘者阅读路径与跨浏览器验证。

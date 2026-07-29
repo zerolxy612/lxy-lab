@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { RefObject } from 'react'
 import type { StationId } from '../content/stations'
 import { stations } from '../content/stations'
 
 interface QuickAccessProps {
+  triggerRef: RefObject<HTMLButtonElement | null>
   visitedStations: ReadonlySet<StationId>
   onSelect: (stationId: StationId) => void
 }
 
-export function QuickAccess({ visitedStations, onSelect }: QuickAccessProps) {
+export function QuickAccess({ triggerRef, visitedStations, onSelect }: QuickAccessProps) {
   const [open, setOpen] = useState(false)
-  const trigger = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!open) return
@@ -17,22 +18,23 @@ export function QuickAccess({ visitedStations, onSelect }: QuickAccessProps) {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
       setOpen(false)
-      trigger.current?.focus()
+      triggerRef.current?.focus()
     }
 
     window.addEventListener('keydown', closeOnEscape)
     return () => window.removeEventListener('keydown', closeOnEscape)
-  }, [open])
+  }, [open, triggerRef])
 
   const selectStation = (stationId: StationId) => {
-    onSelect(stationId)
     setOpen(false)
+    triggerRef.current?.focus()
+    onSelect(stationId)
   }
 
   return (
     <div className="quick-access" data-open={open}>
       <button
-        ref={trigger}
+        ref={triggerRef}
         className="quick-access-trigger"
         aria-expanded={open}
         aria-controls="quick-access-menu"

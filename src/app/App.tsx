@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { StationId } from '../content/stations'
 import { labBridge } from '../game/bridge'
 import { GameViewport } from '../ui/GameViewport'
@@ -7,6 +7,7 @@ import { PanelHost } from '../ui/PanelHost'
 import { QuickAccess } from '../ui/QuickAccess'
 
 export function App() {
+  const quickAccessTrigger = useRef<HTMLButtonElement>(null)
   const [nearbyStation, setNearbyStation] = useState<StationId | null>(null)
   const [activeStation, setActiveStation] = useState<StationId | null>(null)
   const [visitedStations, setVisitedStations] = useState<StationId[]>([])
@@ -77,7 +78,11 @@ export function App() {
       </div>
 
       <div id="quick-access">
-        <QuickAccess visitedStations={visitedStationSet} onSelect={openStation} />
+        <QuickAccess
+          triggerRef={quickAccessTrigger}
+          visitedStations={visitedStationSet}
+          onSelect={openStation}
+        />
       </div>
 
       <InteractionPrompt
@@ -86,7 +91,11 @@ export function App() {
         visited={nearbyStation ? visitedStationSet.has(nearbyStation) : false}
       />
       <p className="mobile-guide">Explore the full archive through Quick Access.</p>
-      <PanelHost stationId={activeStation} onClose={closePanel} />
+      <PanelHost
+        stationId={activeStation}
+        returnFocusRef={quickAccessTrigger}
+        onClose={closePanel}
+      />
     </main>
   )
 }

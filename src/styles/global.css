@@ -71,6 +71,7 @@ button {
   display: block;
   width: 100% !important;
   height: 100% !important;
+  image-rendering: pixelated;
 }
 
 .game-viewport:focus-visible {
@@ -362,6 +363,8 @@ kbd {
 }
 
 .panel-close {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
   padding: 0.45rem;
   color: var(--muted);
   border-bottom: 1px solid var(--line);
@@ -524,13 +527,49 @@ kbd {
   font-weight: 800;
 }
 
-.evidence-note {
+.evidence-card {
   margin: 0;
   padding: 1rem;
   color: #8494b7;
   border: 1px dashed rgb(138 99 255 / 40%);
   font-size: 0.78rem;
   line-height: 1.5;
+}
+
+.evidence-card .section-heading {
+  margin-bottom: 0.85rem;
+}
+
+.evidence-card > p {
+  margin: 0.75rem 0;
+}
+
+.evidence-card ul {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.evidence-status {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.evidence-status span {
+  width: fit-content;
+  padding: 0.22rem 0.45rem;
+  color: var(--amber);
+  border: 1px solid rgb(255 186 73 / 45%);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.evidence-status strong {
+  color: #dce7ff;
+  font-size: 0.88rem;
 }
 
 .mobile-guide {

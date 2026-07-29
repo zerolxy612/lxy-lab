@@ -16,7 +16,7 @@
 | 视觉方向 | 青紫系统光为主，香港雨夜与个人物品建立辨识度 | 暖色只用于记忆、生活区域和少量强调 |
 | AI Assistant | 后期能力，不是当前核心 | 先做策划问题和导航，再决定是否连接 LLM |
 
-## 2. Current Implementation — v0.2
+## 2. Current Implementation — v0.3
 
 ### 2.1 Stack and Runtime Boundary
 
@@ -43,16 +43,16 @@ Phaser Canvas Layer
 
 Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存当前面板、访问记录和快捷导航状态。`src/game/bridge.ts` 是两层间唯一业务通信边界。Phaser 动态导入，身份信息和 Quick Access 可以先显示。
 
-### 2.2 Implemented in This Iteration
+### 2.2 Stable Runtime and Interaction Baseline
 
-- 房间布局、出生点、障碍物和五个站点从 `LabScene.ts` 抽离到 `src/game/layout/labLayout.ts`。
-- 角色具有上、下、左、右 idle / walk 程序化占位帧；对角移动归一化。
+- Tiled `.tmj` 是房间视觉图层、出生点、障碍物和五个站点的唯一空间数据来源。
+- 角色使用上、下、左、右 idle / walk 正式 spritesheet；对角移动归一化。
 - 首次移动前显示 WASD 引导，移动后提示转为靠近站点探索。
 - 五个站点统一支持 nearby、hover、active 和 visited 视觉状态。
 - 房间与 Quick Access 共享访问记录；访问过的站点显示菱形标记和进度 `n/5`。
 - Experience Archive 使用独立内容数据，展示真实经历方向与工作原则，不突出 LexiHK。
 - Quick Access 与房间站点打开同一个 React 面板，避免两套内容漂移。
-- 面板支持 Escape 关闭和焦点恢复；Canvas 可获取键盘焦点。
+- 面板支持 Escape 关闭和焦点恢复；从房间打开时返回 Canvas，从 Quick Access 打开时返回稳定触发按钮。
 - `prefers-reduced-motion` 同时影响 DOM 与 Phaser 场景动画。
 - `F2` 可显示房间边界、碰撞体、交互范围和出生点。
 - 小屏切换为内容优先的底部面板，并保留 44px 级触控目标。
@@ -63,10 +63,10 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 - `npm run typecheck`
 - `npm run lint`
-- `npm run test`（2 个文件，4 项测试）
+- `npm run test`（6 个文件，15 项测试）
 - `npm run build`
 
-布局测试会检查站点注册表一致性和出生点安全性；事件桥测试覆盖激活与访问状态同步。
+布局测试会检查站点注册表一致性、出生点安全性和正式站点素材的视觉 / 碰撞分离；事件桥与素材契约测试覆盖激活、访问状态和纹理尺寸。
 
 生产构建中 React 初始块约 201 kB（gzip 64 kB），延迟加载的 Phaser 块约 1.21 MB（gzip 324 kB）。Phaser 的体积提示仍存在，但不会阻塞 DOM 首屏。
 
@@ -84,18 +84,40 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 ## 4. Known Limitations
 
-- 房间、城市、设备和角色仍由 Phaser Graphics 程序化绘制，不是最终像素美术。
-- 角色帧验证了方向和节奏，但还没有人物辨识度与完整 sprite sheet。
-- 碰撞体是简化矩形，需在正式家具素材确定后重新贴合。
-- 布局已配置化，但尚未接入 Tiled 对象层。
+- 房间、城市和其余设备仍主要由 Phaser Graphics 程序化绘制；玩家、Living AI Core 与 Experience Archive 已替换为首版正式素材。
+- 玩家 v1 目前每方向只有 idle / walk 两帧，发布前仍需人工像素清理和更完整的步态验证。
+- 碰撞体已进入 Tiled，但仍是简化矩形；其余正式家具确定后需要继续贴合。
+- Tiled 对象层和首版视觉 tile layers 已接入；最底层房间底板、外框与香港窗景仍由 Phaser Graphics 绘制。
 - Experience Archive 缺少可公开截图、案例链接、量化影响和简历下载。
 - 其余站点仍以结构性内容为主，Selected Work 的案例深度不足。
 - 访问状态只保存在当前 React 会话，刷新后不会保留。
 - 手机端以 Quick Access 为主，不提供触控移动。
 - 没有声音、Boot sequence、真实 NPC 路径或在线 AI Assistant。
-- 暂无正式像素素材清单、尺寸规范和版权台账。
+- 正式像素规范、资产台账、三项代表性 sprite 与 room base tileset v1 已建立；其余 prop 清单留待后续扩展。
 
-## 5. Next Iteration — v0.3 Art and Map Pipeline
+## 5. Current Iteration — v0.3 Art and Map Pipeline
+
+状态：**美术与地图技术验收已完成；发布内容验收仍有一项待确认**
+
+已完成的第一步：
+
+- 建立 `docs/pixel-art-spec.md`，锁定 16 px 网格、40 × 48 px 玩家帧、脚部碰撞和首版色彩 tokens。
+- 生成并整理 Xiangyu 四方向 2 帧 spritesheet，保留生成源图和资产台账。
+- 正式角色已接入 Phaser；下、左、右、上使用独立帧，不再依赖程序化占位角色或水平翻转。
+- 浏览器实测角色加载、右向移动、首次移动状态和站点面板正常。
+- Living AI Core v1 已接入，使用独立视觉范围、底座碰撞和基于 y 的玩家前后遮挡。
+- 浏览器实测 Core 比例、点击交互和原有 React 面板协议正常。
+- Experience Archive v1 已接入：暖色经历侧包含原创企鹅纪念物，冷色研究侧使用非 Logo 的 HKGAI / HKUST 线索。
+- Archive 使用独立视觉、碰撞与标签间距；浏览器实测相邻站点无重叠，点击面板与 Quick Access 访问状态正常。
+- 经历表述更新为 `HKGAI · HKUST-affiliated`，明确当前研究机构背景。
+- 新增 `lab-v1.tmj`，将世界边界、玩家出生点、3 个静态障碍物和 5 个站点及其碰撞迁入 Tiled 对象层。
+- `labLayout.ts` 改为运行时解析与校验边界，不再保存重复的硬编码坐标。
+- 地图测试直接读取生产 `.tmj`，覆盖 16 px schema、站点完整性、出生安全和视觉 / 碰撞分离。
+- 浏览器实测地图加载、正式素材显示、站点点击和 Quick Access 访问状态正常。
+- Room base tileset v1 已接入，Floor 与 Structure 图层正式迁移到 Tiled；旧的程序化地板网格已移除。
+- 首次浏览器检查发现单 tile 纹理过密后，将 16 个面板概念重新拆分为 256 个 16 px tiles；二次检查确认墙板、地板、窗景和站点层级清晰。
+
+v0.3 美术与地图技术范围已经完成。Experience Archive 已明确显示证据审批状态，但至少一条真实公开证据仍是招聘者版本的发布门槛；Resume、Contact、SEO 和发布路径进入 v0.4。
 
 ### Goal
 
@@ -105,25 +127,26 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 ### Priority 1 — Visual Specification
 
-- 锁定 tile size、角色逻辑尺寸、家具占地和像素缩放规则。
-- 定义青紫主光、暖色生活区、背景黑阶和状态色 token。
+- 锁定 tile size、角色逻辑尺寸、家具占地和像素缩放规则。（已完成并通过核心区域验证）
+- 定义青紫主光、暖色生活区、背景黑阶和状态色 token。（首版已完成）
 - 建立 sprite、tileset、prop、portrait、ambience 的命名及导出规范。
 - 建立素材来源、生成方式、人工修改和版权台账。
 
 ### Priority 2 — Representative Art Slice
 
-- 优先正式绘制玩家、中央 Living AI Core 和 Experience Archive 区域。
-- 给角色补四方向 sprite sheet、idle 姿态和可辨识的个人细节。
+- 优先正式绘制玩家、中央 Living AI Core 和 Experience Archive 区域。（三项 v1 均已接入）
+- 给角色补四方向 sprite sheet、idle 姿态和可辨识的个人细节。（v1 已接入）
 - 用香港窗景、双语标记与桌面物品建立地域和人物记忆点。
 - 保持当前青紫主色，但减少平均铺满的霓虹发光。
 
 ### Priority 3 — Map Pipeline
 
-- 评估并接入 Tiled：地图层、碰撞层、出生点和站点对象层。
-- 将 `labLayout.ts` 作为迁移前的稳定数据契约，而不是立即删除。
-- 给地图数据增加构建时校验，确保站点 ID 继续匹配内容注册表。
+- 接入 Tiled 的碰撞层、出生点和站点对象层。（已完成）
+- 将 `labLayout.ts` 从硬编码布局改为地图解析与校验边界。（已完成）
+- 给地图数据增加自动校验，确保站点 ID 继续匹配内容注册表。（已完成）
+- 制作基础 room tileset，迁移地板、墙体和主要建筑结构。（首版已完成）
 
-### Priority 4 — Content Evidence
+### v0.4 Priority 0 — Content Evidence
 
 - 与用户确认可公开的职位表述、项目责任、截图和链接。
 - 为 Experience Archive 补“背景 → 负责内容 → 关键决策 → 结果 / 证据”。
@@ -137,7 +160,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 - 至少一个房间局部达到接近最终品质，玩家可在其中正常移动并与站点交互。
 - 地图数据可以表达碰撞、出生点和五个站点，且通过自动校验。
 - 替换素材后现有移动、访问状态、Quick Access 和无障碍路径不回退。
-- Experience Archive 至少有一条经确认、可公开的证据。
+- Experience Archive 在 UI 中明确区分经历描述与待确认的公开证据；发布招聘者版本前，至少需要一条经 Xiangyu 确认的案例链接、截图或带上下文的结果证据。
 - 类型、Lint、测试和生产构建继续通过。
 
 ### Explicit Non-goals
@@ -178,3 +201,5 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 - 完成 v0.1 程序化房间骨架。
 - 完成 v0.2 交互垂直切片：布局配置化、四向反馈、访问状态、Experience Archive、调试层和响应式内容路径。
 - v0.3 转向正式美术规范、代表性区域和地图数据管线。
+- 完成 v0.3 代表性美术切片：Xiangyu 玩家、Living AI Core 与 Experience Archive v1 接入并通过浏览器交互验证。
+- 完成 v0.3 正式美术与地图管线：room base tileset、Tiled 视觉 / 对象层、自动校验和最终交互回归全部就位。

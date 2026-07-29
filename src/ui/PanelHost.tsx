@@ -1,15 +1,19 @@
 import { useEffect, useRef } from 'react'
+import type { RefObject } from 'react'
 import type { StationId } from '../content/stations'
 import { stationById } from '../content/stations'
 import { selectedProjects } from '../content/projects'
 import { ExperienceArchive } from './ExperienceArchive'
+import { restoreFocus } from './focusReturn'
 
 interface PanelHostProps {
   stationId: StationId | null
+  returnFocusRef: RefObject<HTMLElement | null>
   onClose: () => void
 }
 
-export function PanelHost({ stationId, onClose }: PanelHostProps) {
+export function PanelHost({ stationId, returnFocusRef, onClose }: PanelHostProps) {
+  const panel = useRef<HTMLElement>(null)
   const closeButton = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -18,17 +22,37 @@ export function PanelHost({ stationId, onClose }: PanelHostProps) {
     const previousFocus = document.activeElement instanceof HTMLElement
       ? document.activeElement
       : null
+    const fallbackFocus = returnFocusRef.current
     closeButton.current?.focus()
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (event.key !== 'Tab') return
+
+      const focusable = panel.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )
+      if (!focusable?.length) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
     }
 
     window.addEventListener('keydown', closeOnEscape)
     return () => {
       window.removeEventListener('keydown', closeOnEscape)
-      previousFocus?.focus()
+      restoreFocus(previousFocus, fallbackFocus)
     }
-  }, [stationId, onClose])
+  }, [stationId, returnFocusRef, onClose])
 
   if (!stationId) return null
 
@@ -36,6 +60,7 @@ export function PanelHost({ stationId, onClose }: PanelHostProps) {
 
   return (
     <aside
+      ref={panel}
       className="station-panel"
       role="dialog"
       aria-modal="true"
