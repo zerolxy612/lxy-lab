@@ -32,7 +32,9 @@ export function GameViewport() {
         className="game-viewport"
         ref={gameRoot}
         role="application"
+        tabIndex={0}
         aria-label="Interactive AI laboratory. Move with WASD or arrow keys and press E to interact."
+        onPointerDown={() => gameRoot.current?.focus()}
       />
     </div>
   )

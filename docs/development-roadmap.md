@@ -2,7 +2,7 @@
 
 最后更新：2026-07-29
 
-本文档记录会随开发变化的实现状态、技术决策、已知限制和下一轮方向。稳定的产品愿景和公开项目说明仍维护在根目录的 [`readme.md`](../readme.md)。
+本文档记录当前实现、技术决策、限制和下一轮方向。稳定的产品愿景仍维护在根目录的 [`readme.md`](../readme.md)。
 
 ## 1. Confirmed Product Decisions
 
@@ -11,183 +11,170 @@
 | 网站主角 | Xiangyu 本人、经历、工程方法与整体 AI Lab | 任何单一项目都不能成为首页或房间的绝对焦点 |
 | LexiHK | Selected Work 中的一个案例 | 不作为默认项目、主标题或核心视觉装置 |
 | 核心体验 | 一个可以自由移动的完整房间 | Phaser 负责移动、碰撞、站点范围与场景动画 |
-| 快速浏览 | 探索是选择，不是门槛 | React Quick Access 必须始终可以绕过 Canvas 直接访问内容 |
-| 视觉方向 | 青紫系统光为主，香港雨夜与个人物品建立辨识度 | 避免只使用通用紫蓝渐变；暖色用于记忆和生活区域 |
-| 项目范围 | 游戏化个人网站，不是完整游戏 | 不做战斗、任务树、背包、大地图和长时间探索 |
-| AI Assistant | 后期能力，不是 v0.1 核心 | 先使用策划问题和导航能力，再决定是否连接 LLM |
+| 快速浏览 | 探索是选择，不是门槛 | React Quick Access 始终可以绕过 Canvas 访问内容 |
+| 移动端 | 内容优先，暂不模拟桌面游戏控制 | 小屏依靠 Quick Access，不做低质量虚拟摇杆 |
+| 视觉方向 | 青紫系统光为主，香港雨夜与个人物品建立辨识度 | 暖色只用于记忆、生活区域和少量强调 |
+| AI Assistant | 后期能力，不是当前核心 | 先做策划问题和导航，再决定是否连接 LLM |
 
-## 2. Current Implementation — v0.1
+## 2. Current Implementation — v0.2
 
-### 2.1 Stack
+### 2.1 Stack and Runtime Boundary
 
-- Node.js 24 LTS（通过 `.nvmrc` 锁定）
-- Vite 8
-- React 19 + TypeScript
-- Phaser 3.90，使用 Arcade Physics
+- Node.js 24 LTS（`.nvmrc`）
+- Vite 8、React 19、TypeScript
+- Phaser 3.90 + Arcade Physics
 - ESLint + Vitest
-
-### 2.2 Runtime Boundary
 
 ```text
 React DOM Layer
-├── Identity lockup
-├── Quick Access
-├── Interaction prompt
-└── Content side panels
+├── Identity and Quick Access
+├── First-move / nearby guidance
+├── Visited-state ownership
+└── Accessible content panels
 
         ↕ typed LabBridge events
 
 Phaser Canvas Layer
-├── LabScene
-├── Player movement
-├── Collision bodies
-├── Interaction zones
-└── Room ambience / station animation
+├── Player movement and collision
+├── Station proximity / activation
+├── Active / nearby / visited visuals
+└── Room ambience and debug overlay
 ```
 
-状态所有权：
+Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存当前面板、访问记录和快捷导航状态。`src/game/bridge.ts` 是两层间唯一业务通信边界。Phaser 动态导入，身份信息和 Quick Access 可以先显示。
 
-- Phaser 保存角色坐标、速度、碰撞、附近站点和场景动画。
-- React 保存当前打开的内容面板和 Quick Access 状态。
-- `src/game/bridge.ts` 是两层之间唯一的业务通信边界。
-- Phaser 使用动态导入，React 身份信息和 Quick Access 可以优先显示。
+### 2.2 Implemented in This Iteration
 
-### 2.3 Implemented Experience
+- 房间布局、出生点、障碍物和五个站点从 `LabScene.ts` 抽离到 `src/game/layout/labLayout.ts`。
+- 角色具有上、下、左、右 idle / walk 程序化占位帧；对角移动归一化。
+- 首次移动前显示 WASD 引导，移动后提示转为靠近站点探索。
+- 五个站点统一支持 nearby、hover、active 和 visited 视觉状态。
+- 房间与 Quick Access 共享访问记录；访问过的站点显示菱形标记和进度 `n/5`。
+- Experience Archive 使用独立内容数据，展示真实经历方向与工作原则，不突出 LexiHK。
+- Quick Access 与房间站点打开同一个 React 面板，避免两套内容漂移。
+- 面板支持 Escape 关闭和焦点恢复；Canvas 可获取键盘焦点。
+- `prefers-reduced-motion` 同时影响 DOM 与 Phaser 场景动画。
+- `F2` 可显示房间边界、碰撞体、交互范围和出生点。
+- 小屏切换为内容优先的底部面板，并保留 44px 级触控目标。
 
-- 960 × 540 的固定逻辑分辨率，通过 `Phaser.Scale.FIT` 响应式缩放。
-- WASD 和方向键四方向移动。
-- 房间边界、中央 Core、设备、服务器和生活角碰撞。
-- 五个站点：Lab Companion、Experience Archive、Living AI Core、Selected Work、Future Gate。
-- 靠近站点后出现交互提示，支持 `E`、空格和鼠标点击。
-- 打开 React 内容侧栏时暂停角色控制，关闭后恢复。
-- 支持 `Escape` 关闭内容面板。
-- Quick Access 使用可展开菜单，无需操作游戏即可浏览内容。
-- 中央 Living AI Core、地面管线和香港雨夜窗口使用程序化占位视觉。
-- 青、紫、洋红为系统光效，暖琥珀色用于生活角与 Experience 区域。
-
-### 2.4 Verification
+### 2.3 Verification
 
 当前通过：
 
 - `npm run typecheck`
 - `npm run lint`
-- `npm run test`
+- `npm run test`（2 个文件，4 项测试）
 - `npm run build`
 
-Phaser 被拆分为独立延迟加载构建块。React 初始构建块约 198 kB，Phaser 场景块约 1.21 MB；后续正式素材加入后需要继续监控首屏和资源加载预算。
+布局测试会检查站点注册表一致性和出生点安全性；事件桥测试覆盖激活与访问状态同步。
 
-## 3. Known Limitations
+生产构建中 React 初始块约 201 kB（gzip 64 kB），延迟加载的 Phaser 块约 1.21 MB（gzip 324 kB）。Phaser 的体积提示仍存在，但不会阻塞 DOM 首屏。
 
-当前版本验证的是空间和架构，不是最终设计稿：
+## 3. v0.2 Acceptance Status
 
-- 房间、城市、设备和角色都由 Phaser Graphics 程序化绘制。
-- Player 只有单张占位纹理，没有四方向步行动画和 idle 状态。
-- 碰撞体是简化矩形，尚未与最终家具轮廓匹配。
-- 房间布局仍硬编码在 `LabScene.ts`，还没有使用 Tiled。
-- 五个站点内容大多是结构占位，缺少真实经历、指标、截图和工程证据。
-- 尚未实现访问记录、探索进度或站点完成状态。
-- 移动体验当前以桌面键盘为主；手机用户依赖 Quick Access。
-- 没有 Boot sequence、声音、环境音、存档或真实 AI Assistant。
+| 验收项 | 状态 | 说明 |
+|---|---|---|
+| 五站点可通过移动和键盘交互 | 完成 | WASD / 方向键 + E / 空格 |
+| 无已知卡死点或不可关闭面板 | 完成 | 布局配置化；面板支持 Escape |
+| 四方向 idle / walk 动画 | 完成 | 当前为程序化占位帧 |
+| Experience Archive 发布级内容 | 部分完成 | 结构与真实经历已就位，公开证据和量化结果仍待补充 |
+| 房间与 Quick Access 访问状态一致 | 完成 | React 状态通过 typed bridge 同步 |
+| 键盘可浏览全部核心内容 | 完成 | Canvas、Quick Access、面板均可键盘操作 |
+| 类型、Lint、测试、构建通过 | 完成 | 2026-07-29 验证 |
+
+## 4. Known Limitations
+
+- 房间、城市、设备和角色仍由 Phaser Graphics 程序化绘制，不是最终像素美术。
+- 角色帧验证了方向和节奏，但还没有人物辨识度与完整 sprite sheet。
+- 碰撞体是简化矩形，需在正式家具素材确定后重新贴合。
+- 布局已配置化，但尚未接入 Tiled 对象层。
+- Experience Archive 缺少可公开截图、案例链接、量化影响和简历下载。
+- 其余站点仍以结构性内容为主，Selected Work 的案例深度不足。
+- 访问状态只保存在当前 React 会话，刷新后不会保留。
+- 手机端以 Quick Access 为主，不提供触控移动。
+- 没有声音、Boot sequence、真实 NPC 路径或在线 AI Assistant。
 - 暂无正式像素素材清单、尺寸规范和版权台账。
 
-## 4. Next Iteration — v0.2 Interaction Vertical Slice
+## 5. Next Iteration — v0.3 Art and Map Pipeline
 
 ### Goal
 
-在不依赖最终美术的情况下，把当前房间变成一个稳定、可测试、可演示的完整交互切片。下一轮重点是“走起来和用起来是否自然”，不是增加更多内容或特效。
+保持现有交互契约不变，把程序化原型升级为有个人辨识度、可持续生产的房间美术系统。重点是先锁规范和一小块代表性正式素材，不一次性重画整个房间。
 
-### Priority 1 — Room Playability
+本轮从“像素尺寸规范 + Xiangyu 玩家角色设计”开始。玩家比例作为后续家具、站点和房间素材的统一尺度基准。
 
-- 实测中央 Core、左右设备和生活角之间的通行宽度。
-- 调整碰撞体，确保角色不会被家具夹住或进入视觉上不可达的区域。
-- 将站点布局数据从 `LabScene.ts` 抽离成独立配置，减少场景文件体积。
-- 增加可开关的开发调试层，显示碰撞体、出生点和交互范围。
+### Priority 1 — Visual Specification
 
-### Priority 2 — Character Feedback
+- 锁定 tile size、角色逻辑尺寸、家具占地和像素缩放规则。
+- 定义青紫主光、暖色生活区、背景黑阶和状态色 token。
+- 建立 sprite、tileset、prop、portrait、ambience 的命名及导出规范。
+- 建立素材来源、生成方式、人工修改和版权台账。
 
-- 制作临时四方向角色 sprite sheet。
-- 增加 idle / walk 状态和正确朝向。
-- 优化对角线移动、停止反馈和碰撞后的视觉稳定性。
-- 在不增加复杂移动系统的前提下验证角色尺寸与房间比例。
+### Priority 2 — Representative Art Slice
 
-### Priority 3 — Station Interaction
+- 优先正式绘制玩家、中央 Living AI Core 和 Experience Archive 区域。
+- 给角色补四方向 sprite sheet、idle 姿态和可辨识的个人细节。
+- 用香港窗景、双语标记与桌面物品建立地域和人物记忆点。
+- 保持当前青紫主色，但减少平均铺满的霓虹发光。
 
-- 为五个站点统一 nearby、focus、visited 和 active 状态。
-- 第一次靠近时提供简短教学，之后降低提示强度。
-- 增加已访问状态，让房间逐渐点亮，但不设计任务或奖励系统。
-- 完成一个代表性站点的全流程：靠近 → 交互 → 阅读 → 关闭 → 恢复移动。
+### Priority 3 — Map Pipeline
 
-### Priority 4 — Content Vertical Slice
+- 评估并接入 Tiled：地图层、碰撞层、出生点和站点对象层。
+- 将 `labLayout.ts` 作为迁移前的稳定数据契约，而不是立即删除。
+- 给地图数据增加构建时校验，确保站点 ID 继续匹配内容注册表。
 
-- 优先完成 Experience Archive，而不是突出某个项目。
-- 内容结构使用：背景 → 负责内容 → 关键决策 → 结果 / 证据。
-- Selected Work 保持项目集合定位；LexiHK 只是其中一个可展开案例。
-- Quick Access 和房间站点必须打开同一份内容数据，避免两套内容漂移。
+### Priority 4 — Content Evidence
 
-### Priority 5 — Responsive and Accessibility
-
-- 确认窄屏下身份栏、Quick Access、提示和侧栏不会互相遮挡。
-- 保证所有内容不依赖 Canvas 也可以通过键盘和 Quick Access 访问。
-- 验证 reduced motion、焦点顺序、Escape 关闭和侧栏焦点恢复。
-- 暂不实现虚拟摇杆；先决定移动端应该使用触控移动还是以 Quick Access 为主。
+- 与用户确认可公开的职位表述、项目责任、截图和链接。
+- 为 Experience Archive 补“背景 → 负责内容 → 关键决策 → 结果 / 证据”。
+- 为 Selected Work 选择 2–3 个代表案例；LexiHK 保持其中之一。
+- 增加 Resume、Contact 和必要外部链接。
 
 ### Acceptance Criteria
 
-v0.2 完成需满足：
-
-- 五个站点均可以通过移动 + 键盘完成交互。
-- 没有已知的卡死点、穿墙点或不可关闭面板。
-- 角色具有四方向 idle / walk 占位动画。
-- Experience Archive 有一份接近真实发布质量的内容。
-- 访问状态在房间和 Quick Access 中保持一致。
-- 键盘用户无需鼠标即可浏览全部核心内容。
-- TypeScript、ESLint、Vitest 和生产构建全部通过。
+- 玩家和至少两个核心区域使用同一套正式像素规范。
+- 正式角色在 960 × 540 逻辑分辨率下方向清晰、比例合理。
+- 至少一个房间局部达到接近最终品质，玩家可在其中正常移动并与站点交互。
+- 地图数据可以表达碰撞、出生点和五个站点，且通过自动校验。
+- 替换素材后现有移动、访问状态、Quick Access 和无障碍路径不回退。
+- Experience Archive 至少有一条经确认、可公开的证据。
+- 类型、Lint、测试和生产构建继续通过。
 
 ### Explicit Non-goals
 
-下一轮不做：
-
-- 正式完整像素美术
-- 大地图、镜头滚动或第二个房间
-- NPC 路径系统
-- LLM、数据库或后端 API
+- 第二个房间或开放大地图
 - 战斗、任务、背包和游戏经济
-- 复杂声音系统
+- 复杂 NPC 路径系统
+- LLM、数据库和后端 API
+- 大规模声音系统
 
-## 5. Later Milestones
+## 6. Later Milestones
 
-### v0.3 — Art and Map Pipeline
+### v0.4 — Portfolio Content and Publishing
 
-- 锁定 tile size、玩家尺寸和房间逻辑分辨率。
-- 使用 Tiled 建立地图、碰撞层、出生点和站点对象层。
-- 建立 sprites、tilesets、audio、ambience 的资源目录和命名规范。
-- 用正式像素素材替换 Phaser Graphics，占位视觉逐步删除。
-
-### v0.4 — Portfolio Content
-
-- 完成个人介绍、经历和 Selected Work 内容。
-- 每个案例明确问题、个人负责范围、技术决策、影响和证据。
-- 加入 Resume、Contact 和必要的外部链接。
-- 增加基础 SEO、Open Graph 和分享预览。
+- 完成个人介绍、经历与 Selected Work。
+- 加入 Resume、Contact、SEO、Open Graph 和分享预览。
+- 做一次招聘者阅读路径测试和跨浏览器验证。
 
 ### v0.5 — Atmosphere and AI Evaluation
 
-- 可跳过的短 Boot sequence。
-- 环境音、交互音和默认静音策略。
+- 可跳过的短 Boot sequence、环境音和默认静音策略。
 - 少量有目的的 NPC 或隐藏细节。
-- 评估 AI Companion 是否真的需要 LLM；若需要，再设计服务端边界、成本和安全策略。
+- 评估 AI Companion 是否需要 LLM；若需要，再设计服务端、成本和安全边界。
 
-## 6. Decision Log
+## 7. Decision Log
 
 ### 2026-07-28
 
 - 采用一个固定房间而不是 Peter Oravec 式开放地图。
-- 确认 React 管内容、Phaser 管世界，中间使用薄事件桥。
-- 确认 Quick Access 是招聘者和无障碍用户的必要路径。
+- React 管内容、Phaser 管世界，中间使用薄事件桥。
+- Quick Access 是招聘者和无障碍用户的必要路径。
 
 ### 2026-07-29
 
-- 自由移动正式成为核心体验，不再使用纯点击场景。
-- 青紫配色确认为偏好方向；差异化依赖香港环境与个人细节，而不是回避青紫。
+- 自由移动成为核心体验，不使用纯点击场景。
+- 青紫确认为偏好方向；差异化来自香港环境、个人细节和真实内容。
 - LexiHK 降为 Selected Work 中的一个案例，不承担网站主叙事。
-- 完成 v0.1 程序化房间骨架，下一轮转向交互垂直切片。
+- 完成 v0.1 程序化房间骨架。
+- 完成 v0.2 交互垂直切片：布局配置化、四向反馈、访问状态、Experience Archive、调试层和响应式内容路径。
+- v0.3 转向正式美术规范、代表性区域和地图数据管线。

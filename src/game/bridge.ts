@@ -1,9 +1,12 @@
 import type { StationId } from '../content/stations'
 
 interface LabEventMap {
+  'game:ready': Record<string, never>
+  'player:first-move': { input: 'keyboard' }
   'station:nearby': { stationId: StationId | null }
   'station:activate': { stationId: StationId }
-  'ui:panel-change': { open: boolean }
+  'ui:panel-change': { open: boolean; stationId: StationId | null }
+  'ui:visited-change': { visited: readonly StationId[] }
 }
 
 type Listener<K extends keyof LabEventMap> = (payload: LabEventMap[K]) => void

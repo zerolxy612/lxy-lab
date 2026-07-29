@@ -5,32 +5,23 @@ import { labBridge } from '../bridge'
 import { LAB_HEIGHT, LAB_WIDTH } from '../config'
 import { Player } from '../entities/Player'
 import {
+  labWorldBounds,
+  playerSpawn,
+  staticObstacles,
+  stationLayouts,
+  type StationLayout,
+} from '../layout/labLayout'
+import {
   InteractionSystem,
   type InteractiveStation,
 } from '../systems/InteractionSystem'
-
-interface StationLayout {
-  id: StationId
-  x: number
-  y: number
-  width: number
-  height: number
-  color: number
-}
 
 interface StationVisual {
   container: Phaser.GameObjects.Container
   focusFrame: Phaser.GameObjects.Rectangle
   label: Phaser.GameObjects.Text
+  visitedMark: Phaser.GameObjects.Text
 }
-
-const stationLayouts: readonly StationLayout[] = [
-  { id: 'assistant', x: 178, y: 174, width: 116, height: 76, color: 0xcd55ff },
-  { id: 'experience', x: 145, y: 302, width: 178, height: 108, color: 0x5cdfff },
-  { id: 'systems', x: 480, y: 198, width: 164, height: 126, color: 0x68e5ff },
-  { id: 'projects', x: 792, y: 305, width: 184, height: 110, color: 0xa86cff },
-  { id: 'future', x: 797, y: 430, width: 122, height: 78, color: 0xffc45c },
-]
 
 export class LabScene extends Phaser.Scene {
   private player!: Player
@@ -38,14 +29,33 @@ export class LabScene extends Phaser.Scene {
   private controlsEnabled = true
   private removePanelListener?: () => void
   private removeNearbyListener?: () => void
+  private removeVisitedListener?: () => void
   private readonly stationVisuals = new Map<StationId, StationVisual>()
+  private readonly visitedStations = new Set<StationId>()
+  private nearbyStation: StationId | null = null
+  private hoveredStation: StationId | null = null
+  private activeStation: StationId | null = null
+  private hasPlayerMoved = false
+  private reducedMotion = false
+  private debugVisible = false
+  private debugKey!: Phaser.Input.Keyboard.Key
+  private debugGraphics!: Phaser.GameObjects.Graphics
+  private debugLabel!: Phaser.GameObjects.Text
+  private readonly collisionDebugRects: Phaser.Geom.Rectangle[] = []
+  private readonly interactionDebugRects: Phaser.Geom.Rectangle[] = []
 
   constructor() {
     super('lab')
   }
 
   create() {
-    this.physics.world.setBounds(58, 72, LAB_WIDTH - 116, LAB_HEIGHT - 112)
+    this.physics.world.setBounds(
+      labWorldBounds.x,
+      labWorldBounds.y,
+      labWorldBounds.width,
+      labWorldBounds.height,
+    )
+    this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     this.drawArchitecture()
     this.drawHongKongWindow()
@@ -53,31 +63,52 @@ export class LabScene extends Phaser.Scene {
     this.drawPersonalCorner()
     this.drawRagRack()
 
-    this.player = new Player(this, LAB_WIDTH / 2, LAB_HEIGHT - 78)
+    this.player = new Player(this, playerSpawn.x, playerSpawn.y)
 
-    this.createStaticBlock(146, 438, 176, 62)
-    this.createStaticBlock(286, 432, 78, 46)
-    this.createStaticBlock(802, 167, 158, 74)
+    staticObstacles.forEach(({ x, y, width, height }) => {
+      this.createStaticBlock(x, y, width, height)
+    })
 
     const stations = stationLayouts.map((layout) => this.createStation(layout))
     this.interactionSystem = new InteractionSystem(this, this.player, stations)
+    this.createDebugOverlay()
 
-    this.removePanelListener = labBridge.on('ui:panel-change', ({ open }) => {
+    this.removePanelListener = labBridge.on('ui:panel-change', ({ open, stationId }) => {
       this.controlsEnabled = !open
+      this.activeStation = stationId
+      this.refreshAllStationStates()
     })
     this.removeNearbyListener = labBridge.on('station:nearby', ({ stationId }) => {
-      this.stationVisuals.forEach((_, id) => this.setStationFocus(id, id === stationId))
+      this.nearbyStation = stationId
+      this.refreshAllStationStates()
     })
+    this.removeVisitedListener = labBridge.on('ui:visited-change', ({ visited }) => {
+      this.visitedStations.clear()
+      visited.forEach((id) => this.visitedStations.add(id))
+      this.refreshAllStationStates()
+    })
+    labBridge.emit('game:ready', {})
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.removePanelListener?.()
       this.removeNearbyListener?.()
+      this.removeVisitedListener?.()
     })
   }
 
   update() {
-    this.player.move(this.controlsEnabled)
+    const moved = this.player.move(this.controlsEnabled)
+    if (moved && !this.hasPlayerMoved) {
+      this.hasPlayerMoved = true
+      labBridge.emit('player:first-move', { input: 'keyboard' })
+    }
+
     this.interactionSystem.update(this.controlsEnabled)
+
+    if (Phaser.Input.Keyboard.JustDown(this.debugKey)) {
+      this.debugVisible = !this.debugVisible
+      this.renderDebugOverlay()
+    }
   }
 
   private drawArchitecture() {
@@ -191,14 +222,16 @@ export class LabScene extends Phaser.Scene {
       lines.strokePath()
     })
 
-    this.tweens.add({
-      targets: lines,
-      alpha: { from: 0.62, to: 1 },
-      duration: 1800,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.InOut',
-    })
+    if (!this.reducedMotion) {
+      this.tweens.add({
+        targets: lines,
+        alpha: { from: 0.62, to: 1 },
+        duration: 1800,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.InOut',
+      })
+    }
   }
 
   private drawPersonalCorner() {
@@ -255,7 +288,7 @@ export class LabScene extends Phaser.Scene {
   }
 
   private createStation(layout: StationLayout): InteractiveStation {
-    const { id, x, y, width, height } = layout
+    const { id, x, y, width, height, interactionPadding } = layout
     const container = this.drawStation(layout)
     const obstacle = this.createStaticBlock(x, y, width, height)
     this.physics.add.collider(this.player, obstacle)
@@ -272,14 +305,33 @@ export class LabScene extends Phaser.Scene {
       letterSpacing: 1.5,
     }).setOrigin(0.5, 0).setAlpha(0.55).setDepth(15)
 
-    const zone = this.add.zone(x, y, width + 62, height + 62)
+    const visitedMark = this.add.text(x + width / 2 - 2, y - height / 2 - 3, '◆', {
+      color: '#8a63ff',
+      fontFamily: 'sans-serif',
+      fontSize: '11px',
+    }).setOrigin(1, 0).setAlpha(0).setDepth(15)
+
+    const zoneWidth = width + interactionPadding
+    const zoneHeight = height + interactionPadding
+    const zone = this.add.zone(x, y, zoneWidth, zoneHeight)
       .setInteractive({ useHandCursor: true })
 
-    zone.on('pointerover', () => this.setStationFocus(id, true))
-    zone.on('pointerout', () => this.setStationFocus(id, false))
+    this.interactionDebugRects.push(
+      new Phaser.Geom.Rectangle(x - zoneWidth / 2, y - zoneHeight / 2, zoneWidth, zoneHeight),
+    )
+
+    zone.on('pointerover', () => {
+      this.hoveredStation = id
+      this.refreshAllStationStates()
+    })
+    zone.on('pointerout', () => {
+      if (this.hoveredStation === id) this.hoveredStation = null
+      this.refreshAllStationStates()
+    })
     zone.on('pointerdown', () => labBridge.emit('station:activate', { stationId: id }))
 
-    this.stationVisuals.set(id, { container, focusFrame, label })
+    this.stationVisuals.set(id, { container, focusFrame, label, visitedMark })
+    this.refreshStationState(id)
 
     return { id, zone }
   }
@@ -372,14 +424,16 @@ export class LabScene extends Phaser.Scene {
       .forEach(([nodeX, nodeY], index) => graph.fillCircle(nodeX, nodeY, index < 2 ? 4 : 3))
     container.add(graph)
 
-    this.tweens.add({
-      targets: graph,
-      alpha: { from: 0.48, to: 1 },
-      duration: 1400,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.InOut',
-    })
+    if (!this.reducedMotion) {
+      this.tweens.add({
+        targets: graph,
+        alpha: { from: 0.48, to: 1 },
+        duration: 1400,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.InOut',
+      })
+    }
 
     return container
   }
@@ -427,30 +481,114 @@ export class LabScene extends Phaser.Scene {
     return container
   }
 
-  private setStationFocus(id: StationId, focused: boolean) {
+  private refreshAllStationStates() {
+    this.stationVisuals.forEach((_, id) => this.refreshStationState(id))
+  }
+
+  private refreshStationState(id: StationId) {
     const visual = this.stationVisuals.get(id)
     if (!visual) return
 
-    this.tweens.killTweensOf([visual.container, visual.focusFrame, visual.label])
+    const active = this.activeStation === id
+    const focused = active || this.nearbyStation === id || this.hoveredStation === id
+    const visited = this.visitedStations.has(id)
+    const duration = this.reducedMotion ? 0 : 180
+
+    this.tweens.killTweensOf([
+      visual.container,
+      visual.focusFrame,
+      visual.label,
+      visual.visitedMark,
+    ])
+
+    if (duration === 0) {
+      visual.container.setAlpha(focused ? 1 : visited ? 0.94 : 0.86)
+      visual.container.setScale(active ? 1.035 : focused ? 1.02 : 1)
+      visual.focusFrame.setAlpha(focused ? 1 : visited ? 0.48 : 0.2)
+      visual.label.setAlpha(focused ? 1 : visited ? 0.78 : 0.5)
+      visual.visitedMark.setAlpha(visited ? 1 : 0)
+      return
+    }
+
     this.tweens.add({
       targets: visual.container,
-      alpha: focused ? 1 : 0.88,
-      scale: focused ? 1.025 : 1,
-      duration: 180,
+      alpha: focused ? 1 : visited ? 0.94 : 0.86,
+      scale: active ? 1.035 : focused ? 1.02 : 1,
+      duration,
       ease: 'Quad.Out',
     })
     this.tweens.add({
-      targets: [visual.focusFrame, visual.label],
-      alpha: focused ? 1 : 0.55,
-      duration: 180,
+      targets: visual.focusFrame,
+      alpha: focused ? 1 : visited ? 0.48 : 0.2,
+      duration,
+      ease: 'Quad.Out',
+    })
+    this.tweens.add({
+      targets: visual.label,
+      alpha: focused ? 1 : visited ? 0.78 : 0.5,
+      duration,
+      ease: 'Quad.Out',
+    })
+    this.tweens.add({
+      targets: visual.visitedMark,
+      alpha: visited ? 1 : 0,
+      duration,
       ease: 'Quad.Out',
     })
   }
 
   private createStaticBlock(x: number, y: number, width: number, height: number) {
+    this.collisionDebugRects.push(
+      new Phaser.Geom.Rectangle(x - width / 2, y - height / 2, width, height),
+    )
+
     return this.physics.add.staticImage(x, y, 'pixel')
       .setDisplaySize(width, height)
       .setAlpha(0)
       .refreshBody()
+  }
+
+  private createDebugOverlay() {
+    this.debugKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.F2)
+    this.debugGraphics = this.add.graphics().setDepth(90).setVisible(false)
+    this.debugLabel = this.add.text(LAB_WIDTH - 68, LAB_HEIGHT - 31, 'F2 / DEBUG', {
+      color: '#586687',
+      fontFamily: 'sans-serif',
+      fontSize: '9px',
+      letterSpacing: 1,
+    }).setOrigin(1, 0).setDepth(91)
+  }
+
+  private renderDebugOverlay() {
+    this.debugGraphics.clear().setVisible(this.debugVisible)
+    this.debugLabel.setColor(this.debugVisible ? '#ffc45c' : '#586687')
+
+    if (!this.debugVisible) return
+
+    this.debugGraphics.fillStyle(0xff4d72, 0.1)
+    this.debugGraphics.lineStyle(2, 0xff4d72, 0.85)
+    this.collisionDebugRects.forEach((rect) => {
+      this.debugGraphics.fillRectShape(rect)
+      this.debugGraphics.strokeRectShape(rect)
+    })
+
+    this.debugGraphics.fillStyle(0x5cdfff, 0.06)
+    this.debugGraphics.lineStyle(1, 0x5cdfff, 0.75)
+    this.interactionDebugRects.forEach((rect) => {
+      this.debugGraphics.fillRectShape(rect)
+      this.debugGraphics.strokeRectShape(rect)
+    })
+
+    this.debugGraphics.lineStyle(2, 0xffc45c, 0.9)
+    this.debugGraphics.strokeRectShape(
+      new Phaser.Geom.Rectangle(
+        labWorldBounds.x,
+        labWorldBounds.y,
+        labWorldBounds.width,
+        labWorldBounds.height,
+      ),
+    )
+    this.debugGraphics.fillStyle(0x8a63ff, 1)
+    this.debugGraphics.fillCircle(playerSpawn.x, playerSpawn.y, 5)
   }
 }

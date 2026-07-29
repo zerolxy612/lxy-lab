@@ -5,10 +5,11 @@
 
 > 一个赛博朋克像素风互动个人主页，通过探索一个未来 AI 实验室空间，展示个人经历、项目、技术能力以及 AI 工程理念。
 
-当前状态：**v0.1 可探索房间骨架**。已经支持自由移动、碰撞、五个交互站点、React 内容侧栏和 Quick Access。
+当前状态：**v0.2 交互垂直切片**。已经支持四方向自由移动、碰撞、五个带访问状态的交互站点、Experience Archive、React 内容侧栏和 Quick Access。
 
 - 开发与下一轮计划：[Development Roadmap](./docs/development-roadmap.md)
 - 本地启动：`nvm use && npm install && npm run dev`
+- 房间内操作：WASD / 方向键移动，`E` / 空格交互，`F2` 显示碰撞与交互范围
 
 ---
 
@@ -591,6 +592,7 @@ xiangyu-ai-lab/
 │   ├── app/
 │   │   └── App.tsx
 │   ├── content/
+│   │   ├── experience.ts
 │   │   ├── projects.ts
 │   │   └── stations.ts
 │   ├── game/
@@ -599,6 +601,8 @@ xiangyu-ai-lab/
 │   │   ├── createGame.ts
 │   │   ├── entities/
 │   │   │   └── Player.ts
+│   │   ├── layout/
+│   │   │   └── labLayout.ts
 │   │   ├── scenes/
 │   │   │   ├── BootScene.ts
 │   │   │   └── LabScene.ts
@@ -607,6 +611,7 @@ xiangyu-ai-lab/
 │   ├── styles/
 │   │   └── global.css
 │   ├── ui/
+│   │   ├── ExperienceArchive.tsx
 │   │   ├── GameViewport.tsx
 │   │   ├── InteractionPrompt.tsx
 │   │   ├── PanelHost.tsx
@@ -669,8 +674,8 @@ Hong Kong cyber city atmosphere
 当前阶段：
 
 - `v0.1` — 已完成可移动房间、碰撞、五个站点、React / Phaser 事件桥
-- `v0.2` — 下一轮完成稳定的交互垂直切片，仍使用占位美术
-- `v0.3` — 房间比例锁定后接入 Tiled 和正式像素素材
+- `v0.2` — 已完成稳定的交互垂直切片，当前仍使用程序化占位美术
+- `v0.3` — 下一轮锁定像素规范，制作代表性正式美术切片并建立 Tiled 地图管线
 - `v0.4` — 填充个人经历、代表性工作和工程证据
 - `v0.5` — 最后评估真实 AI Assistant、音效和隐藏内容
 
@@ -758,9 +763,10 @@ AI Integration
 
 # Next Steps
 
-1. Playtest 当前房间尺寸、动线和碰撞
-2. 增加四方向角色动画与访问状态
-3. 完成一个代表性内容面板的垂直切片
-4. 锁定房间网格后再接入 Tiled 和正式像素素材
-5. 逐步填充经历、项目与工程证据
-6. 最后评估 AI Assistant 和音效
+进入 `v0.3`：正式美术与地图管线。
+
+1. 锁定 tile size、人物尺寸、家具占地、缩放规则和色彩 tokens。
+2. 以 Xiangyu 四方向玩家角色作为全套素材的比例基准。
+3. 制作 Living AI Core 与 Experience Archive 代表性美术切片。
+4. 用正式素材替换占位图，并保持移动、碰撞、站点状态和 Quick Access 不回退。
+5. 将碰撞层、出生点和五个站点迁移到 Tiled 地图数据。
