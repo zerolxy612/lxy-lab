@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { StationId } from '../content/stations'
 import { labBridge } from '../game/bridge'
+import { ContactLinks } from '../ui/ContactLinks'
 import { GameViewport } from '../ui/GameViewport'
 import { InteractionPrompt } from '../ui/InteractionPrompt'
 import { PanelHost } from '../ui/PanelHost'
@@ -72,6 +73,7 @@ export function App() {
           <h1>Xiangyu’s AI Lab</h1>
         </div>
       </header>
+      <ContactLinks />
 
       <div className="game-frame">
         <GameViewport />

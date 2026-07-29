@@ -68,7 +68,7 @@ export const stations: readonly StationContent[] = [
     details: [
       'AI-native applications and agent systems.',
       'Research translated into products people can actually use.',
-      'A full résumé and direct contact channel will join the public release.',
+      'A full résumé will join the public release; direct contact is already open.',
     ],
   },
 ]

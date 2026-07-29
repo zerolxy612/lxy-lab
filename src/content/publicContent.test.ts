@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { companionPrompts } from './companion'
+import { contactLinks } from './contact'
 import { selectedProjects } from './projects'
 
 describe('public portfolio content', () => {
@@ -18,5 +19,18 @@ describe('public portfolio content', () => {
     expect(companionPrompts).toHaveLength(3)
     expect(new Set(companionPrompts.map(({ route }) => route.stationId)).size).toBe(3)
     expect(companionPrompts.every(({ route }) => route.stationId !== 'assistant')).toBe(true)
+  })
+
+  it('publishes only the confirmed direct contact channels', () => {
+    expect(contactLinks).toEqual([
+      expect.objectContaining({
+        id: 'email',
+        href: 'mailto:zerolxy612@gmail.com',
+      }),
+      expect.objectContaining({
+        id: 'github',
+        href: 'https://github.com/zerolxy612',
+      }),
+    ])
   })
 })

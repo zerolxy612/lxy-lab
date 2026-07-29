@@ -33,6 +33,7 @@ describe('v0.4 release readiness', () => {
       'name="twitter:description"',
       'name="twitter:image"',
       'rel="icon" href="/favicon.svg"',
+      'rel="me" href="https://github.com/zerolxy612"',
     ]
 
     requiredMetadata.forEach((metadata) => expect(indexHtml).toContain(metadata))

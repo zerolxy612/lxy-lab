@@ -5,7 +5,7 @@
 
 > 一个赛博朋克像素风互动个人主页，通过探索一个未来 AI 实验室空间，展示个人经历、项目、技术能力以及 AI 工程理念。
 
-当前状态：**v0.4 内容身份、跨设备路径与发布准备**。v0.3 已完成正式美术与 Tiled 地图管线；v0.4 已加入匿名化真实工作、三问 Lab Companion、手机端内容优先路径、Canvas 加载失败降级，以及首版 SEO / Open Graph / favicon。完整 Resume、Contact、最终域名元数据和真实设备发布验收留在后续切片。
+当前状态：**v0.4 内容身份、跨设备路径与发布准备**。v0.3 已完成正式美术与 Tiled 地图管线；v0.4 已加入匿名化真实工作、三问 Lab Companion、手机端内容优先路径、Canvas 加载失败降级、公开 Contact，以及首版 SEO / Open Graph / favicon。完整 Resume、最终域名元数据和真实设备发布验收留在后续切片。
 
 - 开发与下一轮计划：[Development Roadmap](./docs/development-roadmap.md)
 - Tiled 对象层规范：[Tiled Map Schema](./docs/tiled-map-schema.md)
@@ -548,6 +548,7 @@ React 负责：
 - Chat
 - Project Detail
 - Quick Access
+- Direct Contact
 - Accessible content fallback
 
 架构：
@@ -570,6 +571,7 @@ Walkable Pixel Room
 - React 保存当前面板、Quick Access 和所有可读内容
 - 两者只通过 `src/game/bridge.ts` 的类型化事件通信
 - Phaser 延迟加载，身份信息和 Quick Access 优先显示
+- 邮箱和 GitHub 作为独立 DOM 入口始终可达，不占用地图站点
 - 900 px 以下首次展开底部 Archive Index；选择内容后收起索引并打开同一站点面板
 - Phaser 或房间素材加载失败时显示可重试状态，不阻断 React 内容路径
 
@@ -590,6 +592,7 @@ xiangyu-ai-lab/
 │   ├── app/
 │   │   └── App.tsx
 │   ├── content/
+│   │   ├── contact.ts
 │   │   ├── experience.ts
 │   │   ├── projects.ts
 │   │   └── stations.ts
@@ -611,6 +614,7 @@ xiangyu-ai-lab/
 │   ├── styles/
 │   │   └── global.css
 │   ├── ui/
+│   │   ├── ContactLinks.tsx
 │   │   ├── ExperienceArchive.tsx
 │   │   ├── GameViewport.tsx
 │   │   ├── InteractionPrompt.tsx
@@ -767,6 +771,6 @@ AI Integration
 
 1. 为 Experience Archive 补至少一条经本人确认、可公开的链接、截图或结果证据。
 2. 把 Selected Work 扩展为“问题、责任、决策、结果、证据”的案例结构。
-3. 在获得完整资料后接入 Resume 和 Contact。
+3. 在获得完整资料后接入 Resume。
 4. 确认最终域名后补 canonical、绝对分享 URL 和 sitemap。
 5. 完成招聘者阅读路径、Safari、Firefox 与实际移动设备验证。

@@ -41,7 +41,7 @@ Phaser Canvas Layer
 └── Room ambience and debug overlay
 ```
 
-Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存当前面板、访问记录和快捷导航状态。`src/game/bridge.ts` 是两层间唯一业务通信边界。Phaser 动态导入，身份信息和 Quick Access 可以先显示。
+Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存当前面板、访问记录、快捷导航和公开 Contact。`src/game/bridge.ts` 是两层间唯一业务通信边界。Phaser 动态导入，身份信息、Contact 和 Quick Access 可以先显示。
 
 ### 2.2 Stable Runtime and Interaction Baseline
 
@@ -53,6 +53,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 - Experience Archive 使用独立内容数据，展示真实经历方向与工作原则，不公开敏感 Legal AI 项目名称。
 - Quick Access 与房间站点打开同一个 React 面板，避免两套内容漂移。
 - 面板支持 Escape 关闭和焦点恢复；从房间打开时返回 Canvas，从 Quick Access 打开时返回稳定触发按钮。
+- 邮箱和 GitHub 作为独立 DOM Contact 入口始终可达，不占用第六个地图站点。
 - `prefers-reduced-motion` 同时影响 DOM 与 Phaser 场景动画。
 - `F2` 可显示房间边界、碰撞体、交互范围和出生点。
 - 小屏切换为内容优先的底部面板，并保留 44px 级触控目标。
@@ -63,7 +64,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 - `npm run typecheck`
 - `npm run lint`
-- `npm run test`（8 个文件，22 项测试）
+- `npm run test`（8 个文件，23 项测试）
 - `npm run build`
 
 布局测试会检查站点注册表一致性、出生点安全性和正式站点素材的视觉 / 碰撞分离；事件桥与素材契约测试覆盖激活、访问状态和纹理尺寸；发布契约测试锁定 v0.4 版本、SEO / 社交元数据与分享资产尺寸。
@@ -167,7 +168,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ## 6. Current Iteration — v0.4 Content Identity
 
-状态：**四个实现切片已完成；发布资料与跨浏览器验收待完成**
+状态：**五个实现切片已完成；Resume、公开证据与跨浏览器验收待完成**
 
 ### Goal
 
@@ -215,11 +216,18 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 发布契约测试校验 v0.4 版本、发现元数据、分享图尺寸、favicon 和 robots。
 - 最终域名尚未确定，因此 canonical、`og:url`、绝对 `og:image` URL 和 sitemap 暂不填写。
 
+### Fifth Slice
+
+- 公开 Contact 使用已确认的邮箱 `zerolxy612@gmail.com` 与 GitHub `@zerolxy612`。
+- Contact 作为 React DOM 层的独立直接入口，不修改五个站点、Tiled 地图或访问进度协议。
+- 桌面端使用左下方轻量通信条；900 px 以下移至右上方并保持 44 px 触控目标。
+- GitHub 使用 `rel="me"` 身份关联；外链在新标签页打开，邮箱使用 `mailto:`。
+- 内容测试锁定公开联系方式，避免未确认渠道或错误地址进入发布版本。
+
 ### Remaining v0.4
 
 - 为至少一项代表性工作补充经本人确认、可公开的链接、截图或带上下文结果。
 - 用户提供完整简历后接入 Resume。
-- 确认公开联系方式后接入 Contact。
 - 确认最终域名后补 canonical、绝对分享 URL 和 sitemap。
 - 完成 Safari、Firefox 与实际移动设备发布验收。
 
@@ -254,3 +262,8 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - Lab Companion 采用三个确定性问题作为可选导航；真实 LLM 继续留待 v0.5 评估。
 - 移动端采用默认展开的底部 Archive Index，实验室保留为视觉封面而不承担触控移动任务。
 - v0.4 分享身份使用项目自身的像素素材建立，不引入外部图像；Canvas 失败不得阻断内容浏览。
+
+### 2026-07-30
+
+- v0.4 发布准备提交为 `3a1b6da`。
+- 确认邮箱与 GitHub 为公开 Contact；Contact 保持 DOM 直接入口，不扩展地图站点数量。

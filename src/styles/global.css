@@ -193,6 +193,88 @@ button {
   box-shadow: 0 0 18px var(--cyan);
 }
 
+.contact-links {
+  position: fixed;
+  z-index: 30;
+  bottom: clamp(1rem, 2vw, 2rem);
+  left: clamp(1rem, 2vw, 2rem);
+  display: flex;
+  align-items: stretch;
+  color: #8f9fc2;
+  border-block: 1px solid rgb(255 196 92 / 24%);
+  background: rgb(7 9 22 / 90%);
+}
+
+.contact-links > span {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.7rem;
+  color: var(--amber);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.contact-links a {
+  position: relative;
+  display: grid;
+  min-width: 7rem;
+  grid-template-columns: 1fr auto;
+  gap: 0.1rem 0.65rem;
+  align-content: center;
+  padding: 0.5rem 0.7rem;
+  color: #b7c5e5;
+  border-inline-start: 1px solid rgb(48 64 100 / 70%);
+  text-decoration: none;
+  transition:
+    color 140ms var(--ease-out-quart),
+    background-color 140ms var(--ease-out-quart),
+    transform 120ms var(--ease-out-quart);
+}
+
+.contact-links a span {
+  color: var(--cyan);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.contact-links a b {
+  grid-column: 1;
+  overflow-wrap: anywhere;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.contact-links a i {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  align-self: center;
+  color: var(--violet);
+  font-size: 0.8rem;
+  font-style: normal;
+}
+
+.contact-links a:hover,
+.contact-links a:focus-visible {
+  color: var(--ink);
+  background: var(--amber);
+  outline: none;
+}
+
+.contact-links a:hover span,
+.contact-links a:focus-visible span,
+.contact-links a:hover i,
+.contact-links a:focus-visible i {
+  color: #4e175d;
+}
+
+.contact-links a:active {
+  transform: scale(0.98);
+}
+
 .quick-access {
   position: fixed;
   z-index: 40;
@@ -771,6 +853,36 @@ kbd {
 
   .identity-lockup h1 {
     font-size: 1rem;
+  }
+
+  .contact-links {
+    top: 1rem;
+    right: 1rem;
+    bottom: auto;
+    left: auto;
+  }
+
+  .contact-links > span,
+  .contact-links a b {
+    display: none;
+  }
+
+  .contact-links a {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    grid-template-columns: 1fr auto;
+    place-content: center;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .contact-links a span {
+    align-self: center;
+    font-size: 0.62rem;
+  }
+
+  .contact-links a i {
+    grid-row: 1;
+    font-size: 0.7rem;
   }
 
   .quick-access-trigger {
