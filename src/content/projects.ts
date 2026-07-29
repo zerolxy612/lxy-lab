@@ -3,25 +3,22 @@ export interface ProjectSummary {
   name: string
   type: string
   summary: string
+  signal: string
 }
 
 export const selectedProjects: readonly ProjectSummary[] = [
   {
-    id: 'interactive-experiences',
-    name: 'Interactive Web Experiences',
-    type: 'Frontend engineering',
-    summary: 'Performance-minded interactive work shaped by product and visual craft.',
+    id: 'ton-web3-game',
+    name: 'TON Ecosystem Web3 Game',
+    type: 'Tencent IEG · Interactive systems',
+    summary: 'Built production game features with React, TypeScript, and Phaser, connecting the web interface and game world through a shared event system.',
+    signal: 'React ↔ shared events ↔ Phaser',
   },
   {
-    id: 'lexihk',
-    name: 'LexiHK',
-    type: 'AI product system',
-    summary: 'One selected example of applied retrieval and document intelligence work.',
-  },
-  {
-    id: 'experiments',
-    name: 'Lab Experiments',
-    type: 'Work in progress',
-    summary: 'Smaller systems used to test ideas before they become products.',
+    id: 'government-legal-ai',
+    name: 'Government-facing Legal AI',
+    type: 'HKGAI · AI application engineering',
+    summary: 'Led the frontend from foundation to production, shaping streaming answers, source citations, document generation, and multi-step legal workflows.',
+    signal: 'Streaming answers · citations · generated documents',
   },
 ]

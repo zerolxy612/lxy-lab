@@ -28,4 +28,14 @@ describe('LabBridge', () => {
       visited: ['experience', 'systems'],
     })
   })
+
+  it('carries a recoverable game loading error to the React layer', () => {
+    const bridge = new LabBridge()
+    const listener = vi.fn()
+    bridge.on('game:error', listener)
+
+    bridge.emit('game:error', { message: 'Room assets unavailable.' })
+
+    expect(listener).toHaveBeenCalledWith({ message: 'Room assets unavailable.' })
+  })
 })

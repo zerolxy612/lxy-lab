@@ -20,10 +20,10 @@ export const stations: readonly StationContent[] = [
     index: '01',
     title: 'Lab Companion',
     eyebrow: 'Ask the room',
-    summary: 'A guided way to explore Xiangyu, his work, and his thinking.',
+    summary: 'A short orientation to Xiangyu, the room, and the ideas hidden inside it.',
     details: [
-      'Introduces the lab without replacing its navigation.',
-      'Starts with curated questions before any live AI integration.',
+      'Explore at your own pace, or use Quick Access for the short path.',
+      'The archive keeps the story memorable rather than repeating a full résumé.',
     ],
   },
   {
@@ -42,10 +42,10 @@ export const stations: readonly StationContent[] = [
     index: '03',
     title: 'Living AI Core',
     eyebrow: 'How the lab thinks',
-    summary: 'A living map of the engineering ideas behind useful AI-native products.',
+    summary: 'Production lessons carried from interactive systems into AI-native products.',
     details: [
-      'Retrieval, agents, evaluation, and knowledge workflows.',
-      'Architecture decisions explained through working systems.',
+      'React and Phaser connected through a shared event boundary.',
+      'Streaming answers, citations, and multi-step workflows shaped as legible interfaces.',
     ],
   },
   {
@@ -53,10 +53,10 @@ export const stations: readonly StationContent[] = [
     index: '04',
     title: 'Selected Work',
     eyebrow: 'Things built',
-    summary: 'A changing collection of products, experiments, and interactive systems.',
+    summary: 'Two concise field notes from shipped interactive and AI application work.',
     details: [
-      'Projects are presented through problems, ownership, decisions, and evidence.',
-      'No single project defines the lab or Xiangyu’s work.',
+      'A TON-ecosystem Web3 game built at Tencent IEG.',
+      'A confidential government-facing Legal AI application led at HKGAI.',
     ],
   },
   {
@@ -68,6 +68,7 @@ export const stations: readonly StationContent[] = [
     details: [
       'AI-native applications and agent systems.',
       'Research translated into products people can actually use.',
+      'A full résumé and direct contact channel will join the public release.',
     ],
   },
 ]

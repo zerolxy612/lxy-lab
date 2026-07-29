@@ -3,6 +3,8 @@ import type { RefObject } from 'react'
 import type { StationId } from '../content/stations'
 import { stations } from '../content/stations'
 
+const mobileArchiveQuery = '(max-width: 900px)'
+
 interface QuickAccessProps {
   triggerRef: RefObject<HTMLButtonElement | null>
   visitedStations: ReadonlySet<StationId>
@@ -11,6 +13,19 @@ interface QuickAccessProps {
 
 export function QuickAccess({ triggerRef, visitedStations, onSelect }: QuickAccessProps) {
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
+
+    const mobileArchive = window.matchMedia(mobileArchiveQuery)
+    const revealArchive = ({ matches }: MediaQueryList | MediaQueryListEvent) => {
+      if (matches) setOpen(true)
+    }
+
+    revealArchive(mobileArchive)
+    mobileArchive.addEventListener('change', revealArchive)
+    return () => mobileArchive.removeEventListener('change', revealArchive)
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -44,6 +59,10 @@ export function QuickAccess({ triggerRef, visitedStations, onSelect }: QuickAcce
         <b aria-hidden="true">{open ? '×' : '＋'}</b>
       </button>
       <nav id="quick-access-menu" aria-label="Quick access" hidden={!open}>
+        <div className="quick-access-intro">
+          <span>Archive index</span>
+          <p>Choose one signal. The room stays available behind every record.</p>
+        </div>
         {stations.map((station) => (
           <button
             key={station.id}

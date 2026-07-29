@@ -59,6 +59,17 @@ export class LabScene extends Phaser.Scene {
   }
 
   create() {
+    try {
+      this.createLab()
+    } catch (error) {
+      console.error('Lab scene failed to initialise.', error)
+      labBridge.emit('game:error', {
+        message: 'The room layout could not be prepared.',
+      })
+    }
+  }
+
+  private createLab() {
     const cachedMap = this.cache.tilemap.get(LAB_MAP_KEY) as { data?: unknown } | undefined
     this.layout = parseLabMap(cachedMap?.data)
     const { worldBounds, playerSpawn, staticObstacles, stations: stationLayouts } = this.layout

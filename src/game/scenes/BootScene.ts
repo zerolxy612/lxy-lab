@@ -19,13 +19,24 @@ import {
   LIVING_CORE_TEXTURE_KEY,
   LIVING_CORE_TEXTURE_URL,
 } from '../art/livingCoreArt'
+import { labBridge } from '../bridge'
 
 export class BootScene extends Phaser.Scene {
+  private loadFailed = false
+
   constructor() {
     super('boot')
   }
 
   preload() {
+    this.loadFailed = false
+    this.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, () => {
+      this.loadFailed = true
+      labBridge.emit('game:error', {
+        message: 'The room assets did not finish loading.',
+      })
+    })
+
     this.load.tilemapTiledJSON(LAB_MAP_KEY, LAB_MAP_URL)
     this.load.image(ROOM_TILESET_KEY, ROOM_TILESET_URL)
     this.load.image(EXPERIENCE_ARCHIVE_TEXTURE_KEY, EXPERIENCE_ARCHIVE_TEXTURE_URL)
@@ -37,6 +48,8 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
+    if (this.loadFailed) return
+
     this.textures.get(EXPERIENCE_ARCHIVE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(LIVING_CORE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(PLAYER_SHEET_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)

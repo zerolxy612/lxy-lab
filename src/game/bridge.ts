@@ -2,6 +2,7 @@ import type { StationId } from '../content/stations'
 
 interface LabEventMap {
   'game:ready': Record<string, never>
+  'game:error': { message: string }
   'player:first-move': { input: 'keyboard' }
   'station:nearby': { stationId: StationId | null }
   'station:activate': { stationId: StationId }

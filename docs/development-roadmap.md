@@ -9,14 +9,14 @@
 | 主题 | 当前决定 | 对实现的影响 |
 |---|---|---|
 | 网站主角 | Xiangyu 本人、经历、工程方法与整体 AI Lab | 任何单一项目都不能成为首页或房间的绝对焦点 |
-| LexiHK | Selected Work 中的一个案例 | 不作为默认项目、主标题或核心视觉装置 |
+| 敏感 Legal AI 项目 | 以匿名案例进入 Selected Work | 可公开 HKGAI、Legal AI、government-facing 和前端职责；不公开项目名称、客户、数据与内部细节 |
 | 核心体验 | 一个可以自由移动的完整房间 | Phaser 负责移动、碰撞、站点范围与场景动画 |
 | 快速浏览 | 探索是选择，不是门槛 | React Quick Access 始终可以绕过 Canvas 访问内容 |
 | 移动端 | 内容优先，暂不模拟桌面游戏控制 | 小屏依靠 Quick Access，不做低质量虚拟摇杆 |
 | 视觉方向 | 青紫系统光为主，香港雨夜与个人物品建立辨识度 | 暖色只用于记忆、生活区域和少量强调 |
 | AI Assistant | 后期能力，不是当前核心 | 先做策划问题和导航，再决定是否连接 LLM |
 
-## 2. Current Implementation — v0.3
+## 2. Current Implementation — v0.4
 
 ### 2.1 Stack and Runtime Boundary
 
@@ -50,7 +50,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 - 首次移动前显示 WASD 引导，移动后提示转为靠近站点探索。
 - 五个站点统一支持 nearby、hover、active 和 visited 视觉状态。
 - 房间与 Quick Access 共享访问记录；访问过的站点显示菱形标记和进度 `n/5`。
-- Experience Archive 使用独立内容数据，展示真实经历方向与工作原则，不突出 LexiHK。
+- Experience Archive 使用独立内容数据，展示真实经历方向与工作原则，不公开敏感 Legal AI 项目名称。
 - Quick Access 与房间站点打开同一个 React 面板，避免两套内容漂移。
 - 面板支持 Escape 关闭和焦点恢复；从房间打开时返回 Canvas，从 Quick Access 打开时返回稳定触发按钮。
 - `prefers-reduced-motion` 同时影响 DOM 与 Phaser 场景动画。
@@ -63,12 +63,12 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 - `npm run typecheck`
 - `npm run lint`
-- `npm run test`（6 个文件，15 项测试）
+- `npm run test`（8 个文件，22 项测试）
 - `npm run build`
 
-布局测试会检查站点注册表一致性、出生点安全性和正式站点素材的视觉 / 碰撞分离；事件桥与素材契约测试覆盖激活、访问状态和纹理尺寸。
+布局测试会检查站点注册表一致性、出生点安全性和正式站点素材的视觉 / 碰撞分离；事件桥与素材契约测试覆盖激活、访问状态和纹理尺寸；发布契约测试锁定 v0.4 版本、SEO / 社交元数据与分享资产尺寸。
 
-生产构建中 React 初始块约 201 kB（gzip 64 kB），延迟加载的 Phaser 块约 1.21 MB（gzip 324 kB）。Phaser 的体积提示仍存在，但不会阻塞 DOM 首屏。
+生产构建中 React 初始块约 206 kB（gzip 65 kB），延迟加载的 Phaser 块约 1.22 MB（gzip 326 kB）。Phaser 的体积提示仍存在，但不会阻塞 DOM 首屏。
 
 ## 3. v0.2 Acceptance Status
 
@@ -92,10 +92,11 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 - 其余站点仍以结构性内容为主，Selected Work 的案例深度不足。
 - 访问状态只保存在当前 React 会话，刷新后不会保留。
 - 手机端以 Quick Access 为主，不提供触控移动。
+- 关键路径已经手动浏览器验证，但尚未接入自动化端到端浏览器回归。
 - 没有声音、Boot sequence、真实 NPC 路径或在线 AI Assistant。
 - 正式像素规范、资产台账、三项代表性 sprite 与 room base tileset v1 已建立；其余 prop 清单留待后续扩展。
 
-## 5. Current Iteration — v0.3 Art and Map Pipeline
+## 5. Completed Iteration — v0.3 Art and Map Pipeline
 
 状态：**美术与地图技术验收已完成；发布内容验收仍有一项待确认**
 
@@ -117,7 +118,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 - Room base tileset v1 已接入，Floor 与 Structure 图层正式迁移到 Tiled；旧的程序化地板网格已移除。
 - 首次浏览器检查发现单 tile 纹理过密后，将 16 个面板概念重新拆分为 256 个 16 px tiles；二次检查确认墙板、地板、窗景和站点层级清晰。
 
-v0.3 美术与地图技术范围已经完成。Experience Archive 已明确显示证据审批状态，但至少一条真实公开证据仍是招聘者版本的发布门槛；Resume、Contact、SEO 和发布路径进入 v0.4。
+v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示内部证据审批状态，但至少一条真实公开证据仍是招聘者版本的发布门槛；Resume、Contact 和发布路径进入 v0.4。
 
 ### Goal
 
@@ -146,13 +147,6 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 已明确显�
 - 给地图数据增加自动校验，确保站点 ID 继续匹配内容注册表。（已完成）
 - 制作基础 room tileset，迁移地板、墙体和主要建筑结构。（首版已完成）
 
-### v0.4 Priority 0 — Content Evidence
-
-- 与用户确认可公开的职位表述、项目责任、截图和链接。
-- 为 Experience Archive 补“背景 → 负责内容 → 关键决策 → 结果 / 证据”。
-- 为 Selected Work 选择 2–3 个代表案例；LexiHK 保持其中之一。
-- 增加 Resume、Contact 和必要外部链接。
-
 ### Acceptance Criteria
 
 - 玩家和至少两个核心区域使用同一套正式像素规范。
@@ -160,7 +154,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 已明确显�
 - 至少一个房间局部达到接近最终品质，玩家可在其中正常移动并与站点交互。
 - 地图数据可以表达碰撞、出生点和五个站点，且通过自动校验。
 - 替换素材后现有移动、访问状态、Quick Access 和无障碍路径不回退。
-- Experience Archive 在 UI 中明确区分经历描述与待确认的公开证据；发布招聘者版本前，至少需要一条经 Xiangyu 确认的案例链接、截图或带上下文的结果证据。
+- Experience Archive 保持简洁，不展示内部审批状态或未经确认的敏感项目身份。
 - 类型、Lint、测试和生产构建继续通过。
 
 ### Explicit Non-goals
@@ -171,13 +165,65 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 已明确显�
 - LLM、数据库和后端 API
 - 大规模声音系统
 
-## 6. Later Milestones
+## 6. Current Iteration — v0.4 Content Identity
 
-### v0.4 — Portfolio Content and Publishing
+状态：**四个实现切片已完成；发布资料与跨浏览器验收待完成**
 
-- 完成个人介绍、经历与 Selected Work。
-- 加入 Resume、Contact、SEO、Open Graph 和分享预览。
-- 做一次招聘者阅读路径测试和跨浏览器验证。
+### Goal
+
+保持“有趣的个人数字作品”为第一目标，把求职与合作信息作为可发现的第二层内容，而不是把实验室改造成传统简历页。
+
+### Confirmed Content Boundary
+
+- 五个站点名称、地图和世界观保持不变。
+- Selected Work 聚焦两项真实工作：Tencent IEG 的 TON 生态 Web3 游戏，以及 HKGAI 的匿名政府场景 Legal AI 应用。
+- Legal AI 案例可以公开 `Legal AI`、`government-facing Legal AI`、HKGAI 和前端职责。
+- 不公开敏感项目名称、客户身份、数据内容与内部系统细节。
+- 每个项目只展示一句核心介绍和一个技术信号；完整职责、指标和证明留给后续 Resume。
+
+### First Slice
+
+- 移除公开内容、代码标识与文档中的敏感项目名称。
+- 用两项真实工作的简短介绍替换 Selected Work 泛化占位。
+- 将 Tencent 的 React–Phaser event bridge 与 HKGAI 的流式回答、引用、文档和多步骤工作流作为 Living AI Core 的技术线索。
+- 移除 Experience Archive 面向开发阶段的 evidence approval 占位。
+- Future Gate 只提示未来 Resume 与 Contact，不提前制造无效入口。
+
+### Second Slice
+
+- Lab Companion 使用三个策划问题，不依赖 LLM 或后端。
+- 每个回答解释一个真实方向，并可直接进入 Selected Work、Living AI Core 或 Future Gate。
+- 引导完全可跳过、可重复打开，并复用现有站点访问记录与面板焦点管理。
+- 问题数量限制为三个，避免把向导扩展成教程或伪聊天界面。
+
+### Third Slice
+
+- 900 px 以下改为“实验室视觉封面 + 底部档案索引”的内容优先构图。
+- 手机与窄屏首次进入时自动展开 Archive Index；用户可以立即关闭，不强制完成引导。
+- Quick Access 移入拇指可达的底部区域，菜单向上展开，并补充简短的档案说明。
+- 选择站点后沿用既有行为：索引收起、内容面板打开、访问进度同步。
+- 内容面板在手机和窄平板上限制为 32 rem，保持单栏阅读和至少 44 px 触控目标。
+
+### Fourth Slice
+
+- Phaser 动态导入、启动超时和地图 / 素材加载失败都有明确的 React 降级状态与重试入口。
+- Canvas 失败时身份信息、Archive Index、Quick Access 和内容面板继续工作。
+- 增加 description、author、robots、Open Graph 与 Twitter Card 元数据。
+- 使用现有正式素材作为内部参考生成 1200 × 630 px 分享图，并记录完整资产来源与提示词。
+- 增加 code-native SVG favicon 与基础 `robots.txt`。
+- 启动失败会立即销毁残留 Phaser 实例；地图解析或图层创建异常直接进入 React 降级路径。
+- 发布契约测试校验 v0.4 版本、发现元数据、分享图尺寸、favicon 和 robots。
+- 最终域名尚未确定，因此 canonical、`og:url`、绝对 `og:image` URL 和 sitemap 暂不填写。
+
+### Remaining v0.4
+
+- 为至少一项代表性工作补充经本人确认、可公开的链接、截图或带上下文结果。
+- 用户提供完整简历后接入 Resume。
+- 确认公开联系方式后接入 Contact。
+- 确认最终域名后补 canonical、绝对分享 URL 和 sitemap。
+- 完成 Safari、Firefox 与实际移动设备发布验收。
+
+## 7. Later Milestones
 
 ### v0.5 — Atmosphere and AI Evaluation
 
@@ -185,7 +231,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 已明确显�
 - 少量有目的的 NPC 或隐藏细节。
 - 评估 AI Companion 是否需要 LLM；若需要，再设计服务端、成本和安全边界。
 
-## 7. Decision Log
+## 8. Decision Log
 
 ### 2026-07-28
 
@@ -197,9 +243,14 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 已明确显�
 
 - 自由移动成为核心体验，不使用纯点击场景。
 - 青紫确认为偏好方向；差异化来自香港环境、个人细节和真实内容。
-- LexiHK 降为 Selected Work 中的一个案例，不承担网站主叙事。
+- 敏感 Legal AI 工作以匿名案例进入 Selected Work，不承担网站主叙事。
 - 完成 v0.1 程序化房间骨架。
 - 完成 v0.2 交互垂直切片：布局配置化、四向反馈、访问状态、Experience Archive、调试层和响应式内容路径。
 - v0.3 转向正式美术规范、代表性区域和地图数据管线。
 - 完成 v0.3 代表性美术切片：Xiangyu 玩家、Living AI Core 与 Experience Archive v1 接入并通过浏览器交互验证。
 - 完成 v0.3 正式美术与地图管线：room base tileset、Tiled 视觉 / 对象层、自动校验和最终交互回归全部就位。
+- v0.4 确认以“有趣的个人数字作品”为第一目标，求职与合作信息作为第二层可发现内容。
+- Tencent IEG 的 TON 生态 Web3 游戏和 HKGAI 的匿名政府场景 Legal AI 应用成为两项代表性工作。
+- Lab Companion 采用三个确定性问题作为可选导航；真实 LLM 继续留待 v0.5 评估。
+- 移动端采用默认展开的底部 Archive Index，实验室保留为视觉封面而不承担触控移动任务。
+- v0.4 分享身份使用项目自身的像素素材建立，不引入外部图像；Canvas 失败不得阻断内容浏览。

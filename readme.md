@@ -5,7 +5,7 @@
 
 > 一个赛博朋克像素风互动个人主页，通过探索一个未来 AI 实验室空间，展示个人经历、项目、技术能力以及 AI 工程理念。
 
-当前状态：**v0.3 正式美术与地图管线（技术验收完成）**。Xiangyu 四方向角色、Living AI Core、Experience Archive 和 room base tileset v1 已接入；Tiled 已接管视觉表面、世界边界、碰撞、出生点和五个站点。招聘者内容仍有一个明确发布门槛：至少补充一条经 Xiangyu 确认、可公开的工作证据。下一步进入 v0.4：作品内容、Resume、Contact、SEO 与发布准备。
+当前状态：**v0.4 内容身份、跨设备路径与发布准备**。v0.3 已完成正式美术与 Tiled 地图管线；v0.4 已加入匿名化真实工作、三问 Lab Companion、手机端内容优先路径、Canvas 加载失败降级，以及首版 SEO / Open Graph / favicon。完整 Resume、Contact、最终域名元数据和真实设备发布验收留在后续切片。
 
 - 开发与下一轮计划：[Development Roadmap](./docs/development-roadmap.md)
 - Tiled 对象层规范：[Tiled Map Schema](./docs/tiled-map-schema.md)
@@ -263,11 +263,11 @@ Pixel RPG style
 
 ---
 
-# 7.1 AI Assistant
+# 7.1 Lab Companion
 
 ## Role
 
-个人 AI 分身。
+可跳过、可重复使用的实验室向导。当前使用策划问题与确定性回答，不接入 LLM。
 
 位置：
 
@@ -275,21 +275,18 @@ Pixel RPG style
 
 ## Interaction
 
-靠近或点击机器人：
+靠近或点击机器人后，可以选择三个问题，并从回答直接进入对应站点：
 
 ```
-AI Assistant:
+LAB COMPANION
 
-Welcome.
+Q01  What does Xiangyu build?
+Q02  Why React + Phaser?
+Q03  What is he exploring now?
 
-I am Xiangyu's AI assistant.
-
-I can introduce:
-
-- Experience
-- Projects
-- Technology
-- Future Direction
+Companion reply
+        ↓
+Open the related station
 
 ```
 
@@ -297,7 +294,7 @@ I can introduce:
 
 ## Future Extension
 
-接入 LLM：
+只有当策划导航不足以覆盖真实访客问题时，才评估接入 LLM：
 
 用户：
 
@@ -438,50 +435,48 @@ Building...
 
 ---
 
-## Selected Project Example: LexiHK
+## Selected Project: Government-facing Legal AI
 
-LexiHK 是项目档案中的一个案例，用于说明 AI 产品与工程实践，但不是网站的视觉中心或主要叙事。
+一项在 HKGAI 主导前端建设的政府场景 Legal AI 应用。公开版本保留工作性质、前端所有权和交互能力，不公开敏感项目名称、客户身份、数据内容或内部系统细节。
 
 展示：
 
 ```
-AI Legal Workspace
+Government-facing Legal AI
 
 
 Features:
 
-- AI Agent
-- RAG Pipeline
-- Evidence Chain
-- Knowledge Graph
-- Document Intelligence
+- Streaming answers
+- Source citations
+- Document generation
+- Multi-step legal workflows
 
 
 Technology:
 
 React
 TypeScript
-LLM
-Vector Database
+Next.js
 
 ```
 
 ---
 
-## Tencent IEG Detail
+## Selected Project: TON Ecosystem Web3 Game
 
 展示：
 
 ```
-Interactive Web Experience
+TON Ecosystem Web3 Game
 
 
 Features:
 
-- Mini Game
-- WebGL
-- Performance Optimization
-- Real-time Interaction
+- React-to-Phaser event bridge
+- Production game features
+- Asset loading and fast entry
+- Reusable UI systems
 
 ```
 
@@ -575,6 +570,8 @@ Walkable Pixel Room
 - React 保存当前面板、Quick Access 和所有可读内容
 - 两者只通过 `src/game/bridge.ts` 的类型化事件通信
 - Phaser 延迟加载，身份信息和 Quick Access 优先显示
+- 900 px 以下首次展开底部 Archive Index；选择内容后收起索引并打开同一站点面板
+- Phaser 或房间素材加载失败时显示可重试状态，不阻断 React 内容路径
 
 ---
 
@@ -677,9 +674,9 @@ Hong Kong cyber city atmosphere
 当前阶段：
 
 - `v0.1` — 已完成可移动房间、碰撞、五个站点、React / Phaser 事件桥
-- `v0.2` — 已完成稳定的交互垂直切片，当前仍使用程序化占位美术
+- `v0.2` — 已完成稳定的交互垂直切片；该阶段使用程序化占位美术
 - `v0.3` — 已完成像素规范、代表性正式美术切片与 Tiled 地图管线
-- `v0.4` — 填充个人经历、代表性工作和工程证据
+- `v0.4` — 当前阶段；内容身份、跨设备路径和发布加固已完成，等待公开资料与最终验收
 - `v0.5` — 最后评估真实 AI Assistant、音效和隐藏内容
 
 ---
@@ -766,9 +763,10 @@ AI Integration
 
 # Next Steps
 
-进入 `v0.4`：招聘者内容与发布准备。
+完成 `v0.4`：补齐招聘者证据、公开入口与发布验收。
 
 1. 为 Experience Archive 补至少一条经本人确认、可公开的链接、截图或结果证据。
 2. 把 Selected Work 扩展为“问题、责任、决策、结果、证据”的案例结构。
-3. 增加 Resume、Contact、SEO、Open Graph 和分享预览。
-4. 完成招聘者阅读路径与跨浏览器验证。
+3. 在获得完整资料后接入 Resume 和 Contact。
+4. 确认最终域名后补 canonical、绝对分享 URL 和 sitemap。
+5. 完成招聘者阅读路径、Safari、Firefox 与实际移动设备验证。

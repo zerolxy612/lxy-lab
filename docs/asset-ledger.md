@@ -12,6 +12,8 @@
 | Living AI Core v1 | `public/assets/game/sprites/living-ai-core-v1.png` | `design/sources/living-ai-core-source-v1.png` | OpenAI built-in image generation + single proportion edit；纯色键控背景移除；裁切、比例校正、最近邻缩放、48 色量化；无外部参考图 | v0.3 integrated |
 | Experience Archive v1 | `public/assets/game/sprites/experience-archive-v1.png` | `design/sources/experience-archive-source-v1.png` | OpenAI built-in image generation；纯色键控背景移除；裁切、最近邻缩放、48 色量化；无外部参考图 | v0.3 integrated |
 | Room base tileset v1 | `public/assets/game/tilesets/room-base-v1.png` | `design/sources/room-tileset-source-v1.png` | OpenAI built-in image generation；16 个概念单元规范化为 256 个 16 px tiles；48 色统一量化；无外部参考图 | v0.3 integrated |
+| Open Graph card v1 | `public/assets/brand/og-xiangyu-ai-lab-v1.png` | `design/sources/og-xiangyu-ai-lab-source-v1.png` | OpenAI built-in image generation；使用本项目 Living AI Core、Xiangyu 角色与 room tileset 源图作为参考；精确导出 1200 × 630 px | v0.4 integrated |
+| Lab favicon | `public/favicon.svg` | code-native SVG | 手工构建的 64 × 64 几何核心标记；使用项目色彩 tokens；无生成或外部素材 | v0.4 integrated |
 
 ## Xiangyu Player v1 Prompt
 
@@ -114,3 +116,28 @@ Processing notes:
 - Runtime atlas: 256 × 256 px, 16 columns × 16 rows, 256 tiles at 16 × 16 px.
 - Area reduction preserves small conduit accents before the atlas is reduced to a shared 48-color palette.
 - Runtime texture is opaque RGBA; no external reference image or third-party asset was used.
+
+## Open Graph Card v1 Prompt
+
+```text
+Use case: ads-marketing
+Asset type: Open Graph social sharing image for a personal interactive portfolio, exact wide aspect ratio 1200:630
+Primary request: create a polished wide pixel-art key visual for Xiangyu's explorable AI laboratory, faithfully reusing the visual language and recognizable subjects from the reference images
+Input images: Image 1 is the Living AI Core subject reference; Image 2 is Xiangyu character reference; Image 3 is the laboratory wall and floor texture reference
+Scene/backdrop: future Hong Kong research laboratory at rainy night, subtle skyline window, dark navy industrial wall panels
+Subject: large Living AI Core on the right half, small Xiangyu character near its base, generous clean negative space on the left
+Style/medium: deliberate high-quality pixel art, crisp hard pixel edges, restrained retro-futuristic composition, no smooth 3D rendering
+Lighting/mood: cyan core light, restrained violet signals, tiny warm amber personal accents, atmospheric but readable
+Color palette: deep navy and blue-black dominant; cyan primary light; violet secondary; amber sparingly
+Text (verbatim): "XIANGYU’S AI LAB" and "AI APPLICATION ENGINEER · HONG KONG"
+Typography: clean bold pixel-compatible sans serif, left aligned, exact spelling, high contrast, no gradient text
+Constraints: landscape social-card composition; title remains readable at thumbnail size; preserve the core's cylindrical tree-of-light identity and Xiangyu's dark jacket, glasses, black hair, and white shoes; no green background; no logos; no project names
+Avoid: generic neon cyberpunk city poster, excessive glow, holographic HUD clutter, glassmorphism, watermarks, illegible or extra text, corporate logos
+```
+
+Processing notes:
+
+- Reference inputs are project-owned v1 source assets; no external image or third-party brand reference was used.
+- Built-in generation output: 1730 × 909 px.
+- Runtime Open Graph export: 1200 × 630 px PNG.
+- Exact title and subtitle spelling, character identity, Living AI Core silhouette and safe thumbnail composition were visually verified after export.

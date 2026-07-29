@@ -4,15 +4,17 @@ import type { StationId } from '../content/stations'
 import { stationById } from '../content/stations'
 import { selectedProjects } from '../content/projects'
 import { ExperienceArchive } from './ExperienceArchive'
+import { LabCompanion } from './LabCompanion'
 import { restoreFocus } from './focusReturn'
 
 interface PanelHostProps {
   stationId: StationId | null
   returnFocusRef: RefObject<HTMLElement | null>
   onClose: () => void
+  onNavigate: (stationId: StationId) => void
 }
 
-export function PanelHost({ stationId, returnFocusRef, onClose }: PanelHostProps) {
+export function PanelHost({ stationId, returnFocusRef, onClose, onNavigate }: PanelHostProps) {
   const panel = useRef<HTMLElement>(null)
   const closeButton = useRef<HTMLButtonElement>(null)
 
@@ -78,7 +80,9 @@ export function PanelHost({ stationId, returnFocusRef, onClose }: PanelHostProps
 
       <p className="panel-summary">{station.summary}</p>
 
-      {stationId === 'experience' ? (
+      {stationId === 'assistant' ? (
+        <LabCompanion onNavigate={onNavigate} />
+      ) : stationId === 'experience' ? (
         <ExperienceArchive />
       ) : stationId === 'projects' ? (
         <div className="project-list">
@@ -87,6 +91,10 @@ export function PanelHost({ stationId, returnFocusRef, onClose }: PanelHostProps
               <span>{project.type}</span>
               <h3>{project.name}</h3>
               <p>{project.summary}</p>
+              <p className="project-signal">
+                <span>Signal</span>
+                {project.signal}
+              </p>
             </article>
           ))}
         </div>

@@ -1,8 +1,4 @@
-import {
-  experiencePrinciples,
-  experienceTimeline,
-  publicEvidenceRequirement,
-} from '../content/experience'
+import { experiencePrinciples, experienceTimeline } from '../content/experience'
 
 export function ExperienceArchive() {
   return (
@@ -40,22 +36,6 @@ export function ExperienceArchive() {
         </ol>
       </section>
 
-      <section className="evidence-card" aria-labelledby="experience-evidence-title">
-        <div className="section-heading">
-          <span>03</span>
-          <h3 id="experience-evidence-title">Public evidence</h3>
-        </div>
-        <div className="evidence-status">
-          <span>{publicEvidenceRequirement.statusLabel}</span>
-          <strong>{publicEvidenceRequirement.title}</strong>
-        </div>
-        <p>{publicEvidenceRequirement.description}</p>
-        <ul aria-label="Accepted evidence formats">
-          {publicEvidenceRequirement.acceptedFormats.map((format) => (
-            <li key={format}>{format}</li>
-          ))}
-        </ul>
-      </section>
     </div>
   )
 }

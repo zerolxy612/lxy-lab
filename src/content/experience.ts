@@ -11,22 +11,22 @@ export const experienceTimeline: readonly ExperienceEntry[] = [
     period: '2025 — Present',
     organization: 'HKGAI · HKUST-affiliated',
     role: 'AI Application Engineering',
-    context: 'Turning generative AI research at HKGAI into application workflows and product experiences.',
+    context: 'Leading the frontend of government-facing Legal AI experiences from interaction foundations to production workflows.',
     focus: [
-      'AI-native applications',
-      'Agent systems and retrieval workflows',
-      'Frontend-to-AI product integration',
+      'Streaming answers and source citations',
+      'Document generation and multi-step workflows',
+      'Reusable frontend foundations',
     ],
   },
   {
     period: '2024',
     organization: 'Tencent IEG',
     role: 'Interactive Web Experience',
-    context: 'Building performance-minded interactive experiences where engineering and visual execution meet.',
+    context: 'Building a TON-ecosystem Web3 game where React interfaces and Phaser systems move as one product.',
     focus: [
-      'Interactive frontend engineering',
-      'WebGL and mini-game experiences',
-      'Real-time interaction and performance',
+      'React-to-Phaser event bridge',
+      'Asset loading and fast entry',
+      'Reusable UI systems',
     ],
   },
 ]
@@ -36,14 +36,3 @@ export const experiencePrinciples = [
   'Make system behavior legible to the people using it.',
   'Treat frontend quality and AI architecture as one product experience.',
 ] as const
-
-export const publicEvidenceRequirement = {
-  statusLabel: 'Awaiting owner approval',
-  title: 'One verified work sample needed',
-  description: 'The field record describes scope and direction. Publication proof is intentionally withheld until Xiangyu confirms what can be shared.',
-  acceptedFormats: [
-    'A public case-study or product link',
-    'An approved screenshot with a short ownership note',
-    'A publishable outcome or metric with context',
-  ],
-} as const

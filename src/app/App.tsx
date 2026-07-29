@@ -90,11 +90,16 @@ export function App() {
         stationId={nearbyStation}
         visited={nearbyStation ? visitedStationSet.has(nearbyStation) : false}
       />
-      <p className="mobile-guide">Explore the full archive through Quick Access.</p>
+      <section className="mobile-guide" aria-label="Mobile archive guide">
+        <span>Field guide</span>
+        <strong>Five signals, one room.</strong>
+        <p>Open the archive index to explore without steering the character.</p>
+      </section>
       <PanelHost
         stationId={activeStation}
         returnFocusRef={quickAccessTrigger}
         onClose={closePanel}
+        onNavigate={openStation}
       />
     </main>
   )
