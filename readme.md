@@ -1,780 +1,88 @@
+# Xiangyu’s AI Lab
 
-# Cyber AI Lab
+An explorable pixel-art portfolio about AI application engineering, interactive systems, and building production software in Hong Kong.
 
-## Interactive Pixel Portfolio for AI Engineer
+![Xiangyu beside the Living AI Core in a future Hong Kong laboratory](public/assets/brand/og-xiangyu-ai-lab-v1.png)
 
-> 一个赛博朋克像素风互动个人主页，通过探索一个未来 AI 实验室空间，展示个人经历、项目、技术能力以及 AI 工程理念。
+## About the project
 
-当前状态：**v0.5 氛围与房间体验迭代中**。v0.4 已完成匿名化真实工作、三问 Lab Companion、手机端内容优先路径、Canvas 加载失败降级、公开 Contact，以及首版 SEO / Open Graph / favicon；v0.5 已完成启动序列、站点信号色、正式香港雨夜房间与五个站点、RAG Pipeline / Offline Corner 环境叙事，以及默认静音且记忆偏好的程序化环境声，下一步进入少量可发现细节。
+Xiangyu’s AI Lab turns a personal portfolio into one small, walkable research room. Visitors can explore five stations with a character or use the always-available Archive Index to reach the same content directly.
 
-- 开发与下一轮计划：[Development Roadmap](./docs/development-roadmap.md)
-- Tiled 对象层规范：[Tiled Map Schema](./docs/tiled-map-schema.md)
-- 本地启动：`nvm use && npm install && npm run dev`
-- 房间内操作：WASD / 方向键移动，`E` / 空格交互，`F2` 显示碰撞与交互范围
+This is a focused interactive website, not a full RPG. Atmosphere creates curiosity; readable project details, accessible navigation, and direct contact routes remain the foundation.
 
----
+Current release: **v0.5 — core atmosphere and room experience complete**.
 
-# 1. Project Overview
+## Highlights
 
-## 1.1 Background
+- One 960 × 540 pixel-art laboratory set against a rainy future Hong Kong skyline
+- Free four-direction movement with collision and station interaction
+- Five formal stations: Lab Companion, Experience Archive, Living AI Core, Selected Work, and Future Gate
+- Quick Access and semantic React panels that do not require playing the room
+- Content-first mobile layout without a low-quality virtual joystick
+- Opt-in procedural ambience with rain, machine hum, and sparse system signals
+- Skippable desktop boot sequence and reduced-motion support
+- Tiled-owned spatial data with tested spawn, collision, and station contracts
 
-传统个人主页通常采用：
+## Work represented
 
-```
-About Me
-    ↓
-Experience
-    ↓
-Projects
-    ↓
-Skills
-    ↓
-Contact
-```
+The public Selected Work area currently references two professional directions:
 
-这种形式信息完整，但缺少：
+- An interactive TON ecosystem Web3 game built with React, TypeScript, and Phaser
+- An anonymized government-facing Legal AI application focused on streaming responses, citations, document workflows, and production frontend infrastructure
 
-- 视觉记忆点
-- 互动体验
-- 个人特色
-- 情绪连接
+Sensitive project names, client identities, internal documents, data, and private interfaces are intentionally excluded.
 
-本项目希望借鉴 **Peter Oravec Portfolio** 的核心理念：
+## Technology
 
-> 不展示一份简历，而创造一个用户可以探索的数字空间。
+- React 19 and TypeScript
+- Phaser 3 with Arcade Physics
+- Vite 8
+- Tiled JSON/TMJ map data
+- Web Audio API
+- Vitest and ESLint
 
-目标：
+React owns readable content, navigation, accessibility, contact, and sound preferences. Phaser owns movement, collision, proximity, and room visuals. A small typed event bridge connects the two layers.
 
-打造一个具有：
+## Run locally
 
-- 强视觉风格
-- 轻量互动体验
-- AI 工程展示能力
-- 长期迭代价值
+Requires Node.js 24.
 
-的个人品牌作品。
-
----
-
-# 2. Product Vision
-
-## 2.1 Core Concept
-
-## Cyber AI Lab
-
-一个发生在未来世界的 AI 研究实验室。
-
-用户进入网站后，不是阅读传统网页，而是：
-
-> 探索一个 AI Engineer 的数字工作空间。
-
-体验流程：
-
-```
-SYSTEM BOOTING...
-
-Loading AI Research Station...
-
-ENTER
-
-        ↓
-
-Cyber AI Laboratory
-
-        ↓
-
-Explore
-Discover
-Interact
-Chat
+```bash
+nvm use
+npm ci
+npm run dev
 ```
 
----
+Quality checks:
 
-# 3. Design Philosophy
-
-## 3.1 Not a Game
-
-本项目不是为了制作完整游戏。
-
-避免：
-
-- RPG 系统
-- 战斗机制
-- 任务系统
-- 复杂剧情
-- 长时间探索
-
-原因：
-
-目标不是证明游戏开发能力。
-
-目标是：
-
-> 使用游戏化交互方式展示工程能力。
-
----
-
-## 3.2 Core Experience
-
-核心：
-
-- 一个完整且可自由移动的房间
-- 少量交互对象
-- NPC 对话
-- 项目展示
-- AI 能力融合
-
-用户体验：
-
-```
-Open Website
-
-↓
-
-Enter World
-
-↓
-
-Explore AI Lab
-
-↓
-
-Understand Engineer
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
 ```
 
----
+## Controls
 
-# 4. World Setting
+- Move: `WASD` or arrow keys
+- Interact: `E` or `Space`
+- Collision debug: `F2`
+- Close panels / skip intro: `Escape`
+- Sound: use the `Ambience` / `SND` control; first visit is always muted
 
-## 4.1 Story Background
+On screens below 900 px, use the Archive Index and Quick Access instead of character controls.
 
-世界：
+## Project documentation
 
-```
-Year: 2077
+- [Development roadmap](docs/development-roadmap.md)
+- [Pixel-art production specification](docs/pixel-art-spec.md)
+- [Tiled map contract](docs/tiled-map-schema.md)
+- [Asset provenance ledger](docs/asset-ledger.md)
+- [Room ambience contract](docs/room-ambience.md)
 
-Location:
-Hong Kong Future AI Research Center
+Generated source art is kept under `design/sources/`; optimized runtime assets live under `public/assets/`. The asset ledger records production methods and confirms where project-owned references were used.
 
+## Contact
 
-Researcher:
-Xiangyu
-
-
-Mission:
-Build AI-native applications
-```
-
-用户进入：
-
-```
-Welcome Visitor.
-
-This is Xiangyu's AI Research Laboratory.
-
-Explore systems,
-projects and ideas.
-```
-
----
-
-# 5. Visual Design
-
-## 5.1 Style Keywords
-
-```
-Cyberpunk
-Neon
-Future
-AI Laboratory
-Pixel Art
-Sci-Fi
-Hong Kong
-```
-
----
-
-## 5.2 Visual Elements
-
-主要元素：
-
-- 深色背景
-- 青紫系统光与霓虹氛围
-- 暖琥珀 / 朱红作为个人空间和记忆区域的辅助色
-- 全息屏幕
-- AI 服务器
-- 机器人
-- 数据流
-- 未来城市窗口
-
-参考方向：
-
-```
-Cyberpunk city
-+
-AI research lab
-+
-Pixel RPG style
-```
-
-青紫是有意选择的主色方向，但不能只依赖通用渐变和发光效果。香港雨夜、双语环境细节、个人物品和真实工程内容负责建立辨识度。
-
----
-
-# 6. Scene Design
-
-## 6.1 Main Scene
-
-固定实验室场景：
-
-```
-                 CYBER AI LAB
-
-
-        ┌────────────────────┐
-
-
-              🤖
-
-          AI Assistant
-
-
-  🖥 RAG Core        📁 Projects
-
-
-          👨‍💻 Engineer
-
-
-              🚪 Future Gate
-
-
-        └────────────────────┘
-
-```
-
-角色可以在房间内使用 WASD / 方向键自由移动。
-
-靠近设备后按 `E` / 空格交互，也可以直接点击设备。移动用于探索空间，但不扩展成任务、战斗或大型 RPG 系统。
-
----
-
-# 7. Interactive Objects
-
----
-
-# 7.1 Lab Companion
-
-## Role
-
-可跳过、可重复使用的实验室向导。当前使用策划问题与确定性回答，不接入 LLM。
-
-位置：
-
-实验室左上方的 Companion Dock，后续可以在房间内进行轻量移动。
-
-## Interaction
-
-靠近或点击机器人后，可以选择三个问题，并从回答直接进入对应站点：
-
-```
-LAB COMPANION
-
-Q01  What does Xiangyu build?
-Q02  Why React + Phaser?
-Q03  What is he exploring now?
-
-Companion reply
-        ↓
-Open the related station
-
-```
-
----
-
-## Future Extension
-
-只有当策划导航不足以覆盖真实访客问题时，才评估接入 LLM：
-
-用户：
-
-```
-Show me one of Xiangyu's AI product projects.
-```
-
-AI：
-
-```
-Here is one selected AI product case study.
-
-It explains:
-
-- The problem
-- Xiangyu's ownership
-- Architecture decisions
-- Product impact
-- Evidence and outcomes
-```
-
----
-
-# 7.2 Engineer Avatar
-
-## Role
-
-展示个人经历。
-
-内容：
-
-```
-AI Application Engineer
-
-
-Experience:
-
-Tencent IEG
-2024
-
-
-Hong Kong Generative AI R&D Center
-2025 -
-
-
-Focus:
-
-Frontend Engineering
-AI Application
-Agent System
-```
-
----
-
-# 7.3 Living AI Core
-
-## Role
-
-房间中央的视觉与叙事核心，展示 AI 技术能力以及整个实验室如何连接。RAG 是其中一条系统管线，而不是网站主题本身。
-
-展示：
-
-```
-Knowledge Pipeline
-
-
-Documents
-
-    ↓
-
-Embedding
-
-    ↓
-
-Vector Database
-
-    ↓
-
-Retriever
-
-    ↓
-
-Reranker
-
-    ↓
-
-LLM
-
-    ↓
-
-Answer
-```
-
----
-
-## Technology Showcase
-
-包括：
-
-- RAG
-- Agent
-- Vector Search
-- Knowledge Graph
-- LLM Workflow
-
----
-
-# 7.4 Project Terminal
-
-## Role
-
-项目展示中心。展示一组持续变化的代表性工作，不以任何单一项目作为网站主题。
-
-形式：
-
-未来电脑终端。
-
-内容：
-
-```
-PROJECT DATABASE
-
-
-[ Interactive Web Experiences ]
-
-Frontend Engineering
-
-
-[ AI Product Systems ]
-
-Applied AI
-
-
-[ Experiments ]
-
-Building...
-```
-
----
-
-## Selected Project: Government-facing Legal AI
-
-一项在 HKGAI 主导前端建设的政府场景 Legal AI 应用。公开版本保留工作性质、前端所有权和交互能力，不公开敏感项目名称、客户身份、数据内容或内部系统细节。
-
-展示：
-
-```
-Government-facing Legal AI
-
-
-Features:
-
-- Streaming answers
-- Source citations
-- Document generation
-- Multi-step legal workflows
-
-
-Technology:
-
-React
-TypeScript
-Next.js
-
-```
-
----
-
-## Selected Project: TON Ecosystem Web3 Game
-
-展示：
-
-```
-TON Ecosystem Web3 Game
-
-
-Features:
-
-- React-to-Phaser event bridge
-- Production game features
-- Asset loading and fast entry
-- Reusable UI systems
-
-```
-
----
-
-# 7.5 Future Gate
-
-## Role
-
-展示未来方向。
-
-内容：
-
-```
-UNKNOWN FUTURE
-
-
-Exploring:
-
-AI Agent
-
-Research
-
-Large Scale AI Application
-
-```
-
----
-
-# 8. Technical Architecture
-
-## 8.1 Recommended Stack
-
-## Frontend
-
-```
-React
-TypeScript
-Vite
-```
-
----
-
-## Interactive Layer
-
-推荐：
-
-```
-Phaser 3
-```
-
-负责：
-
-- Scene
-- Player movement
-- Collision
-- Sprite / NPC animation
-- Interaction zones
-
----
-
-## UI Layer
-
-React 负责：
-
-- Dialog
-- Panel
-- Chat
-- Project Detail
-- Quick Access
-- Direct Contact
-- Accessible content fallback
-- Room ambience control and preference
-
-架构：
-
-```
-React DOM Layer
-
-    ↕ typed event bridge
-
-Phaser Canvas Layer
-
-    ↓
-
-Walkable Pixel Room
-```
-
-状态边界：
-
-- Phaser 保存角色位置、碰撞、动画和交互范围
-- React 保存当前面板、Quick Access 和所有可读内容
-- 两者只通过 `src/game/bridge.ts` 的类型化事件通信
-- Phaser 延迟加载，身份信息和 Quick Access 优先显示
-- 邮箱和 GitHub 作为独立 DOM 入口始终可达，不占用地图站点
-- 环境声由 React 管理的 Web Audio 引擎程序化生成，首次默认静音且不进入 Phaser 事件桥
-- 900 px 以下首次展开底部 Archive Index；选择内容后收起索引并打开同一站点面板
-- Phaser 或房间素材加载失败时显示可重试状态，不阻断 React 内容路径
-
----
-
-# 9. Project Structure
-
-```
-xiangyu-ai-lab/
-
-├── public/assets/game/
-│   ├── maps/
-│   ├── tilesets/
-│   ├── sprites/
-│   ├── audio/
-│   └── ambience/
-├── src/
-│   ├── audio/
-│   │   ├── roomAmbience.ts
-│   │   └── roomAmbiencePreferences.ts
-│   ├── app/
-│   │   └── App.tsx
-│   ├── content/
-│   │   ├── contact.ts
-│   │   ├── experience.ts
-│   │   ├── projects.ts
-│   │   └── stations.ts
-│   ├── game/
-│   │   ├── art/
-│   │   │   └── playerArt.ts
-│   │   ├── bridge.ts
-│   │   ├── config.ts
-│   │   ├── createGame.ts
-│   │   ├── entities/
-│   │   │   └── Player.ts
-│   │   ├── layout/
-│   │   │   └── labLayout.ts
-│   │   ├── scenes/
-│   │   │   ├── BootScene.ts
-│   │   │   └── LabScene.ts
-│   │   └── systems/
-│   │       └── InteractionSystem.ts
-│   ├── styles/
-│   │   └── global.css
-│   ├── ui/
-│   │   ├── ContactLinks.tsx
-│   │   ├── ExperienceArchive.tsx
-│   │   ├── GameViewport.tsx
-│   │   ├── InteractionPrompt.tsx
-│   │   ├── PanelHost.tsx
-│   │   └── QuickAccess.tsx
-│   └── main.tsx
-├── design/
-├── package.json
-└── readme.md
-```
-
----
-
-# 10. Asset Strategy
-
-## 10.1 Background
-
-不自行绘制。
-
-方案：
-
-AI 生成背景。
-
-Prompt:
-
-```
-Cyberpunk AI research laboratory,
-pixel art style,
-top-down RPG view,
-neon cyan and purple lighting,
-futuristic computers,
-Hong Kong cyber city atmosphere
-```
-
----
-
-## 10.2 Sprite
-
-需要：
-
-- Player
-- Robot
-- NPC
-- Computer
-- Server
-
-来源：
-
-- Pixel art asset
-- AI generated sprite
-- 手动修改
-
----
-
-# 11. Development Roadmap
-
-详细开发状态、限制、验收标准和决策记录维护在：
-
-> [docs/development-roadmap.md](./docs/development-roadmap.md)
-
-当前阶段：
-
-- `v0.1` — 已完成可移动房间、碰撞、五个站点、React / Phaser 事件桥
-- `v0.2` — 已完成稳定的交互垂直切片；该阶段使用程序化占位美术
-- `v0.3` — 已完成像素规范、代表性正式美术切片与 Tiled 地图管线
-- `v0.4` — 已完成内容身份、跨设备路径和发布加固；公开资料与最终域名后补
-- `v0.5` — 当前阶段；启动氛围、房间美术、UI、音效和隐藏内容，最后评估真实 AI Assistant
-
----
-
-# 12. Development Principles
-
-## Experience First
-
-优先考虑：
-
-```
-Experience > Complexity
-```
-
-不要为了技术堆砌：
-
-- 复杂游戏逻辑
-- 不必要框架
-- 过度设计
-
----
-
-## Content First
-
-开发顺序：
-
-```
-World Concept
-
-↓
-
-Scene Design
-
-↓
-
-Interaction Design
-
-↓
-
-Implementation
-
-↓
-
-AI Integration
-```
-
----
-
-# 13. Success Criteria
-
-成功标准：
-
-## 5 Seconds
-
-用户：
-
-> 这个主页很特别。
-
----
-
-## 30 Seconds
-
-用户：
-
-> 这个人懂前端和 AI。
-
----
-
-## 3 Minutes
-
-用户：
-
-> 这个人真的做过 AI 产品。
-
----
-
-# 14. Final Positioning
-
-一句话：
-
-> Cyber AI Lab is an interactive pixel-art portfolio that transforms an AI engineer's experience, projects, and technical journey into an explorable digital world.
-
----
-
-# Next Steps
-
-完成 `v0.4`：补齐招聘者证据、公开入口与发布验收。
-
-1. 为 Experience Archive 补至少一条经本人确认、可公开的链接、截图或结果证据。
-2. 把 Selected Work 扩展为“问题、责任、决策、结果、证据”的案例结构。
-3. 在获得完整资料后接入 Resume。
-4. 确认最终域名后补 canonical、绝对分享 URL 和 sitemap。
-5. 完成招聘者阅读路径、Safari、Firefox 与实际移动设备验证。
+- Email: [zerolxy612@gmail.com](mailto:zerolxy612@gmail.com)
+- GitHub: [@zerolxy612](https://github.com/zerolxy612)

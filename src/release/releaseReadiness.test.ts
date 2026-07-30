@@ -10,9 +10,9 @@ const packageLock = JSON.parse(readText('../../package-lock.json')) as {
   packages: Record<string, { version?: string }>
 }
 
-describe('v0.4 release readiness', () => {
-  it('keeps package metadata on the v0.4 release line', () => {
-    expect(packageJson.version).toBe('0.4.0')
+describe('v0.5 release readiness', () => {
+  it('keeps package metadata on the v0.5 release line', () => {
+    expect(packageJson.version).toBe('0.5.0')
     expect(packageLock.version).toBe(packageJson.version)
     expect(packageLock.packages['']?.version).toBe(packageJson.version)
   })

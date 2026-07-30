@@ -2,7 +2,7 @@
 
 最后更新：2026-07-30
 
-本文档记录当前实现、技术决策、限制和下一轮方向。稳定的产品愿景仍维护在根目录的 [`readme.md`](../readme.md)。
+本文档记录当前实现、技术决策、限制和下一轮方向。公开仓库介绍维护在根目录的 [`readme.md`](../readme.md)；本地 Codex 上下文保存在被 Git 忽略的 `.codex/project-context.md`。
 
 ## 1. Confirmed Product Decisions
 
@@ -30,6 +30,7 @@ React DOM Layer
 ├── Identity and Quick Access
 ├── First-move / nearby guidance
 ├── Visited-state ownership
+├── Opt-in room ambience and preference
 └── Accessible content panels
 
         ↕ typed LabBridge events
@@ -38,10 +39,10 @@ Phaser Canvas Layer
 ├── Player movement and collision
 ├── Station proximity / activation
 ├── Active / nearby / visited visuals
-└── Room ambience and debug overlay
+└── Visual ambience and debug overlay
 ```
 
-Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存当前面板、访问记录、快捷导航和公开 Contact。`src/game/bridge.ts` 是两层间唯一业务通信边界。Phaser 动态导入，身份信息、Contact 和 Quick Access 可以先显示。
+Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存当前面板、访问记录、快捷导航、公开 Contact 与 Web Audio 环境声偏好。`src/game/bridge.ts` 是两层间唯一业务通信边界，声音不进入站点事件协议。Phaser 动态导入，身份信息、Contact 和 Quick Access 可以先显示。
 
 ### 2.2 Stable Runtime and Interaction Baseline
 
@@ -64,12 +65,12 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 - `npm run typecheck`
 - `npm run lint`
-- `npm run test`（11 个文件，28 项测试）
+- `npm run test`（13 个文件，32 项测试）
 - `npm run build`
 
-布局测试会检查站点注册表一致性、出生点安全性和正式站点素材的视觉 / 碰撞分离；事件桥与素材契约测试覆盖激活、访问状态和纹理尺寸；发布契约测试锁定 v0.4 版本、SEO / 社交元数据与分享资产尺寸。
+布局测试会检查站点注册表一致性、出生点安全性和正式站点素材的视觉 / 碰撞分离；事件桥与素材契约测试覆盖激活、访问状态和纹理尺寸；声音偏好测试覆盖默认静音、持久化和存储失败；发布契约测试锁定 v0.5 版本、SEO / 社交元数据与分享资产尺寸。
 
-生产构建中 React 初始块约 206 kB（gzip 65 kB），延迟加载的 Phaser 块约 1.22 MB（gzip 326 kB）。Phaser 的体积提示仍存在，但不会阻塞 DOM 首屏。
+生产构建中 React 初始块约 214 kB（gzip 67 kB），延迟加载的 Phaser 块约 1.22 MB（gzip 325 kB）。Phaser 的体积提示仍存在，但不会阻塞 DOM 首屏。
 
 ## 3. v0.2 Acceptance Status
 
@@ -77,11 +78,11 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 |---|---|---|
 | 五站点可通过移动和键盘交互 | 完成 | WASD / 方向键 + E / 空格 |
 | 无已知卡死点或不可关闭面板 | 完成 | 布局配置化；面板支持 Escape |
-| 四方向 idle / walk 动画 | 完成 | 当前为程序化占位帧 |
+| 四方向 idle / walk 动画 | 完成 | 正式 40 × 48 px spritesheet |
 | Experience Archive 发布级内容 | 部分完成 | 结构与真实经历已就位，公开证据和量化结果仍待补充 |
 | 房间与 Quick Access 访问状态一致 | 完成 | React 状态通过 typed bridge 同步 |
 | 键盘可浏览全部核心内容 | 完成 | Canvas、Quick Access、面板均可键盘操作 |
-| 类型、Lint、测试、构建通过 | 完成 | 2026-07-29 验证 |
+| 类型、Lint、测试、构建通过 | 完成 | 2026-07-30 验证 |
 
 ## 4. Known Limitations
 
@@ -235,7 +236,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ### v0.5 — Atmosphere and AI Evaluation
 
-状态：**启动氛围、正式房间 / 站点、环境叙事与程序化声音已完成；隐藏细节与 AI Companion 评估待推进**
+状态：**v0.5 核心范围已完成；隐藏细节与 AI Companion go/no-go 为收尾项**
 
 目标：让一个已经可用的实验室真正“活起来”，同时保持内容优先、单房间和低系统复杂度。
 
@@ -289,8 +290,14 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ### Remaining v0.5
 
-- 增加少量有目的的 NPC 动作或隐藏细节，不扩展任务与复杂寻路系统。
-- 评估 AI Companion 是否需要 LLM；若需要，再设计服务端、成本和安全边界。
+- 最多增加一到两个有目的的隐藏细节或环境动作，不扩展任务与复杂寻路系统。
+- 对 AI Companion 作明确 go/no-go；当前默认保持确定性三问导航，除非 LLM 能提供不可替代的个人作品价值。
+
+### Candidate v0.6 Direction
+
+- 优先补强可公开的作品证据、最终域名、Resume 与真实设备 / 跨浏览器发布验收。
+- 保持“个人数字作品优先”；这些发布能力作为第二层可信度建设，不把首页改造成简历模板。
+- 不增加第二个房间、任务系统或新的内容站点。
 
 ## 8. Decision Log
 
@@ -327,3 +334,4 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 五个互动站点全部进入正式素材阶段；后续优先处理环境设备与生活痕迹，不增加站点数量。
 - RAG Pipeline 与 Offline Corner 完成正式化；房间下一步转向默认静音的环境声和少量可发现细节，而不是继续铺满静态家具。
 - 环境声采用 Web Audio 程序化合成并默认静音；不引入音乐和外部音频素材，下一轮优先做少量可发现细节。
+- 根目录 README 改为面向公开访客的仓库首页；Codex 协作上下文迁入本地忽略文件，避免把内部工作说明当成作品介绍发布。
