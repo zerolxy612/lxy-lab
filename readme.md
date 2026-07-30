@@ -10,7 +10,7 @@ Xiangyu’s AI Lab turns a personal portfolio into one small, walkable research 
 
 This is a focused interactive website, not a full RPG. Atmosphere creates curiosity; readable project details, accessible navigation, and direct contact routes remain the foundation.
 
-Current release: **v0.5 — core atmosphere and room experience complete**.
+Current release: **v0.5 — complete**.
 
 ## Highlights
 
@@ -20,6 +20,7 @@ Current release: **v0.5 — core atmosphere and room experience complete**.
 - Quick Access and semantic React panels that do not require playing the room
 - Content-first mobile layout without a low-quality virtual joystick
 - Opt-in procedural ambience with rain, machine hum, and sparse system signals
+- Two restrained discovery details connecting the Hong Kong window, Living AI Core, and RAG Pipeline
 - Skippable desktop boot sequence and reduced-motion support
 - Tiled-owned spatial data with tested spawn, collision, and station contracts
 
@@ -79,6 +80,7 @@ On screens below 900 px, use the Archive Index and Quick Access instead of chara
 - [Tiled map contract](docs/tiled-map-schema.md)
 - [Asset provenance ledger](docs/asset-ledger.md)
 - [Room ambience contract](docs/room-ambience.md)
+- [AI Companion LLM decision](docs/ai-companion-decision.md)
 
 Generated source art is kept under `design/sources/`; optimized runtime assets live under `public/assets/`. The asset ledger records production methods and confirms where project-owned references were used.
 

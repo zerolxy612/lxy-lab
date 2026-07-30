@@ -59,6 +59,8 @@ export class LabScene extends Phaser.Scene {
   private debugKey!: Phaser.Input.Keyboard.Key
   private debugGraphics!: Phaser.GameObjects.Graphics
   private debugLabel!: Phaser.GameObjects.Text
+  private ragResponsePacket?: Phaser.GameObjects.Container
+  private hasAcknowledgedCoreVisit = false
   private readonly collisionDebugRects: Phaser.Geom.Rectangle[] = []
   private readonly interactionDebugRects: Phaser.Geom.Rectangle[] = []
   private layout!: LabLayout
@@ -120,6 +122,7 @@ export class LabScene extends Phaser.Scene {
     this.removeVisitedListener = labBridge.on('ui:visited-change', ({ visited }) => {
       this.visitedStations.clear()
       visited.forEach((id) => this.visitedStations.add(id))
+      if (this.visitedStations.has('systems')) this.playRagCoreAcknowledgement()
       this.refreshAllStationStates()
     })
     labBridge.emit('game:ready', {})
@@ -173,6 +176,10 @@ export class LabScene extends Phaser.Scene {
   private drawHongKongRain() {
     const farRain = this.add.graphics().setDepth(2).setAlpha(0.24)
     const nearRain = this.add.graphics().setDepth(2).setAlpha(0.34)
+    const nightTransit = this.add.container(500, 145).setDepth(2).setAlpha(0.42)
+    const ferryLight = this.add.rectangle(0, 0, 4, 2, 0xffc45c, 0.9)
+    const sternLight = this.add.rectangle(-7, 1, 2, 1, 0xff6b4a, 0.75)
+    nightTransit.add([ferryLight, sternLight])
 
     farRain.lineStyle(1, 0x5c86b9, 0.7)
     for (let index = 0; index < 18; index += 1) {
@@ -189,6 +196,17 @@ export class LabScene extends Phaser.Scene {
     }
 
     if (this.reducedMotion) return
+
+    nightTransit.setPosition(300, 145).setAlpha(0)
+    this.tweens.add({
+      targets: nightTransit,
+      x: 660,
+      alpha: { from: 0.16, to: 0.62 },
+      delay: 4200,
+      duration: 12_000,
+      ease: 'Linear',
+      onComplete: () => nightTransit.setAlpha(0),
+    })
 
     this.tweens.add({
       targets: farRain,
@@ -276,7 +294,14 @@ export class LabScene extends Phaser.Scene {
     const dataSignal = this.add.ellipse(5, 0, 132, 52, 0x5cdfff, 0.045)
       .setBlendMode(Phaser.BlendModes.ADD)
     const art = this.add.image(0, 0, RAG_PIPELINE_TEXTURE_KEY)
-    container.add([dataSignal, art])
+    const responsePacket = this.add.container(-70, -8).setAlpha(0)
+    const packetHead = this.add.rectangle(0, 0, 5, 2, 0x5cdfff, 1)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const packetTail = this.add.rectangle(-6, 0, 2, 2, 0x8a63ff, 0.9)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    responsePacket.add([packetHead, packetTail])
+    this.ragResponsePacket = responsePacket
+    container.add([dataSignal, art, responsePacket])
 
     if (!this.reducedMotion) {
       this.tweens.add({
@@ -296,6 +321,34 @@ export class LabScene extends Phaser.Scene {
       fontSize: '8px',
       letterSpacing: 2,
     }).setDepth(900)
+  }
+
+  private playRagCoreAcknowledgement() {
+    const packet = this.ragResponsePacket
+    if (!packet || this.hasAcknowledgedCoreVisit) return
+    this.hasAcknowledgedCoreVisit = true
+
+    if (this.reducedMotion) {
+      packet.setPosition(58, -8).setAlpha(0.7)
+      return
+    }
+
+    packet.setPosition(-70, -8).setAlpha(0)
+    this.tweens.add({
+      targets: packet,
+      x: 66,
+      alpha: { from: 0, to: 1 },
+      duration: 720,
+      ease: 'Quad.Out',
+      onComplete: () => {
+        this.tweens.add({
+          targets: packet,
+          alpha: 0,
+          duration: 240,
+          ease: 'Quad.Out',
+        })
+      },
+    })
   }
 
   private createStation(layout: StationLayout): InteractiveStation {

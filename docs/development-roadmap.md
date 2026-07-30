@@ -95,7 +95,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 - 访问状态只保存在当前 React 会话，刷新后不会保留。
 - 手机端以 Quick Access 为主，不提供触控移动。
 - 关键路径已经手动浏览器验证，但尚未接入自动化端到端浏览器回归。
-- 没有真实 NPC 路径或在线 AI Assistant；当前环境声为克制的程序化声场，不包含音乐、语音或空间定位。
+- 没有真实 NPC 路径；在线 AI Assistant 已在 v0.5 作出 no-go 决策，当前环境声为克制的程序化声场，不包含音乐、语音或空间定位。
 - 正式像素规范、资产台账、三项代表性 sprite 与 room base tileset v1 已建立；其余 prop 清单留待后续扩展。
 
 ## 5. Completed Iteration — v0.3 Art and Map Pipeline
@@ -232,11 +232,11 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 确认最终域名后补 canonical、绝对分享 URL 和 sitemap。
 - 完成 Safari、Firefox 与实际移动设备发布验收。
 
-## 7. Current Iteration — v0.5 Atmosphere and AI Evaluation
+## 7. Completed Iteration — v0.5 Atmosphere and AI Evaluation
 
 ### v0.5 — Atmosphere and AI Evaluation
 
-状态：**v0.5 核心范围已完成；隐藏细节与 AI Companion go/no-go 为收尾项**
+状态：**已完成并通过技术验收**
 
 目标：让一个已经可用的实验室真正“活起来”，同时保持内容优先、单房间和低系统复杂度。
 
@@ -288,12 +288,24 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 声音控制作为独立 React DOM 入口，不修改 Phaser、五个站点、Tiled 地图或访问状态协议。
 - 桌面使用 Quick Access 下方的设备控制条；移动端压缩为顶部 44 px `SND` 控制，不移除关键功能。
 
-### Remaining v0.5
+### Seventh Slice — Hidden Signals and AI Decision
 
-- 最多增加一到两个有目的的隐藏细节或环境动作，不扩展任务与复杂寻路系统。
-- 对 AI Companion 作明确 go/no-go；当前默认保持确定性三问导航，除非 LLM 能提供不可替代的个人作品价值。
+- 香港窗景加入一次缓慢经过的暖色夜航信号，强化“雨夜仍在运转”的地域生活感；不循环刷屏。
+- 首次访问 Living AI Core 后，RAG Pipeline 回应一次青紫数据包，建立系统之间的叙事连接，不增加任务或奖励 UI。
+- `prefers-reduced-motion` 下两项位移动画均不运行，只保留静态微光。
+- AI Companion 在 v0.5 明确 no-go for live LLM，继续使用三个确定性问题作为快速、可靠、无网络依赖的导航。
+- LLM 只有在具备经确认的公开证据、引用、服务端安全和敏感信息阻断后才重新评估；完整理由见 [`ai-companion-decision.md`](./ai-companion-decision.md)。
 
-### Candidate v0.6 Direction
+### v0.5 Acceptance Result
+
+- 正式房间、玩家、五个站点、RAG Pipeline 与 Offline Corner 使用同一像素语言。
+- 移动、碰撞、站点状态、Quick Access、Canvas 降级和移动端内容路径未回退。
+- 启动氛围、房间信号、环境声和隐藏细节均可跳过、默认克制并尊重用户偏好。
+- 敏感 Legal AI 项目继续匿名，不公开项目名称、客户、数据或内部界面。
+- TypeScript、Lint、13 个测试文件 / 32 项测试和生产构建通过。
+- 桌面与 390 / 360 px 移动端完成关键路径浏览器验收。
+
+### Next Direction — v0.6
 
 - 优先补强可公开的作品证据、最终域名、Resume 与真实设备 / 跨浏览器发布验收。
 - 保持“个人数字作品优先”；这些发布能力作为第二层可信度建设，不把首页改造成简历模板。
@@ -335,3 +347,4 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - RAG Pipeline 与 Offline Corner 完成正式化；房间下一步转向默认静音的环境声和少量可发现细节，而不是继续铺满静态家具。
 - 环境声采用 Web Audio 程序化合成并默认静音；不引入音乐和外部音频素材，下一轮优先做少量可发现细节。
 - 根目录 README 改为面向公开访客的仓库首页；Codex 协作上下文迁入本地忽略文件，避免把内部工作说明当成作品介绍发布。
+- v0.5 以两个克制隐藏信号完成氛围收尾；AI Companion 正式选择 no-go for live LLM，确定性三问导航继续作为生产方案。
