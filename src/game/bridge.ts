@@ -1,6 +1,8 @@
 import type { StationId } from '../content/stations'
+import type { GameLoadingPhase } from './gameLoading'
 
 interface LabEventMap {
+  'game:loading': { phase: GameLoadingPhase; progress: number }
   'game:ready': Record<string, never>
   'game:error': { message: string }
   'player:first-move': { input: 'keyboard' }

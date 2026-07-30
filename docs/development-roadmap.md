@@ -1,6 +1,6 @@
 # Xiangyu's AI Lab — Development Roadmap
 
-最后更新：2026-07-30
+最后更新：2026-07-31
 
 本文档记录当前实现、技术决策、限制和下一轮方向。公开仓库介绍维护在根目录的 [`readme.md`](../readme.md)；本地 Codex 上下文保存在被 Git 忽略的 `.codex/project-context.md`。
 
@@ -65,7 +65,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 - `npm run typecheck`
 - `npm run lint`
-- `npm run test`（13 个文件，32 项测试）
+- `npm run test`（14 个文件，35 项测试）
 - `npm run build`
 
 布局测试会检查站点注册表一致性、出生点安全性和正式站点素材的视觉 / 碰撞分离；事件桥与素材契约测试覆盖激活、访问状态和纹理尺寸；声音偏好测试覆盖默认静音、持久化和存储失败；发布契约测试锁定 v0.5 版本、SEO / 社交元数据与分享资产尺寸。
@@ -242,7 +242,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ### First Slice — Startup Atmosphere
 
-- 增加约 2 秒的桌面启动序列，支持按钮与 `Escape` 立即跳过。
+- 建立首版桌面启动序列，支持按钮与 `Escape` 立即跳过；其固定时长方案已在第八阶段升级为真实加载驱动。
 - 900 px 以下保持内容优先，不播放启动序列；`prefers-reduced-motion` 用户同样直接进入。
 - 启动序列保持在 Contact 和 Quick Access 下层，不阻断公开内容入口或 Canvas 降级路径。
 - 动效只使用 opacity 与 transform，避免扩大 Phaser 包或引入新动画依赖。
@@ -296,13 +296,22 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - AI Companion 在 v0.5 明确 no-go for live LLM，继续使用三个确定性问题作为快速、可靠、无网络依赖的导航。
 - LLM 只有在具备经确认的公开证据、引用、服务端安全和敏感信息阻断后才重新评估；完整理由见 [`ai-companion-decision.md`](./ai-companion-decision.md)。
 
+### Eighth Slice — Loading-driven Cinematic Opening
+
+- 桌面启动序列升级为真正的房间加载界面，接收 `runtime`、`room`、`assets`、`systems` 与 `ready` 五阶段 typed bridge 信号，不再依赖固定结束时间猜测房间状态。
+- 开场使用分屏舱门、超大品牌字标、中央加载核心、四阶段遥测和真实进度条建立 v0.5 的标志性时刻；所有运动只使用 opacity 与 transform。
+- 设定 2.8 秒最短叙事窗口；加载更慢时保持当前阶段，只有 Phaser 发出 ready 后才执行 620 ms 揭幕，避免黑屏或尚未完成的房间提前暴露。
+- 加载错误会立即撤掉开场并交给既有 React 错误 / 重试路径；按钮与 `Escape` 仍可立即跳过。
+- 900 px 以下继续内容优先并直接进入房间；`prefers-reduced-motion` 用户同样绕过整段开场。
+- 桌面 1280 × 800 实测完整主视觉、自动揭幕和跳过路径；移动 390 × 844 实测直接进入、Quick Access 展开且无横向溢出。
+
 ### v0.5 Acceptance Result
 
 - 正式房间、玩家、五个站点、RAG Pipeline 与 Offline Corner 使用同一像素语言。
 - 移动、碰撞、站点状态、Quick Access、Canvas 降级和移动端内容路径未回退。
-- 启动氛围、房间信号、环境声和隐藏细节均可跳过、默认克制并尊重用户偏好。
+- 加载驱动的电影化开场、房间信号、环境声和隐藏细节均可跳过或绕过，并尊重用户偏好。
 - 敏感 Legal AI 项目继续匿名，不公开项目名称、客户、数据或内部界面。
-- TypeScript、Lint、13 个测试文件 / 32 项测试和生产构建通过。
+- TypeScript、Lint、14 个测试文件 / 35 项测试和生产构建通过。
 - 桌面与 390 / 360 px 移动端完成关键路径浏览器验收。
 
 ### Next Direction — v0.6

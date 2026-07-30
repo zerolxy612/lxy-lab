@@ -46,6 +46,13 @@ export class BootScene extends Phaser.Scene {
 
   preload() {
     this.loadFailed = false
+    labBridge.emit('game:loading', { phase: 'room', progress: 0.2 })
+    this.load.on(Phaser.Loader.Events.PROGRESS, (progress: number) => {
+      labBridge.emit('game:loading', {
+        phase: 'assets',
+        progress: 0.24 + progress * 0.64,
+      })
+    })
     this.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, () => {
       this.loadFailed = true
       labBridge.emit('game:error', {
@@ -70,6 +77,8 @@ export class BootScene extends Phaser.Scene {
 
   create() {
     if (this.loadFailed) return
+
+    labBridge.emit('game:loading', { phase: 'systems', progress: 0.92 })
 
     this.textures.get(EXPERIENCE_ARCHIVE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(LIVING_CORE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)

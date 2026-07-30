@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { labBridge } from '../game/bridge'
+import { gameLoadingLabel, type GameLoadingPhase } from '../game/gameLoading'
 
 const gameStartTimeoutMs = 20_000
 
@@ -8,6 +9,8 @@ export function GameViewport() {
   const retryButton = useRef<HTMLButtonElement>(null)
   const [ready, setReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [loadingPhase, setLoadingPhase] = useState<GameLoadingPhase>('runtime')
+  const [loadingProgress, setLoadingProgress] = useState(0.04)
   const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
@@ -19,6 +22,9 @@ export function GameViewport() {
     let activeGame: { destroy: (removeCanvas: boolean) => void } | null = null
     setReady(false)
     setError(null)
+    setLoadingPhase('runtime')
+    setLoadingProgress(0.04)
+    labBridge.emit('game:loading', { phase: 'runtime', progress: 0.04 })
 
     const destroyGame = () => {
       if (!activeGame) return
@@ -37,6 +43,13 @@ export function GameViewport() {
       if (cancelled || failed) return
       window.clearTimeout(startTimeout)
       setReady(true)
+      setLoadingPhase('ready')
+      setLoadingProgress(1)
+    })
+    const removeLoadingListener = labBridge.on('game:loading', ({ phase, progress }) => {
+      if (cancelled || failed) return
+      setLoadingPhase(phase)
+      setLoadingProgress((current) => Math.max(current, progress))
     })
     const removeErrorListener = labBridge.on('game:error', ({ message }) => fail(message))
     const startTimeout = window.setTimeout(() => {
@@ -47,6 +60,7 @@ export function GameViewport() {
       .then(({ createLabGame }) => {
         if (cancelled || failed) return
 
+        labBridge.emit('game:loading', { phase: 'room', progress: 0.16 })
         const game = createLabGame(parent)
         if (cancelled || failed) {
           game.destroy(true)
@@ -60,6 +74,7 @@ export function GameViewport() {
       cancelled = true
       window.clearTimeout(startTimeout)
       removeReadyListener()
+      removeLoadingListener()
       removeErrorListener()
       destroyGame()
     }
@@ -74,7 +89,10 @@ export function GameViewport() {
   return (
     <div className="game-stage" data-state={error ? 'error' : ready ? 'ready' : 'loading'}>
       {!ready && !error && (
-        <span className="game-loading" role="status">Initialising Lab-01</span>
+        <div className="game-loading" role="status">
+          <span>Initialising Lab-01</span>
+          <small>{gameLoadingLabel[loadingPhase]} · {Math.round(loadingProgress * 100)}%</small>
+        </div>
       )}
       {error && (
         <div className="game-error" role="alert">

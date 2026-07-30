@@ -1,4 +1,5 @@
-export const BOOT_SEQUENCE_DURATION_MS = 2300
+export const BOOT_SEQUENCE_MINIMUM_MS = 2800
+export const BOOT_SEQUENCE_EXIT_MS = 620
 
 interface BootPreferences {
   compactViewport: boolean

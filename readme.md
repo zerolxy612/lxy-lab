@@ -21,7 +21,7 @@ Current release: **v0.5 — complete**.
 - Content-first mobile layout without a low-quality virtual joystick
 - Opt-in procedural ambience with rain, machine hum, and sparse system signals
 - Two restrained discovery details connecting the Hong Kong window, Living AI Core, and RAG Pipeline
-- Skippable desktop boot sequence and reduced-motion support
+- Loading-driven cinematic desktop boot sequence with skip and reduced-motion support
 - Tiled-owned spatial data with tested spawn, collision, and station contracts
 
 ## Work represented

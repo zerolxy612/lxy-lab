@@ -38,4 +38,14 @@ describe('LabBridge', () => {
 
     expect(listener).toHaveBeenCalledWith({ message: 'Room assets unavailable.' })
   })
+
+  it('streams typed loading phases to the DOM intro', () => {
+    const bridge = new LabBridge()
+    const listener = vi.fn()
+    bridge.on('game:loading', listener)
+
+    bridge.emit('game:loading', { phase: 'assets', progress: 0.68 })
+
+    expect(listener).toHaveBeenCalledWith({ phase: 'assets', progress: 0.68 })
+  })
 })

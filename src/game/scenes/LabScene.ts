@@ -125,6 +125,7 @@ export class LabScene extends Phaser.Scene {
       if (this.visitedStations.has('systems')) this.playRagCoreAcknowledgement()
       this.refreshAllStationStates()
     })
+    labBridge.emit('game:loading', { phase: 'ready', progress: 1 })
     labBridge.emit('game:ready', {})
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
