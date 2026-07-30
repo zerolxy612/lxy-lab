@@ -1,6 +1,6 @@
 # Xiangyu's AI Lab — Development Roadmap
 
-最后更新：2026-07-29
+最后更新：2026-07-30
 
 本文档记录当前实现、技术决策、限制和下一轮方向。稳定的产品愿景仍维护在根目录的 [`readme.md`](../readme.md)。
 
@@ -16,7 +16,7 @@
 | 视觉方向 | 青紫系统光为主，香港雨夜与个人物品建立辨识度 | 暖色只用于记忆、生活区域和少量强调 |
 | AI Assistant | 后期能力，不是当前核心 | 先做策划问题和导航，再决定是否连接 LLM |
 
-## 2. Current Implementation — v0.4
+## 2. Current Implementation — v0.5
 
 ### 2.1 Stack and Runtime Boundary
 
@@ -45,7 +45,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 ### 2.2 Stable Runtime and Interaction Baseline
 
-- Tiled `.tmj` 是房间视觉图层、出生点、障碍物和五个站点的唯一空间数据来源。
+- Tiled `.tmj` 是出生点、障碍物、碰撞和五个站点的唯一空间数据来源；固定建筑背景只承担视觉表现。
 - 角色使用上、下、左、右 idle / walk 正式 spritesheet；对角移动归一化。
 - 首次移动前显示 WASD 引导，移动后提示转为靠近站点探索。
 - 五个站点统一支持 nearby、hover、active 和 visited 视觉状态。
@@ -64,7 +64,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 - `npm run typecheck`
 - `npm run lint`
-- `npm run test`（8 个文件，23 项测试）
+- `npm run test`（11 个文件，28 项测试）
 - `npm run build`
 
 布局测试会检查站点注册表一致性、出生点安全性和正式站点素材的视觉 / 碰撞分离；事件桥与素材契约测试覆盖激活、访问状态和纹理尺寸；发布契约测试锁定 v0.4 版本、SEO / 社交元数据与分享资产尺寸。
@@ -85,16 +85,16 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 ## 4. Known Limitations
 
-- 房间、城市和其余设备仍主要由 Phaser Graphics 程序化绘制；玩家、Living AI Core 与 Experience Archive 已替换为首版正式素材。
+- 五个互动站点、玩家、完整建筑背景、RAG Pipeline 与 Offline Corner 均已使用正式素材；其余小型环境道具仍按叙事优先级逐步补充。
 - 玩家 v1 目前每方向只有 idle / walk 两帧，发布前仍需人工像素清理和更完整的步态验证。
 - 碰撞体已进入 Tiled，但仍是简化矩形；其余正式家具确定后需要继续贴合。
-- Tiled 对象层和首版视觉 tile layers 已接入；最底层房间底板、外框与香港窗景仍由 Phaser Graphics 绘制。
+- Tiled 对象层与首版视觉 tile layers 保留；v0.5 正式建筑背景已接管运行时房间底板、外框、材质和香港窗景。
 - Experience Archive 缺少可公开截图、案例链接、量化影响和简历下载。
 - 其余站点仍以结构性内容为主，Selected Work 的案例深度不足。
 - 访问状态只保存在当前 React 会话，刷新后不会保留。
 - 手机端以 Quick Access 为主，不提供触控移动。
 - 关键路径已经手动浏览器验证，但尚未接入自动化端到端浏览器回归。
-- 没有声音、Boot sequence、真实 NPC 路径或在线 AI Assistant。
+- 没有真实 NPC 路径或在线 AI Assistant；当前环境声为克制的程序化声场，不包含音乐、语音或空间定位。
 - 正式像素规范、资产台账、三项代表性 sprite 与 room base tileset v1 已建立；其余 prop 清单留待后续扩展。
 
 ## 5. Completed Iteration — v0.3 Art and Map Pipeline
@@ -235,7 +235,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ### v0.5 — Atmosphere and AI Evaluation
 
-状态：**启动氛围与站点识别系统已完成；正式房间素材、声音与隐藏细节待推进**
+状态：**启动氛围、正式房间 / 站点、环境叙事与程序化声音已完成；隐藏细节与 AI Companion 评估待推进**
 
 目标：让一个已经可用的实验室真正“活起来”，同时保持内容优先、单房间和低系统复杂度。
 
@@ -253,10 +253,42 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 香港窗景加入暖色港口信号与双层雨线；`prefers-reduced-motion` 下保留静态雨景，不运行循环位移动画。
 - 内容面板增加克制的实验室定位标记和结构线，不改变标题层级、焦点管理或移动端单栏路径。
 
+### Third Slice — Formal Room Architecture
+
+- 使用项目现有房间、tileset 和 Living Core 源图作为内部参考，生成并登记正式 960 × 540 建筑背景。
+- 正式背景统一香港雨夜港景、墙体结构、地板磨损、检修格栅、冷暖维护光与前景门槛。
+- Tiled 继续独占出生点、碰撞和站点空间数据；背景不烘焙任何交互对象或 UI。
+- 保留双层运行时雨线和站点导管，移除程序化房间底板、几何城市和运行时 tile layer 叠加。
+- 桌面 1280 × 720 与移动 390 × 844 实测 Canvas 正常进入 ready，Quick Access 和内容优先路径无回退。
+
+### Fourth Slice — Formal Interactive Stations
+
+- Lab Companion 替换为有充电座、传感器和克制表情的实体研究机器人。
+- Selected Work 替换为一体式双联工程台：左侧暗示交互游戏系统，右侧以抽象文档、引用与响应流表达匿名 Legal AI 工作。
+- Future Gate 替换为未完成的校准环，以不完整结构表达仍在形成的探索方向。
+- 三件素材全部使用项目自有背景和正式素材作为内部参考，无第三方图像、公司 Logo、政府标识或敏感项目界面。
+- Tiled 站点视觉范围、碰撞、交互范围和标签间距保持不变；Quick Access 与面板协议无修改。
+- 桌面实测 Selected Work 点击打开正确面板；390 px 移动端五个正式站点可辨认且无水平溢出。
+
+### Fifth Slice — Environmental Storytelling
+
+- RAG Pipeline 从四个相同的程序化机柜升级为有资料入口、检索索引、rerank 结点和响应缓冲区的实体机器。
+- Offline Corner 从几何沙发与控制台升级为一个连贯的休息 / 动手区域，加入原创企鹅玩偶、香港雨伞、茶、掌机、工具与植物。
+- 两件素材全部使用项目自有正式背景、站点和玩家源图作内部参考；不包含公司 Logo、官方吉祥物、校徽或敏感文档。
+- 保留 Tiled 中既有静态碰撞和房间布局；环境素材不新增站点、面板或访问状态。
+- 动态只使用低强度数据光与暖色呼吸光，并遵守 `prefers-reduced-motion`。
+
+### Sixth Slice — Room Ambience
+
+- 使用 Web Audio 程序化合成香港雨声、低强度设备 hum 和约 11.5 秒一次的稀疏系统脉冲，不引入外部采样、音乐或音频版权依赖。
+- 首次访问默认静音；用户必须主动开启，偏好以 `enabled` / `disabled` 写入本地存储。
+- 已开启偏好刷新后进入 `READY`，在下一次可信用户输入时恢复，遵守浏览器自动播放限制。
+- 页面隐藏时暂停声音上下文，返回时恢复；关闭采用短淡出，避免爆音。
+- 声音控制作为独立 React DOM 入口，不修改 Phaser、五个站点、Tiled 地图或访问状态协议。
+- 桌面使用 Quick Access 下方的设备控制条；移动端压缩为顶部 44 px `SND` 控制，不移除关键功能。
+
 ### Remaining v0.5
 
-- 完成房间正式美术与 UI 的后续精修，优先替换剩余程序化设备和城市背景。
-- 加入环境音、默认静音、用户主动开启和偏好保存。
 - 增加少量有目的的 NPC 动作或隐藏细节，不扩展任务与复杂寻路系统。
 - 评估 AI Companion 是否需要 LLM；若需要，再设计服务端、成本和安全边界。
 
@@ -273,6 +305,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 自由移动成为核心体验，不使用纯点击场景。
 - 青紫确认为偏好方向；差异化来自香港环境、个人细节和真实内容。
 - 敏感 Legal AI 工作以匿名案例进入 Selected Work，不承担网站主叙事。
+
 - 完成 v0.1 程序化房间骨架。
 - 完成 v0.2 交互垂直切片：布局配置化、四向反馈、访问状态、Experience Archive、调试层和响应式内容路径。
 - v0.3 转向正式美术规范、代表性区域和地图数据管线。
@@ -288,3 +321,9 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 - v0.4 发布准备提交为 `3a1b6da`。
 - 确认邮箱与 GitHub 为公开 Contact；Contact 保持 DOM 直接入口，不扩展地图站点数量。
+- 房间整体简单的主要原因确认为正式素材与程序化占位的完成度断层，而不是地图面积不足。
+- v0.5 采用固定正式建筑背景统一空间材质；Tiled 继续只承担可验证的空间契约，不在背景图片中复制交互数据。
+- 下一轮先完成三个缺失站点，再增加少量个人叙事道具；不扩展第二个房间。
+- 五个互动站点全部进入正式素材阶段；后续优先处理环境设备与生活痕迹，不增加站点数量。
+- RAG Pipeline 与 Offline Corner 完成正式化；房间下一步转向默认静音的环境声和少量可发现细节，而不是继续铺满静态家具。
+- 环境声采用 Web Audio 程序化合成并默认静音；不引入音乐和外部音频素材，下一轮优先做少量可发现细节。

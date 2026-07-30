@@ -29,7 +29,7 @@ describe('labLayout', () => {
     expect(labLayout.staticObstacles).toHaveLength(3)
   })
 
-  it('keeps room surfaces in production Tiled tile layers', () => {
+  it('retains the v0.3 visual tile layers as an editable map reference', () => {
     const tiledMap = mapSource as {
       layers: Array<{ encoding?: string; name: string; type: string }>
       tilesets: Array<{

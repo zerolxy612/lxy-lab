@@ -5,7 +5,7 @@
 
 > 一个赛博朋克像素风互动个人主页，通过探索一个未来 AI 实验室空间，展示个人经历、项目、技术能力以及 AI 工程理念。
 
-当前状态：**v0.5 氛围与房间体验迭代中**。v0.4 已完成匿名化真实工作、三问 Lab Companion、手机端内容优先路径、Canvas 加载失败降级、公开 Contact，以及首版 SEO / Open Graph / favicon；v0.5 已完成可跳过的桌面启动序列、香港雨夜窗景和跨 Canvas / DOM 的站点识别色，随后进入正式房间素材、环境音和隐藏细节。
+当前状态：**v0.5 氛围与房间体验迭代中**。v0.4 已完成匿名化真实工作、三问 Lab Companion、手机端内容优先路径、Canvas 加载失败降级、公开 Contact，以及首版 SEO / Open Graph / favicon；v0.5 已完成启动序列、站点信号色、正式香港雨夜房间与五个站点、RAG Pipeline / Offline Corner 环境叙事，以及默认静音且记忆偏好的程序化环境声，下一步进入少量可发现细节。
 
 - 开发与下一轮计划：[Development Roadmap](./docs/development-roadmap.md)
 - Tiled 对象层规范：[Tiled Map Schema](./docs/tiled-map-schema.md)
@@ -535,7 +535,6 @@ Phaser 3
 - Collision
 - Sprite / NPC animation
 - Interaction zones
-- Room ambience
 
 ---
 
@@ -550,6 +549,7 @@ React 负责：
 - Quick Access
 - Direct Contact
 - Accessible content fallback
+- Room ambience control and preference
 
 架构：
 
@@ -572,6 +572,7 @@ Walkable Pixel Room
 - 两者只通过 `src/game/bridge.ts` 的类型化事件通信
 - Phaser 延迟加载，身份信息和 Quick Access 优先显示
 - 邮箱和 GitHub 作为独立 DOM 入口始终可达，不占用地图站点
+- 环境声由 React 管理的 Web Audio 引擎程序化生成，首次默认静音且不进入 Phaser 事件桥
 - 900 px 以下首次展开底部 Archive Index；选择内容后收起索引并打开同一站点面板
 - Phaser 或房间素材加载失败时显示可重试状态，不阻断 React 内容路径
 
@@ -589,6 +590,9 @@ xiangyu-ai-lab/
 │   ├── audio/
 │   └── ambience/
 ├── src/
+│   ├── audio/
+│   │   ├── roomAmbience.ts
+│   │   └── roomAmbiencePreferences.ts
 │   ├── app/
 │   │   └── App.tsx
 │   ├── content/

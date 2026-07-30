@@ -1,6 +1,6 @@
 # Xiangyu's AI Lab — Tiled Map Schema v1
 
-最后更新：2026-07-29
+最后更新：2026-07-30
 
 运行时地图位于 `public/assets/game/maps/lab-v1.tmj`。它是房间空间数据的唯一来源；不要在 `LabScene.ts` 或 `labLayout.ts` 中复制站点坐标、碰撞或出生点。
 
@@ -14,7 +14,7 @@
 | Schema property | `schemaVersion = 1` |
 | Runtime URL | `/assets/game/maps/lab-v1.tmj` |
 
-当前地图同时包含对象层和首版视觉 tile layers。最底层纯色房间底板、外框与香港窗景仍由 Phaser 绘制；地板表面和墙板结构由 Tiled 管理。
+当前地图同时包含生产对象层和首版视觉 tile layers。v0.5 起，`lab-room-background-v1.png` 负责运行时建筑、地板与香港窗景；Tiled 继续作为出生点、碰撞、障碍物和五个站点的唯一空间数据来源。
 
 ## Visual Tile Layers
 
@@ -23,7 +23,7 @@
 | `Floor` | `room-base-v1` | 房间地板面板，低对比度、低透明度 |
 | `Structure` | `room-base-v1` | 上墙和两侧结构边缘 |
 
-tileset 位于 `public/assets/game/tilesets/room-base-v1.png`，为 256 × 256 px、16 列 × 16 行。tile layer 使用 Tiled 的未压缩 base64 GID 数据，确保 Phaser 3.90 可以直接解析。
+tileset 位于 `public/assets/game/tilesets/room-base-v1.png`，为 256 × 256 px、16 列 × 16 行。tile layer 使用 Tiled 的未压缩 base64 GID 数据，继续作为可编辑的 v0.3 房间结构参考；当前 Phaser 场景不叠加渲染这两个图层。
 
 ## Required Object Layers
 
@@ -74,7 +74,7 @@ future
 - 站点缺少独立碰撞；
 - 无效颜色、坐标或非正数矩形尺寸。
 
-Phaser 通过 `tilemapTiledJSON` 加载同一份 `.tmj`；`Floor` 和 `Structure` 使用 `NEAREST` 采样渲染。对象解析器会忽略视觉 tile layers，只校验业务对象层，因此二者仍共享同一个生产地图文件。
+Phaser 通过 `tilemapTiledJSON` 加载同一份 `.tmj`。对象解析器忽略视觉 tile layers，只校验业务对象层；固定建筑背景不会保存任何站点、碰撞或出生信息，避免空间数据出现第二份来源。
 
 修改 `.tmj` 后必须运行：
 

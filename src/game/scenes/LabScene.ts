@@ -9,14 +9,23 @@ import {
   EXPERIENCE_ARCHIVE_TEXTURE_KEY,
 } from '../art/experienceArchiveArt'
 import {
+  OFFLINE_CORNER_TEXTURE_KEY,
+  RAG_PIPELINE_TEXTURE_KEY,
+} from '../art/environmentArt'
+import {
   LIVING_CORE_ORIGIN_Y,
   LIVING_CORE_TEXTURE_KEY,
 } from '../art/livingCoreArt'
+import { ROOM_BACKGROUND_TEXTURE_KEY } from '../art/roomBackgroundArt'
+import {
+  FUTURE_GATE_TEXTURE_KEY,
+  LAB_COMPANION_TEXTURE_KEY,
+  SELECTED_WORK_TEXTURE_KEY,
+} from '../art/stationArt'
 import {
   getStationCollisionRect,
   LAB_MAP_KEY,
   parseLabMap,
-  ROOM_TILESET_KEY,
   type LabLayout,
   type StationLayout,
 } from '../layout/labLayout'
@@ -83,8 +92,8 @@ export class LabScene extends Phaser.Scene {
     this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     this.drawRoomBackdrop()
-    this.drawTiledSurfaces()
-    this.drawHongKongWindow()
+    this.drawRoomLighting()
+    this.drawHongKongRain()
     this.drawFloorConduits()
     this.drawPersonalCorner()
     this.drawRagRack()
@@ -140,28 +149,8 @@ export class LabScene extends Phaser.Scene {
   private drawRoomBackdrop() {
     this.cameras.main.setBackgroundColor('#050612')
 
-    const room = this.add.graphics().setDepth(0)
-    room.fillStyle(0x090c1d)
-    room.fillRect(42, 54, LAB_WIDTH - 84, LAB_HEIGHT - 70)
-
-    room.fillStyle(0x13182f)
-    room.fillRect(58, 72, LAB_WIDTH - 116, 104)
-    room.fillStyle(0x0d1125)
-    room.fillTriangle(58, 72, 58, LAB_HEIGHT - 40, 100, 176)
-    room.fillTriangle(LAB_WIDTH - 58, 72, LAB_WIDTH - 58, LAB_HEIGHT - 40, LAB_WIDTH - 100, 176)
-
-    room.fillStyle(0x10152a)
-    room.fillRect(58, 176, LAB_WIDTH - 116, LAB_HEIGHT - 216)
-
-    room.lineStyle(3, 0x2c3961, 0.95)
-    room.strokeRect(42, 54, LAB_WIDTH - 84, LAB_HEIGHT - 70)
-    room.lineStyle(2, 0x111733, 1)
-    room.strokeRect(58, 72, LAB_WIDTH - 116, LAB_HEIGHT - 112)
-
-    room.fillStyle(0x080b18)
-    room.fillRect(430, LAB_HEIGHT - 46, 100, 14)
-    room.lineStyle(2, 0x8a63ff, 0.7)
-    room.lineBetween(440, LAB_HEIGHT - 47, 520, LAB_HEIGHT - 47)
+    this.add.image(LAB_WIDTH / 2, LAB_HEIGHT / 2, ROOM_BACKGROUND_TEXTURE_KEY)
+      .setDepth(0)
 
     this.add.text(68, LAB_HEIGHT - 31, 'LAB-01 / MOVEMENT BUILD', {
       color: '#586687',
@@ -171,68 +160,14 @@ export class LabScene extends Phaser.Scene {
     }).setDepth(3)
   }
 
-  private drawTiledSurfaces() {
-    const map = this.make.tilemap({ key: LAB_MAP_KEY })
-    const tileset = map.addTilesetImage('room-base-v1', ROOM_TILESET_KEY)
-    if (!tileset) throw new Error('Unable to attach room-base-v1 tileset')
-
-    const floor = map.createLayer('Floor', tileset)
-    const structure = map.createLayer('Structure', tileset)
-    if (!floor || !structure) {
-      throw new Error('Tiled map must include Floor and Structure tile layers')
-    }
-
-    floor.setDepth(1)
-    structure.setDepth(1)
-  }
-
-  private drawHongKongWindow() {
-    const window = this.add.graphics().setDepth(1)
-    window.fillStyle(0x04091d)
-    window.fillRect(270, 70, 420, 94)
-    window.lineStyle(3, 0x263456, 1)
-    window.strokeRect(266, 66, 428, 102)
-
-    const buildings = [
-      [278, 123, 30, 41], [312, 105, 22, 59], [338, 118, 35, 46],
-      [378, 91, 28, 73], [411, 113, 22, 51], [439, 100, 36, 64],
-      [480, 85, 26, 79], [511, 111, 38, 53], [554, 96, 24, 68],
-      [583, 116, 30, 48], [618, 101, 28, 63], [651, 124, 31, 40],
-    ] as const
-
-    buildings.forEach(([x, y, width, height], index) => {
-      window.fillStyle(index % 3 === 0 ? 0x19134a : 0x0b2447)
-      window.fillRect(x, y, width, height)
-      const light = index % 2 === 0 ? 0xcd55ff : 0x5cdfff
-      window.fillStyle(light, 0.65)
-      for (let row = y + 7; row < y + height - 4; row += 10) {
-        for (let column = x + 6; column < x + width - 3; column += 9) {
-          if ((row + column + index) % 3 !== 0) window.fillRect(column, row, 2, 3)
-        }
-      }
-    })
-
-    window.fillStyle(0x6f47d8, 0.34)
-    window.fillRect(270, 150, 420, 14)
-    window.fillStyle(0xffc45c, 0.7)
-    window.fillRect(326, 154, 24, 2)
-    window.fillRect(568, 157, 34, 2)
-    window.fillStyle(0xff7867, 0.72)
-    window.fillRect(604, 152, 7, 3)
-    window.lineStyle(1, 0x5cdfff, 0.28)
-    for (let x = 286; x < 684; x += 24) {
-      window.lineBetween(x, 78, x - 8, 111)
-    }
-
-    this.drawHongKongRain()
-
-    this.add.text(630, 79, '香港 / HK', {
-      color: '#ff55c7',
-      fontFamily: 'sans-serif',
-      fontSize: '11px',
-      fontStyle: 'bold',
-      letterSpacing: 2,
-    }).setDepth(2)
+  private drawRoomLighting() {
+    const light = this.add.graphics().setDepth(1)
+    light.fillStyle(0xffc45c, 0.035)
+    light.fillEllipse(150, 310, 250, 260)
+    light.fillStyle(0x5cdfff, 0.035)
+    light.fillEllipse(480, 255, 360, 300)
+    light.fillStyle(0xff7867, 0.025)
+    light.fillEllipse(810, 390, 220, 250)
   }
 
   private drawHongKongRain() {
@@ -240,16 +175,16 @@ export class LabScene extends Phaser.Scene {
     const nearRain = this.add.graphics().setDepth(2).setAlpha(0.34)
 
     farRain.lineStyle(1, 0x5c86b9, 0.7)
-    for (let index = 0; index < 15; index += 1) {
-      const x = 282 + index * 27
-      const y = 78 + (index * 19) % 62
+    for (let index = 0; index < 18; index += 1) {
+      const x = 264 + index * 25
+      const y = 40 + (index * 19) % 94
       farRain.lineBetween(x, y, x - 3, y + 9)
     }
 
     nearRain.lineStyle(1, 0x8fc8e8, 0.82)
-    for (let index = 0; index < 10; index += 1) {
-      const x = 296 + index * 39
-      const y = 82 + (index * 23) % 56
+    for (let index = 0; index < 12; index += 1) {
+      const x = 276 + index * 37
+      const y = 44 + (index * 23) % 86
       nearRain.lineBetween(x, y, x - 4, y + 12)
     }
 
@@ -311,48 +246,48 @@ export class LabScene extends Phaser.Scene {
   }
 
   private drawPersonalCorner() {
-    const corner = this.add.graphics().setDepth(4)
-    corner.fillStyle(0x171a31)
-    corner.fillRoundedRect(64, 405, 164, 66, 6)
-    corner.fillStyle(0x222945)
-    corner.fillRoundedRect(72, 412, 68, 43, 4)
-    corner.fillRoundedRect(146, 412, 72, 43, 4)
-    corner.fillStyle(0x8a63ff, 0.28)
-    corner.fillRect(72, 453, 146, 5)
+    const container = this.add.container(194, 432).setDepth(432).setAlpha(0.98)
+    const warmPool = this.add.ellipse(70, 2, 112, 64, 0xffc45c, 0.045)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const art = this.add.image(0, 0, OFFLINE_CORNER_TEXTURE_KEY)
+    container.add([warmPool, art])
 
-    corner.fillStyle(0x171d37)
-    corner.fillRoundedRect(246, 407, 82, 49, 10)
-    corner.lineStyle(2, 0x5b668a, 0.55)
-    corner.strokeRoundedRect(246, 407, 82, 49, 10)
-    corner.fillStyle(0xffc45c, 0.85)
-    corner.fillCircle(272, 427, 6)
-    corner.fillStyle(0xcd55ff, 0.8)
-    corner.fillRect(292, 420, 20, 13)
+    if (!this.reducedMotion) {
+      this.tweens.add({
+        targets: warmPool,
+        alpha: { from: 0.025, to: 0.07 },
+        duration: 2800,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.InOut',
+      })
+    }
 
     this.add.text(68, 387, 'OFFLINE CORNER', {
       color: '#7b86a6',
       fontFamily: 'sans-serif',
       fontSize: '8px',
       letterSpacing: 2,
-    }).setDepth(5)
+    }).setDepth(900)
   }
 
   private drawRagRack() {
-    const rack = this.add.graphics().setDepth(4)
-    rack.fillStyle(0x10162d)
-    rack.fillRoundedRect(720, 125, 164, 84, 4)
-    rack.lineStyle(2, 0x334066, 0.9)
-    rack.strokeRoundedRect(720, 125, 164, 84, 4)
+    const container = this.add.container(802, 167).setDepth(167).setAlpha(0.98)
+    const dataSignal = this.add.ellipse(5, 0, 132, 52, 0x5cdfff, 0.045)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const art = this.add.image(0, 0, RAG_PIPELINE_TEXTURE_KEY)
+    container.add([dataSignal, art])
 
-    for (let x = 734; x < 868; x += 44) {
-      rack.fillStyle(0x080c1c)
-      rack.fillRect(x, 139, 32, 54)
-      rack.lineStyle(1, 0x5cdfff, 0.45)
-      rack.strokeRect(x, 139, 32, 54)
-      for (let y = 146; y < 189; y += 10) {
-        rack.fillStyle((x + y) % 3 === 0 ? 0xcd55ff : 0x5cdfff, 0.85)
-        rack.fillRect(x + 7, y, 4, 2)
-      }
+    if (!this.reducedMotion) {
+      this.tweens.add({
+        targets: dataSignal,
+        alpha: { from: 0.02, to: 0.075 },
+        scaleX: { from: 0.92, to: 1.04 },
+        duration: 2100,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.InOut',
+      })
     }
 
     this.add.text(733, 113, 'RAG PIPELINE / LIVE', {
@@ -360,7 +295,7 @@ export class LabScene extends Phaser.Scene {
       fontFamily: 'sans-serif',
       fontSize: '8px',
       letterSpacing: 2,
-    }).setDepth(5)
+    }).setDepth(900)
   }
 
   private createStation(layout: StationLayout): InteractiveStation {
@@ -439,22 +374,23 @@ export class LabScene extends Phaser.Scene {
   }
 
   private drawAssistant({ x, y, color }: StationLayout) {
-    const container = this.add.container(x, y).setDepth(8).setAlpha(0.88)
-    const art = this.add.graphics()
-    art.fillStyle(0x10152a)
-    art.fillCircle(0, 18, 42)
-    art.lineStyle(3, color, 0.8)
-    art.strokeCircle(0, 18, 38)
-    art.fillStyle(0xdce7ff)
-    art.fillRoundedRect(-20, -18, 40, 38, 9)
-    art.fillStyle(0x151b35)
-    art.fillRoundedRect(-14, -12, 28, 17, 5)
-    art.fillStyle(0x5cdfff)
-    art.fillCircle(-7, -4, 2)
-    art.fillCircle(7, -4, 2)
-    art.fillStyle(0x9caed0)
-    art.fillRect(-14, 20, 28, 8)
-    container.add(art)
+    const container = this.add.container(x, y).setDepth(y).setAlpha(0.96)
+    const signal = this.add.ellipse(0, 10, 90, 66, color, 0.07)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const art = this.add.image(0, 0, LAB_COMPANION_TEXTURE_KEY)
+    container.add([signal, art])
+
+    if (!this.reducedMotion) {
+      this.tweens.add({
+        targets: signal,
+        alpha: { from: 0.035, to: 0.11 },
+        duration: 2100,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.InOut',
+      })
+    }
+
     return container
   }
 
@@ -505,46 +441,49 @@ export class LabScene extends Phaser.Scene {
     return container
   }
 
-  private drawProjectTerminal({ x, y, width, height, color }: StationLayout) {
-    const container = this.add.container(x, y).setDepth(8).setAlpha(0.9)
-    const art = this.add.graphics()
-    art.fillStyle(0x171a32)
-    art.fillRoundedRect(-width / 2, -height / 2, width, height, 5)
-    art.lineStyle(2, color, 0.7)
-    art.strokeRoundedRect(-width / 2, -height / 2, width, height, 5)
-    art.fillStyle(0x080d22)
-    art.fillRect(-75, -42, 72, 55)
-    art.fillRect(7, -42, 70, 55)
-    art.lineStyle(2, 0xcd55ff, 0.8)
-    art.strokeRect(-75, -42, 72, 55)
-    art.lineStyle(2, 0x5cdfff, 0.8)
-    art.strokeRect(7, -42, 70, 55)
-    art.fillStyle(0xcd55ff, 0.65)
-    art.fillRect(-64, -30, 42, 4)
-    art.fillRect(-64, -19, 26, 3)
-    art.fillStyle(0x5cdfff, 0.65)
-    art.fillRect(18, -30, 46, 4)
-    art.fillRect(18, -19, 32, 3)
-    art.fillStyle(0x0a0d1c)
-    art.fillRect(-50, 27, 100, 23)
-    container.add(art)
+  private drawProjectTerminal({ x, y, color }: StationLayout) {
+    const container = this.add.container(x, y).setDepth(y).setAlpha(0.96)
+    const gameSignal = this.add.ellipse(-45, -8, 74, 58, 0xcd55ff, 0.045)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const aiSignal = this.add.ellipse(47, -5, 76, 62, 0x5cdfff, 0.04)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const status = this.add.rectangle(73, 27, 14, 5, color, 0.08)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const art = this.add.image(0, 0, SELECTED_WORK_TEXTURE_KEY)
+    container.add([gameSignal, aiSignal, status, art])
+
+    if (!this.reducedMotion) {
+      this.tweens.add({
+        targets: [gameSignal, aiSignal, status],
+        alpha: { from: 0.025, to: 0.085 },
+        duration: 2300,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.InOut',
+      })
+    }
+
     return container
   }
 
-  private drawFutureGate({ x, y, width, height, color }: StationLayout) {
-    const container = this.add.container(x, y).setDepth(8).setAlpha(0.9)
-    const art = this.add.graphics()
-    art.fillStyle(0x080b1b)
-    art.fillRoundedRect(-width / 2, -height / 2, width, height, 4)
-    art.lineStyle(4, 0x8a63ff, 0.8)
-    art.strokeRoundedRect(-width / 2, -height / 2, width, height, 4)
-    art.lineStyle(2, color, 0.8)
-    art.strokeRoundedRect(-width / 2 + 10, -height / 2 + 10, width - 20, height - 10, 2)
-    art.lineBetween(0, -height / 2 + 11, 0, height / 2)
-    art.fillStyle(color, 0.9)
-    art.fillCircle(-8, 8, 2)
-    art.fillCircle(8, 8, 2)
-    container.add(art)
+  private drawFutureGate({ x, y, color }: StationLayout) {
+    const container = this.add.container(x, y).setDepth(y).setAlpha(0.96)
+    const calibration = this.add.ellipse(0, 2, 92, 74, color, 0.055)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    const art = this.add.image(0, 0, FUTURE_GATE_TEXTURE_KEY)
+    container.add([calibration, art])
+
+    if (!this.reducedMotion) {
+      this.tweens.add({
+        targets: calibration,
+        alpha: { from: 0.025, to: 0.09 },
+        duration: 1700,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.InOut',
+      })
+    }
+
     return container
   }
 

@@ -7,6 +7,7 @@ import { GameViewport } from '../ui/GameViewport'
 import { InteractionPrompt } from '../ui/InteractionPrompt'
 import { PanelHost } from '../ui/PanelHost'
 import { QuickAccess } from '../ui/QuickAccess'
+import { RoomAmbienceControl } from '../ui/RoomAmbienceControl'
 
 export function App() {
   const quickAccessTrigger = useRef<HTMLButtonElement>(null)
@@ -76,6 +77,7 @@ export function App() {
         </div>
       </header>
       <ContactLinks />
+      <RoomAmbienceControl />
 
       <div className="game-frame">
         <GameViewport />
