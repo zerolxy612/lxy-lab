@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { StationId } from '../content/stations'
 import { labBridge } from '../game/bridge'
+import { BootSequence } from '../ui/BootSequence'
 import { ContactLinks } from '../ui/ContactLinks'
 import { GameViewport } from '../ui/GameViewport'
 import { InteractionPrompt } from '../ui/InteractionPrompt'
@@ -65,6 +66,7 @@ export function App() {
   return (
     <main className="lab-shell">
       <a className="skip-link" href="#quick-access">Skip to quick access</a>
+      <BootSequence />
 
       <header className="identity-lockup">
         <span className="signal-dot" aria-hidden="true" />

@@ -834,9 +834,226 @@ kbd {
   transform: translate(-50%, 0);
 }
 
+.boot-sequence {
+  position: fixed;
+  z-index: 25;
+  inset: 0;
+  overflow: hidden;
+  color: var(--text);
+  background:
+    linear-gradient(90deg, rgb(255 196 92 / 5%) 1px, transparent 1px) 0 0 / 5rem 100%,
+    #050612;
+  pointer-events: none;
+  animation: boot-sequence-exit 260ms cubic-bezier(0.7, 0, 0.84, 0) 1950ms forwards;
+}
+
+.boot-sequence::before {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 3px,
+    rgb(92 223 255 / 4%) 4px
+  );
+  content: "";
+}
+
+.boot-sequence::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 18vh;
+  background: linear-gradient(180deg, transparent, rgb(92 223 255 / 9%), transparent);
+  content: "";
+  opacity: 0;
+  transform: translateY(-20vh);
+  animation: boot-scan 720ms var(--ease-out-quart) 240ms both;
+}
+
+.boot-sequence__frame {
+  position: absolute;
+  top: 50%;
+  left: clamp(2rem, 8vw, 7rem);
+  width: min(44rem, calc(100vw - 4rem));
+  padding: clamp(1.5rem, 3vw, 2.5rem) 0;
+  border-block: 1px solid rgb(255 196 92 / 42%);
+  transform: translateY(-50%);
+}
+
+.boot-sequence__eyebrow,
+.boot-sequence__signal,
+.boot-sequence__frame > strong,
+.boot-sequence__frame > p:not(.boot-sequence__eyebrow),
+.boot-sequence__rail {
+  opacity: 0;
+  animation: boot-line-enter 480ms var(--ease-out-expo) both;
+}
+
+.boot-sequence__eyebrow {
+  margin: 0 0 2rem;
+  color: var(--amber);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  animation-delay: 80ms;
+}
+
+.boot-sequence__signal {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  margin-bottom: 0.7rem;
+  color: var(--cyan);
+  font-size: 0.67rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  animation-delay: 180ms;
+}
+
+.boot-sequence__signal span:first-child {
+  padding: 0.28rem 0.42rem;
+  color: var(--ink);
+  background: var(--cyan);
+}
+
+.boot-sequence__frame > strong {
+  display: block;
+  max-width: 12ch;
+  font-size: clamp(3rem, 7.5vw, 6.5rem);
+  font-weight: 650;
+  line-height: 0.88;
+  letter-spacing: -0.065em;
+  animation-delay: 280ms;
+}
+
+.boot-sequence__frame > p:not(.boot-sequence__eyebrow) {
+  margin: 1.2rem 0 0;
+  color: #9eadd0;
+  font-size: clamp(0.72rem, 1.2vw, 0.9rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation-delay: 380ms;
+}
+
+.boot-sequence__rail {
+  display: flex;
+  gap: 1.4rem;
+  margin-top: 2rem;
+  color: #65759b;
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  animation-delay: 480ms;
+}
+
+.boot-sequence__rail span {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.boot-sequence__rail span::before {
+  width: 0.38rem;
+  height: 0.38rem;
+  background: var(--amber);
+  content: "";
+}
+
+.boot-sequence__rail span:nth-child(2)::before {
+  background: var(--violet);
+}
+
+.boot-sequence__rail span:nth-child(3)::before {
+  background: var(--cyan);
+}
+
+.boot-sequence__skip {
+  position: absolute;
+  right: clamp(2rem, 4vw, 4rem);
+  bottom: clamp(1.5rem, 3vw, 2.5rem);
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.55rem 0.7rem;
+  color: #a8b7d8;
+  border: 1px solid rgb(92 223 255 / 28%);
+  background: #090c1d;
+  cursor: pointer;
+  pointer-events: auto;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  transition:
+    color 140ms var(--ease-out-quart),
+    border-color 140ms var(--ease-out-quart),
+    transform 100ms var(--ease-out-quart);
+}
+
+.boot-sequence__skip:hover,
+.boot-sequence__skip:focus-visible {
+  color: var(--text);
+  border-color: var(--cyan);
+  outline: none;
+}
+
+.boot-sequence__skip:active {
+  transform: scale(0.98);
+}
+
+.boot-sequence__skip kbd {
+  min-width: auto;
+  padding: 0.18rem 0.3rem;
+  font-size: 0.58rem;
+}
+
+@keyframes boot-line-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.7rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes boot-scan {
+  0% {
+    opacity: 0;
+    transform: translateY(-20vh);
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(120vh);
+  }
+}
+
+@keyframes boot-sequence-exit {
+  to {
+    opacity: 0;
+  }
+}
+
 @media (max-width: 900px) {
   .lab-shell {
     place-items: initial;
+  }
+
+  .boot-sequence {
+    display: none;
   }
 
   .game-frame {

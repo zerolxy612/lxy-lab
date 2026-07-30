@@ -5,7 +5,7 @@
 
 > 一个赛博朋克像素风互动个人主页，通过探索一个未来 AI 实验室空间，展示个人经历、项目、技术能力以及 AI 工程理念。
 
-当前状态：**v0.4 内容身份、跨设备路径与发布准备**。v0.3 已完成正式美术与 Tiled 地图管线；v0.4 已加入匿名化真实工作、三问 Lab Companion、手机端内容优先路径、Canvas 加载失败降级、公开 Contact，以及首版 SEO / Open Graph / favicon。完整 Resume、最终域名元数据和真实设备发布验收留在后续切片。
+当前状态：**v0.5 氛围与房间体验迭代中**。v0.4 已完成匿名化真实工作、三问 Lab Companion、手机端内容优先路径、Canvas 加载失败降级、公开 Contact，以及首版 SEO / Open Graph / favicon；v0.5 第一切片从可跳过的桌面启动序列开始，随后进入房间美术、UI、环境音和隐藏细节。
 
 - 开发与下一轮计划：[Development Roadmap](./docs/development-roadmap.md)
 - Tiled 对象层规范：[Tiled Map Schema](./docs/tiled-map-schema.md)
@@ -680,8 +680,8 @@ Hong Kong cyber city atmosphere
 - `v0.1` — 已完成可移动房间、碰撞、五个站点、React / Phaser 事件桥
 - `v0.2` — 已完成稳定的交互垂直切片；该阶段使用程序化占位美术
 - `v0.3` — 已完成像素规范、代表性正式美术切片与 Tiled 地图管线
-- `v0.4` — 当前阶段；内容身份、跨设备路径和发布加固已完成，等待公开资料与最终验收
-- `v0.5` — 最后评估真实 AI Assistant、音效和隐藏内容
+- `v0.4` — 已完成内容身份、跨设备路径和发布加固；公开资料与最终域名后补
+- `v0.5` — 当前阶段；启动氛围、房间美术、UI、音效和隐藏内容，最后评估真实 AI Assistant
 
 ---
 

@@ -231,12 +231,26 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 确认最终域名后补 canonical、绝对分享 URL 和 sitemap。
 - 完成 Safari、Firefox 与实际移动设备发布验收。
 
-## 7. Later Milestones
+## 7. Current Iteration — v0.5 Atmosphere and AI Evaluation
 
 ### v0.5 — Atmosphere and AI Evaluation
 
-- 可跳过的短 Boot sequence、环境音和默认静音策略。
-- 少量有目的的 NPC 或隐藏细节。
+状态：**第一切片进行中**
+
+目标：让一个已经可用的实验室真正“活起来”，同时保持内容优先、单房间和低系统复杂度。
+
+### First Slice — Startup Atmosphere
+
+- 增加约 2 秒的桌面启动序列，支持按钮与 `Escape` 立即跳过。
+- 900 px 以下保持内容优先，不播放启动序列；`prefers-reduced-motion` 用户同样直接进入。
+- 启动序列保持在 Contact 和 Quick Access 下层，不阻断公开内容入口或 Canvas 降级路径。
+- 动效只使用 opacity 与 transform，避免扩大 Phaser 包或引入新动画依赖。
+
+### Remaining v0.5
+
+- 完成房间正式美术与 UI 精修，优先替换剩余程序化设备和城市背景。
+- 加入环境音、默认静音、用户主动开启和偏好保存。
+- 增加少量有目的的 NPC 动作或隐藏细节，不扩展任务与复杂寻路系统。
 - 评估 AI Companion 是否需要 LLM；若需要，再设计服务端、成本和安全边界。
 
 ## 8. Decision Log
