@@ -1008,6 +1008,22 @@ kbd {
   }
 }
 
+@media (max-width: 340px) {
+  .identity-lockup {
+    gap: 0.5rem;
+  }
+
+  .identity-lockup h1 {
+    font-size: 0.875rem;
+  }
+
+  .signal-dot {
+    width: 0.42rem;
+    height: 0.42rem;
+    margin-top: 0.25rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
