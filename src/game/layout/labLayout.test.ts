@@ -69,6 +69,13 @@ describe('labLayout', () => {
     expect(layoutIds).toEqual(contentIds)
   })
 
+  it('keeps Tiled station colors aligned with the React content registry', () => {
+    stations.forEach(({ accent, id }) => {
+      const layout = labLayout.stations.find((station) => station.id === id)
+      expect(layout?.color).toBe(Number.parseInt(accent.slice(1), 16))
+    })
+  })
+
   it('places the player spawn inside the room and outside every collision block', () => {
     const { worldBounds, playerSpawn, staticObstacles } = labLayout
     const worldEdges = {

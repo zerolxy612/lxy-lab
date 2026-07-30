@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import type { RefObject } from 'react'
+import type { CSSProperties, RefObject } from 'react'
 import type { StationId } from '../content/stations'
 import { stationById } from '../content/stations'
 import { selectedProjects } from '../content/projects'
@@ -64,10 +64,13 @@ export function PanelHost({ stationId, returnFocusRef, onClose, onNavigate }: Pa
     <aside
       ref={panel}
       className="station-panel"
+      data-station={station.id}
+      style={{ '--station-accent': station.accent } as CSSProperties}
       role="dialog"
       aria-modal="true"
       aria-labelledby="station-panel-title"
     >
+      <span className="panel-location" aria-hidden="true">HKG / LAB-01</span>
       <header>
         <div>
           <span>{station.index} / {station.eyebrow}</span>

@@ -224,7 +224,7 @@
             {
               "name": "color",
               "type": "color",
-              "value": "#5cdfff"
+              "value": "#ffc45c"
             },
             {
               "name": "interactionPadding",
@@ -295,7 +295,7 @@
             {
               "name": "color",
               "type": "color",
-              "value": "#ffc45c"
+              "value": "#ff7867"
             },
             {
               "name": "interactionPadding",

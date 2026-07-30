@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { RefObject } from 'react'
+import type { CSSProperties, RefObject } from 'react'
 import type { StationId } from '../content/stations'
 import { stations } from '../content/stations'
 
@@ -66,7 +66,9 @@ export function QuickAccess({ triggerRef, visitedStations, onSelect }: QuickAcce
         {stations.map((station) => (
           <button
             key={station.id}
+            data-station={station.id}
             data-visited={visitedStations.has(station.id)}
+            style={{ '--station-accent': station.accent } as CSSProperties}
             aria-label={`${station.title}${visitedStations.has(station.id) ? ', visited' : ''}`}
             onClick={() => selectStation(station.id)}
           >

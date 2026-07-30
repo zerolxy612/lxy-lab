@@ -8,6 +8,7 @@ export type StationId =
 export interface StationContent {
   id: StationId
   index: string
+  accent: `#${string}`
   title: string
   eyebrow: string
   summary: string
@@ -18,6 +19,7 @@ export const stations: readonly StationContent[] = [
   {
     id: 'assistant',
     index: '01',
+    accent: '#cd55ff',
     title: 'Lab Companion',
     eyebrow: 'Ask the room',
     summary: 'A short orientation to Xiangyu, the room, and the ideas hidden inside it.',
@@ -29,6 +31,7 @@ export const stations: readonly StationContent[] = [
   {
     id: 'experience',
     index: '02',
+    accent: '#ffc45c',
     title: 'Experience Archive',
     eyebrow: 'Past signals',
     summary: 'Roles, turning points, and lessons collected along the way.',
@@ -40,6 +43,7 @@ export const stations: readonly StationContent[] = [
   {
     id: 'systems',
     index: '03',
+    accent: '#68e5ff',
     title: 'Living AI Core',
     eyebrow: 'How the lab thinks',
     summary: 'Production lessons carried from interactive systems into AI-native products.',
@@ -51,6 +55,7 @@ export const stations: readonly StationContent[] = [
   {
     id: 'projects',
     index: '04',
+    accent: '#a86cff',
     title: 'Selected Work',
     eyebrow: 'Things built',
     summary: 'Two concise field notes from shipped interactive and AI application work.',
@@ -62,6 +67,7 @@ export const stations: readonly StationContent[] = [
   {
     id: 'future',
     index: '05',
+    accent: '#ff7867',
     title: 'Future Gate',
     eyebrow: 'In progress',
     summary: 'Open questions, current experiments, and directions still taking shape.',

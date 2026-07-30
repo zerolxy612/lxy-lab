@@ -361,6 +361,8 @@ button {
 }
 
 .quick-access nav button {
+  --station-accent: var(--cyan);
+
   display: grid;
   min-height: 2.8rem;
   grid-template-columns: 2rem 1fr 1rem;
@@ -382,7 +384,7 @@ button {
 }
 
 .quick-access nav button span {
-  color: var(--magenta);
+  color: var(--station-accent);
   font-size: 0.68rem;
   font-weight: 700;
 }
@@ -395,13 +397,17 @@ button {
 }
 
 .quick-access nav button[data-visited="true"] i {
-  color: var(--violet);
+  color: var(--station-accent);
+}
+
+.quick-access nav button[data-visited="true"] {
+  box-shadow: inset 2px 0 0 var(--station-accent);
 }
 
 .quick-access nav button:hover,
 .quick-access nav button:focus-visible {
   color: var(--ink);
-  background: var(--cyan);
+  background: var(--station-accent);
   outline: none;
 }
 
@@ -450,6 +456,8 @@ kbd {
 }
 
 .station-panel {
+  --station-accent: var(--cyan);
+
   position: fixed;
   z-index: 50;
   top: 0;
@@ -458,11 +466,33 @@ kbd {
   height: 100dvh;
   padding: clamp(1.5rem, 4vw, 3rem);
   overflow-y: auto;
-  border-left: 1px solid rgb(205 85 255 / 45%);
-  background: #0b0e20;
+  border-left: 1px solid var(--station-accent);
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 2%) 1px, transparent 1px) 0 0 / 5rem 100%,
+    #0b0e20;
   box-shadow: -30px 0 80px rgb(3 4 12 / 75%);
   container-type: inline-size;
   animation: panel-enter 240ms var(--ease-out-quint) both;
+}
+
+.station-panel::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(7rem, 38%, 12rem);
+  height: 2px;
+  background: var(--station-accent);
+  content: "";
+}
+
+.panel-location {
+  position: absolute;
+  top: 0.55rem;
+  right: clamp(1.5rem, 4vw, 3rem);
+  color: #65759b;
+  font-size: 0.56rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
 }
 
 @keyframes panel-enter {
@@ -486,7 +516,7 @@ kbd {
 
 .station-panel header span,
 .project-list article > span {
-  color: var(--cyan);
+  color: var(--station-accent);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -510,7 +540,7 @@ kbd {
 
 .panel-close:hover,
 .panel-close:focus-visible {
-  color: var(--cyan);
+  color: var(--station-accent);
   outline: none;
 }
 

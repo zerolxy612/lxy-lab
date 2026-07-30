@@ -214,10 +214,17 @@ export class LabScene extends Phaser.Scene {
 
     window.fillStyle(0x6f47d8, 0.34)
     window.fillRect(270, 150, 420, 14)
+    window.fillStyle(0xffc45c, 0.7)
+    window.fillRect(326, 154, 24, 2)
+    window.fillRect(568, 157, 34, 2)
+    window.fillStyle(0xff7867, 0.72)
+    window.fillRect(604, 152, 7, 3)
     window.lineStyle(1, 0x5cdfff, 0.28)
     for (let x = 286; x < 684; x += 24) {
       window.lineBetween(x, 78, x - 8, 111)
     }
+
+    this.drawHongKongRain()
 
     this.add.text(630, 79, '香港 / HK', {
       color: '#ff55c7',
@@ -226,6 +233,42 @@ export class LabScene extends Phaser.Scene {
       fontStyle: 'bold',
       letterSpacing: 2,
     }).setDepth(2)
+  }
+
+  private drawHongKongRain() {
+    const farRain = this.add.graphics().setDepth(2).setAlpha(0.24)
+    const nearRain = this.add.graphics().setDepth(2).setAlpha(0.34)
+
+    farRain.lineStyle(1, 0x5c86b9, 0.7)
+    for (let index = 0; index < 15; index += 1) {
+      const x = 282 + index * 27
+      const y = 78 + (index * 19) % 62
+      farRain.lineBetween(x, y, x - 3, y + 9)
+    }
+
+    nearRain.lineStyle(1, 0x8fc8e8, 0.82)
+    for (let index = 0; index < 10; index += 1) {
+      const x = 296 + index * 39
+      const y = 82 + (index * 23) % 56
+      nearRain.lineBetween(x, y, x - 4, y + 12)
+    }
+
+    if (this.reducedMotion) return
+
+    this.tweens.add({
+      targets: farRain,
+      y: { from: -6, to: 8 },
+      duration: 1150,
+      repeat: -1,
+      ease: 'Linear',
+    })
+    this.tweens.add({
+      targets: nearRain,
+      y: { from: -8, to: 8 },
+      duration: 760,
+      repeat: -1,
+      ease: 'Linear',
+    })
   }
 
   private drawFloorConduits() {
