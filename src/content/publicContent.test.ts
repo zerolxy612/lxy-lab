@@ -13,6 +13,17 @@ describe('public portfolio content', () => {
       'TON Ecosystem Web3 Game',
       'Government-facing Legal AI',
     ])
+    expect(selectedProjects.every(({ decisions }) => decisions.length === 3)).toBe(true)
+    expect(selectedProjects.every(({ ownership, challenge, outcome }) => (
+      ownership.length > 0 && challenge.length > 0 && outcome.length > 0
+    ))).toBe(true)
+  })
+
+  it('states the public boundary for every project field note', () => {
+    expect(selectedProjects.every(({ publicBoundary }) => publicBoundary.length > 0)).toBe(true)
+    expect(selectedProjects.find(({ id }) => id === 'government-legal-ai')?.publicBoundary).toContain(
+      'Project name, client identity, data, documents, and internal interfaces are not public.',
+    )
   })
 
   it('routes each Companion question to a distinct real station', () => {

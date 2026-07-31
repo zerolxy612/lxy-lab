@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react'
 import type { CSSProperties, RefObject } from 'react'
 import type { StationId } from '../content/stations'
 import { stationById } from '../content/stations'
-import { selectedProjects } from '../content/projects'
 import { ExperienceArchive } from './ExperienceArchive'
 import { LabCompanion } from './LabCompanion'
+import { SelectedWork } from './SelectedWork'
 import { restoreFocus } from './focusReturn'
 
 interface PanelHostProps {
@@ -34,7 +34,7 @@ export function PanelHost({ stationId, returnFocusRef, onClose, onNavigate }: Pa
       if (event.key !== 'Tab') return
 
       const focusable = panel.current?.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        'a[href], button:not([disabled]), summary, [tabindex]:not([tabindex="-1"])',
       )
       if (!focusable?.length) return
 
@@ -88,19 +88,7 @@ export function PanelHost({ stationId, returnFocusRef, onClose, onNavigate }: Pa
       ) : stationId === 'experience' ? (
         <ExperienceArchive />
       ) : stationId === 'projects' ? (
-        <div className="project-list">
-          {selectedProjects.map((project) => (
-            <article key={project.id}>
-              <span>{project.type}</span>
-              <h3>{project.name}</h3>
-              <p>{project.summary}</p>
-              <p className="project-signal">
-                <span>Signal</span>
-                {project.signal}
-              </p>
-            </article>
-          ))}
-        </div>
+        <SelectedWork />
       ) : (
         <ul>
           {station.details.map((detail) => <li key={detail}>{detail}</li>)}

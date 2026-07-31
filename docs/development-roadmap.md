@@ -16,7 +16,7 @@
 | 视觉方向 | 青紫系统光为主，香港雨夜与个人物品建立辨识度 | 暖色只用于记忆、生活区域和少量强调 |
 | AI Assistant | 后期能力，不是当前核心 | 先做策划问题和导航，再决定是否连接 LLM |
 
-## 2. Current Implementation — v0.5
+## 2. Current Implementation — v0.5 Release Baseline / v0.6 In Progress
 
 ### 2.1 Stack and Runtime Boundary
 
@@ -65,7 +65,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 
 - `npm run typecheck`
 - `npm run lint`
-- `npm run test`（14 个文件，35 项测试）
+- `npm run test`（14 个文件，36 项测试）
 - `npm run build`
 
 布局测试会检查站点注册表一致性、出生点安全性和正式站点素材的视觉 / 碰撞分离；事件桥与素材契约测试覆盖激活、访问状态和纹理尺寸；声音偏好测试覆盖默认静音、持久化和存储失败；发布契约测试锁定 v0.5 版本、SEO / 社交元数据与分享资产尺寸。
@@ -314,13 +314,32 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - TypeScript、Lint、14 个测试文件 / 35 项测试和生产构建通过。
 - 桌面与 390 / 360 px 移动端完成关键路径浏览器验收。
 
-### Next Direction — v0.6
+## 8. Current Iteration — v0.6 Public Proof and Launch Readiness
 
-- 优先补强可公开的作品证据、最终域名、Resume 与真实设备 / 跨浏览器发布验收。
-- 保持“个人数字作品优先”；这些发布能力作为第二层可信度建设，不把首页改造成简历模板。
-- 不增加第二个房间、任务系统或新的内容站点。
+状态：**第一切片已完成；量化结果、外部证据、Resume、最终域名与跨浏览器发布验收待完成**
 
-## 8. Decision Log
+### Goal
+
+在不削弱实验室主体验的前提下，为招聘者、技术同行和潜在合作者增加一层可快速验证的专业证据。v0.6 不增加第二个房间、任务系统或新站点；可信度建设继续依附于 Selected Work、Resume、Contact 和发布元数据。
+
+### First Slice — Public-safe Project Field Notes
+
+- Selected Work 从两段简介升级为两份渐进展开的 field notes，默认仍保持简洁。
+- 每份项目记录明确展示时间、生产背景、Xiangyu 的 ownership、系统边界、工程挑战、三项关键决策与交付结果。
+- Tencent IEG 项目使用公开安全的 TON 生态 Web3 游戏描述；不展示非公开生产材料。
+- HKGAI 项目继续使用匿名 government-facing Legal AI 描述，并在 UI 中明确项目名称、客户身份、数据、文档和内部界面不公开。
+- `<details>` / `<summary>` 提供原生键盘操作；面板焦点循环已纳入 summary 控件。
+- 桌面 1280 × 800 与移动 390 × 844 完成浏览器验收；手机端 ownership / system 自动切为单栏，展开后无横向溢出。
+- 内容契约测试新增 ownership、challenge、delivery、三项 decisions 和 confidential disclosure 校验。
+
+### Remaining v0.6 Direction
+
+- 在获得确认资料后，为项目补充可公开链接、截图或量化结果；不以虚构数字和占位按钮制造“证据感”。
+- 增加经本人确认的 Resume 下载与语义化快速入口。
+- 确认最终域名后补齐 canonical、`og:url`、绝对分享图 URL 与 sitemap。
+- 完成真实设备以及 Chrome、Safari、Firefox / Edge 的发布验收与问题收敛。
+
+## 9. Decision Log
 
 ### 2026-07-28
 
