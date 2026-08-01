@@ -95,7 +95,7 @@ Phaser 保存角色坐标、碰撞、附近站点和场景动画；React 保存�
 - 访问状态只保存在当前 React 会话，刷新后不会保留。
 - 手机端以 Quick Access 为主，不提供触控移动。
 - 关键路径已经手动浏览器验证，但尚未接入自动化端到端浏览器回归。
-- 没有真实 NPC 路径；在线 AI Assistant 已在 v0.5 作出 no-go 决策，当前环境声为克制的程序化声场，不包含音乐、语音或空间定位。
+- ROOK / MIRA NPC 方向与对话职责已确认，但运行时尚未开始；首版明确不做复杂寻路。在线 AI Assistant 已在 v0.5 作出 no-go 决策，当前环境声为克制的程序化声场，不包含音乐、语音或空间定位。
 - 正式像素规范、资产台账、三项代表性 sprite 与 room base tileset v1 已建立；其余 prop 清单留待后续扩展。
 
 ## 5. Completed Iteration — v0.3 Art and Map Pipeline
@@ -339,6 +339,13 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 确认最终域名后补齐 canonical、`og:url`、绝对分享图 URL 与 sitemap。
 - 完成真实设备以及 Chrome、Safari、Firefox / Edge 的发布验收与问题收敛。
 
+### Confirmed Post-v0.6 Direction — Conversational NPCs
+
+- 首发 NPC 确认为维护机器人 ROOK 与夜班档案员 MIRA；角色、对话和素材契约见 [`npc-dialogue-design.md`](./npc-dialogue-design.md)。
+- NULL-03 保留为 Future Gate 后期解锁角色，不进入首轮素材和运行时开发。
+- 首版采用人工编写的三问分支、固定位置与小范围动作，不增加 LLM、任务系统、新站点或复杂路径规划。
+- 现有 Lab Companion 继续承担快速导航；ROOK 讲工程取舍，MIRA 讲经历与公开边界，避免角色职责重复。
+
 ## 9. Decision Log
 
 ### 2026-07-28
@@ -376,3 +383,9 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 环境声采用 Web Audio 程序化合成并默认静音；不引入音乐和外部音频素材，下一轮优先做少量可发现细节。
 - 根目录 README 改为面向公开访客的仓库首页；Codex 协作上下文迁入本地忽略文件，避免把内部工作说明当成作品介绍发布。
 - v0.5 以两个克制隐藏信号完成氛围收尾；AI Companion 正式选择 no-go for live LLM，确定性三问导航继续作为生产方案。
+
+### 2026-08-01
+
+- v0.6 第一切片完成 Selected Work 公开安全 field notes。
+- 对话 NPC 优先级确认为 ROOK、MIRA；NULL-03 仅保留为后期解锁角色。
+- NPC 首版采用确定性分支与固定位置，不改变五站点结构，也不引入复杂寻路或在线 LLM。

@@ -1,8 +1,28 @@
 # Xiangyu's AI Lab — Asset Ledger
 
-最后更新：2026-07-30
+最后更新：2026-08-01
 
 所有进入运行时的正式美术素材都必须保留来源、处理方式和当前状态。第三方素材在未确认许可前不得进入 `public/assets/game/`。
+
+## Concept Assets
+
+| Asset | File | Production method | Status |
+|---|---|---|---|
+| NPC roster concept v1 | `design/concepts/npc-rook-mira-null-concept-v1.png` | OpenAI built-in image generation；使用项目自有 Xiangyu 玩家、Lab Companion 与正式房间背景作为比例、材质和像素语言参考 | ROOK / MIRA selected；NULL-03 deferred；not runtime-ready |
+
+### NPC Roster Concept v1 Prompt
+
+```text
+Use case: stylized-concept
+Asset type: preview-only NPC concept sheet for Xiangyu's AI Lab pixel-art game
+Primary request: Design three distinct conversational NPC candidates that could genuinely live inside the existing future Hong Kong laboratory. Show all three as clean, full-body pixel-art character concepts with clearly different silhouettes and personalities.
+Input images: Image 1 is the existing Xiangyu player sprite and defines character scale, pixel density, outline weight, and rendering language. Image 2 is the existing Lab Companion and defines laboratory robot materials and cyan / amber device lighting. Image 3 is the existing laboratory and defines architecture, palette, atmosphere, and Hong Kong night context.
+Characters: ROOK is a compact mobile maintenance robot with a low sturdy silhouette, telescoping tool arm, one amber work lamp, graphite and worn ivory shell, practical and slightly stubborn personality. MIRA is an adult Hong Kong night archivist with a compact readable silhouette, dark weatherproof research coat, archive satchel, tea flask, restrained amber / vermilion details, calm observation, and dry humor. NULL-03 is an unfinished slender asymmetrical synthetic prototype with a partially exposed cyan-violet core and incomplete calibration ring, curious rather than threatening.
+Scene/backdrop: subdued dark laboratory presentation surface inspired by the reference room, faint floor grid, minimal cyan structural lines.
+Style/medium: crisp hand-authored-looking pixel art matching the reference assets; restrained retro-future Hong Kong research-lab aesthetic, readable at game scale.
+Composition/framing: wide landscape concept sheet, three separated character columns, front three-quarter standing pose plus one small alternate expression or gesture vignette each.
+Constraints: preserve the project's chunky pixel scale and hard edges; distinct silhouettes; no text labels, UI panels, speech bubbles, logos, weapons, brand marks, watermarks, or imitation of copyrighted game characters. Concept preview only, not a production sprite sheet.
+```
 
 ## Runtime Assets
 
