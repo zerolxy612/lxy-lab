@@ -316,7 +316,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ## 8. Current Iteration — v0.6 Public Proof and Launch Readiness
 
-状态：**第二切片已完成；量化结果、外部证据、Resume、最终域名与跨浏览器发布验收待完成**
+状态：**第三切片已完成；量化结果、外部证据、Resume、最终域名与跨浏览器发布验收待完成**
 
 ### Goal
 
@@ -347,6 +347,15 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 六条回答全部人工编写并路由到现有五站点，不接在线 LLM、任务、好感度或新站点。
 - React 负责语义化对话、焦点循环、Escape 与移动端入口；Phaser 只负责位置、朝向、附近提示和激活。
 - Living AI Core 与 Experience Archive 分别提供 ROOK / MIRA 的移动端等价入口。
+
+### Third Slice — Narrative Boot Sequence
+
+- 保留 v0.5 的真实加载驱动、旋转加载核心、四阶段遥测与分屏舱门揭幕，重构进入房间前的叙事编排。
+- 前 1.5 秒逐行显示香港夜间信道、Living AI Core、公开记忆与两份项目记录；每一行状态映射真实 `runtime` / `room` / `assets` / `systems` / `ready` 阶段，不播放伪造进度。
+- NULL-03 只以 `ACCESS DEFERRED` 伏笔出现，不加入运行时 NPC、地图或任务状态。
+- 真实 ready 后展示 `SYSTEM ONLINE`、首次 / 回访欢迎语与三行 `XIANGYU AI LAB` 字标，再执行既有 620 ms 舱门揭幕。
+- 首次访问记录只保存一个本地布尔标记；存储不可用时安静降级，不影响开场或内容访问。
+- Skip / Escape、加载错误、900 px 以下直接进入和 `prefers-reduced-motion` 绕过规则保持不变；全部动画只使用 opacity 与 transform。
 
 ### Confirmed Later Direction — Character Expansion
 

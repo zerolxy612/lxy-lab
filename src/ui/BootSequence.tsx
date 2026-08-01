@@ -10,9 +10,19 @@ import {
 import { labBridge } from '../game/bridge'
 import {
   BOOT_SEQUENCE_EXIT_MS,
-  BOOT_SEQUENCE_MINIMUM_MS,
+  BOOT_SEQUENCE_ONLINE_MS,
+  BOOT_SEQUENCE_PRELUDE_MS,
+  isReturningVisitor,
+  markBootVisit,
   shouldBypassBoot,
 } from './bootSequencePreferences'
+
+const bootLogSteps = [
+  { phaseIndex: 0, command: 'Connecting Hong Kong night channel', complete: 'SIGNAL LOCKED' },
+  { phaseIndex: 1, command: 'Waking Living AI Core', complete: 'CORE STABLE' },
+  { phaseIndex: 2, command: 'Indexing public memories', complete: 'ARCHIVE READY' },
+  { phaseIndex: 3, command: 'Synchronizing project signals', complete: '02 RECORDS FOUND' },
+] as const
 
 function readBootPreferences() {
   return {
@@ -21,21 +31,35 @@ function readBootPreferences() {
   }
 }
 
+function readBootStorage() {
+  try {
+    return window.localStorage
+  } catch {
+    return null
+  }
+}
+
 export function BootSequence() {
   const [visible, setVisible] = useState(() => !shouldBypassBoot(readBootPreferences()))
+  const [returningVisitor] = useState(() => isReturningVisitor(readBootStorage()))
   const [phase, setPhase] = useState<GameLoadingPhase>('runtime')
   const [progress, setProgress] = useState(0.04)
   const [ready, setReady] = useState(false)
-  const [minimumElapsed, setMinimumElapsed] = useState(false)
+  const [preludeElapsed, setPreludeElapsed] = useState(false)
   const [exiting, setExiting] = useState(false)
   const phaseIndex = useMemo(() => getLoadingPhaseIndex(phase), [phase])
+  const online = ready && preludeElapsed
+
+  useEffect(() => {
+    markBootVisit(readBootStorage())
+  }, [])
 
   useEffect(() => {
     if (!visible) return
 
-    const minimumTimer = window.setTimeout(
-      () => setMinimumElapsed(true),
-      BOOT_SEQUENCE_MINIMUM_MS,
+    const preludeTimer = window.setTimeout(
+      () => setPreludeElapsed(true),
+      BOOT_SEQUENCE_PRELUDE_MS,
     )
     const skipOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setVisible(false)
@@ -53,7 +77,7 @@ export function BootSequence() {
 
     window.addEventListener('keydown', skipOnEscape)
     return () => {
-      window.clearTimeout(minimumTimer)
+      window.clearTimeout(preludeTimer)
       window.removeEventListener('keydown', skipOnEscape)
       removeLoadingListener()
       removeReadyListener()
@@ -62,19 +86,19 @@ export function BootSequence() {
   }, [visible])
 
   useEffect(() => {
-    if (!visible || !ready || !minimumElapsed) return
+    if (!visible || !online) return
 
     let exitTimer: number | undefined
     const startExitTimer = window.setTimeout(() => {
       setExiting(true)
       exitTimer = window.setTimeout(() => setVisible(false), BOOT_SEQUENCE_EXIT_MS)
-    }, 0)
+    }, BOOT_SEQUENCE_ONLINE_MS)
 
     return () => {
       window.clearTimeout(startExitTimer)
       if (exitTimer !== undefined) window.clearTimeout(exitTimer)
     }
-  }, [minimumElapsed, ready, visible])
+  }, [online, visible])
 
   if (!visible) return null
 
@@ -85,6 +109,7 @@ export function BootSequence() {
       className="boot-sequence"
       data-exiting={exiting}
       data-ready={ready}
+      data-online={online}
       aria-label="Lab startup sequence"
     >
       <div className="boot-sequence__shutters" aria-hidden="true">
@@ -99,10 +124,27 @@ export function BootSequence() {
         </div>
 
         <div className="boot-sequence__hero">
-          <div className="boot-sequence__title">
-            <p>Private signal / public record</p>
-            <strong><span>Xiangyu’s</span> AI Lab</strong>
-            <small>AI application engineering · Hong Kong</small>
+          <div className="boot-sequence__terminal">
+            <p>INITIALIZING LAB-01...</p>
+            <ol>
+              {bootLogSteps.map((step) => {
+                const state = phaseIndex > step.phaseIndex
+                  ? 'complete'
+                  : phaseIndex === step.phaseIndex
+                    ? 'active'
+                    : 'pending'
+                return (
+                  <li key={step.command} data-state={state}>
+                    <span><i aria-hidden="true">›</i>{step.command}...</span>
+                    <b>{state === 'complete' ? step.complete : state === 'active' ? `RUNNING / ${progressPercent}%` : 'QUEUED'}</b>
+                  </li>
+                )
+              })}
+              <li className="boot-sequence__deferred" data-state={phaseIndex >= 3 ? 'deferred' : 'pending'}>
+                <span><i aria-hidden="true">›</i>Checking restricted prototypes...</span>
+                <b>{phaseIndex >= 3 ? 'NULL-03 / ACCESS DEFERRED' : 'QUEUED'}</b>
+              </li>
+            </ol>
           </div>
 
           <div className="boot-sequence__core" data-ready={ready}>
@@ -111,6 +153,17 @@ export function BootSequence() {
             <i />
             <b>{String(progressPercent).padStart(2, '0')}</b>
             <span>LAB-01</span>
+          </div>
+
+          <div className="boot-sequence__identity">
+            <p>SYSTEM ONLINE</p>
+            <span>{returningVisitor ? 'Welcome back, visitor.' : 'Welcome, visitor.'}</span>
+            <small>You are entering:</small>
+            <strong aria-label="Xiangyu AI Lab">
+              <i>X I A N G Y U</i>
+              <i>A I</i>
+              <i>L A B</i>
+            </strong>
           </div>
         </div>
 
