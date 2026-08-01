@@ -316,7 +316,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ## 8. Current Iteration — v0.6 Public Proof and Launch Readiness
 
-状态：**第一切片已完成；量化结果、外部证据、Resume、最终域名与跨浏览器发布验收待完成**
+状态：**第二切片已完成；量化结果、外部证据、Resume、最终域名与跨浏览器发布验收待完成**
 
 ### Goal
 
@@ -339,11 +339,20 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 确认最终域名后补齐 canonical、`og:url`、绝对分享图 URL 与 sitemap。
 - 完成真实设备以及 Chrome、Safari、Firefox / Edge 的发布验收与问题收敛。
 
-### Confirmed Post-v0.6 Direction — Conversational NPCs
+### Second Slice — Conversational Character Layer
 
-- 首发 NPC 确认为维护机器人 ROOK 与夜班档案员 MIRA；角色、对话和素材契约见 [`npc-dialogue-design.md`](./npc-dialogue-design.md)。
+- ROOK 与 MIRA 作为首轮可对话 NPC 进入运行时；NULL-03 不加载、不出现在地图或内容注册表。
+- ROOK 沿 Tiled 五点路线巡逻，玩家靠近或对话打开时停止并朝向玩家；`prefers-reduced-motion` 下保持静止可交互。
+- MIRA 固定在 Experience Archive 东侧，只使用站立与轻微档案动作，不播放行走循环。
+- 六条回答全部人工编写并路由到现有五站点，不接在线 LLM、任务、好感度或新站点。
+- React 负责语义化对话、焦点循环、Escape 与移动端入口；Phaser 只负责位置、朝向、附近提示和激活。
+- Living AI Core 与 Experience Archive 分别提供 ROOK / MIRA 的移动端等价入口。
+
+### Confirmed Later Direction — Character Expansion
+
+- 首发 NPC 已实现为维护机器人 ROOK 与夜班档案员 MIRA；角色、对话和素材契约见 [`npc-dialogue-design.md`](./npc-dialogue-design.md)。
 - NULL-03 保留为 Future Gate 后期解锁角色，不进入首轮素材和运行时开发。
-- 首版采用人工编写的三问分支、固定位置与小范围动作，不增加 LLM、任务系统、新站点或复杂路径规划。
+- 首版采用人工编写的三问分支、ROOK waypoint 巡逻与 MIRA 固定位置，不增加 LLM、任务系统、新站点或复杂路径规划。
 - 现有 Lab Companion 继续承担快速导航；ROOK 讲工程取舍，MIRA 讲经历与公开边界，避免角色职责重复。
 
 ## 9. Decision Log
@@ -388,4 +397,4 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 - v0.6 第一切片完成 Selected Work 公开安全 field notes。
 - 对话 NPC 优先级确认为 ROOK、MIRA；NULL-03 仅保留为后期解锁角色。
-- NPC 首版采用确定性分支与固定位置，不改变五站点结构，也不引入复杂寻路或在线 LLM。
+- NPC 首版采用确定性分支；ROOK 采用 Tiled waypoint 巡逻，MIRA 保持固定，不改变五站点结构，也不引入复杂寻路或在线 LLM。

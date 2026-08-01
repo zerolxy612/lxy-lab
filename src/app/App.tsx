@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { StationId } from '../content/stations'
+import type { NpcId } from '../content/npcs'
 import { labBridge } from '../game/bridge'
 import { BootSequence } from '../ui/BootSequence'
 import { ContactLinks } from '../ui/ContactLinks'
@@ -8,20 +9,29 @@ import { InteractionPrompt } from '../ui/InteractionPrompt'
 import { PanelHost } from '../ui/PanelHost'
 import { QuickAccess } from '../ui/QuickAccess'
 import { RoomAmbienceControl } from '../ui/RoomAmbienceControl'
+import { NpcDialogue } from '../ui/NpcDialogue'
 
 export function App() {
   const quickAccessTrigger = useRef<HTMLButtonElement>(null)
   const [nearbyStation, setNearbyStation] = useState<StationId | null>(null)
   const [activeStation, setActiveStation] = useState<StationId | null>(null)
+  const [nearbyNpc, setNearbyNpc] = useState<NpcId | null>(null)
+  const [activeNpc, setActiveNpc] = useState<NpcId | null>(null)
   const [visitedStations, setVisitedStations] = useState<StationId[]>([])
   const [hasMoved, setHasMoved] = useState(false)
   const visitedStationSet = useMemo(() => new Set(visitedStations), [visitedStations])
   const closePanel = useCallback(() => setActiveStation(null), [])
+  const closeDialogue = useCallback(() => setActiveNpc(null), [])
   const openStation = useCallback((stationId: StationId) => {
     setVisitedStations((current) => (
       current.includes(stationId) ? current : [...current, stationId]
     ))
     setActiveStation(stationId)
+    setActiveNpc(null)
+  }, [])
+  const openNpc = useCallback((npcId: NpcId) => {
+    setActiveStation(null)
+    setActiveNpc(npcId)
   }, [])
 
   useEffect(() => {
@@ -33,6 +43,14 @@ export function App() {
       'station:activate',
       ({ stationId }) => openStation(stationId),
     )
+    const removeNpcNearbyListener = labBridge.on(
+      'npc:nearby',
+      ({ npcId }) => setNearbyNpc(npcId),
+    )
+    const removeNpcActivateListener = labBridge.on(
+      'npc:activate',
+      ({ npcId }) => openNpc(npcId),
+    )
     const removeFirstMoveListener = labBridge.on(
       'player:first-move',
       () => setHasMoved(true),
@@ -41,9 +59,11 @@ export function App() {
     return () => {
       removeNearbyListener()
       removeActivateListener()
+      removeNpcNearbyListener()
+      removeNpcActivateListener()
       removeFirstMoveListener()
     }
-  }, [openStation])
+  }, [openNpc, openStation])
 
   useEffect(() => {
     labBridge.emit('ui:panel-change', {
@@ -51,6 +71,13 @@ export function App() {
       stationId: activeStation,
     })
   }, [activeStation])
+
+  useEffect(() => {
+    labBridge.emit('ui:dialogue-change', {
+      open: activeNpc !== null,
+      npcId: activeNpc,
+    })
+  }, [activeNpc])
 
   useEffect(() => {
     labBridge.emit('ui:visited-change', { visited: visitedStations })
@@ -62,7 +89,11 @@ export function App() {
       stationId: activeStation,
     })
     labBridge.emit('ui:visited-change', { visited: visitedStations })
-  }), [activeStation, visitedStations])
+    labBridge.emit('ui:dialogue-change', {
+      open: activeNpc !== null,
+      npcId: activeNpc,
+    })
+  }), [activeNpc, activeStation, visitedStations])
 
   return (
     <main className="lab-shell">
@@ -94,6 +125,7 @@ export function App() {
       <InteractionPrompt
         hasMoved={hasMoved}
         stationId={nearbyStation}
+        npcId={nearbyNpc}
         visited={nearbyStation ? visitedStationSet.has(nearbyStation) : false}
       />
       <section className="mobile-guide" aria-label="Mobile archive guide">
@@ -105,6 +137,13 @@ export function App() {
         stationId={activeStation}
         returnFocusRef={quickAccessTrigger}
         onClose={closePanel}
+        onNavigate={openStation}
+        onOpenNpc={openNpc}
+      />
+      <NpcDialogue
+        npcId={activeNpc}
+        returnFocusRef={quickAccessTrigger}
+        onClose={closeDialogue}
         onNavigate={openStation}
       />
     </main>

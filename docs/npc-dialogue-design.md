@@ -1,7 +1,7 @@
 # Xiangyu's AI Lab — NPC and Dialogue Design
 
 最后更新：2026-08-01  
-状态：**角色方向已确认；运行时制作排在 v0.6 发布准备之后**
+状态：**ROOK / MIRA 首轮运行时切片已完成；NULL-03 保持 deferred**
 
 ## 1. Product Role
 
@@ -25,7 +25,7 @@ Lab Companion 保持现有的三问快速导航，不改名、不被 ROOK 替代
 
 - **轮廓：** 低重心四轮底盘、可伸缩工具臂、单颗琥珀检修灯；石墨与旧象牙色外壳。
 - **性格：** 务实、略固执、句子短；更关心系统是否可靠，而不是技术听起来是否新。
-- **动作：** 两帧待机、工具臂检查、面板扫描、朝向玩家；首版固定在维护区，不做自由寻路。
+- **动作：** 沿 Tiled 编写的五点维护路线巡逻；靠近玩家或打开对话时停止并朝向玩家。只做 waypoint 移动，不做自由寻路。
 - **对话入口：**
   1. What keeps this room reliable?
   2. Why separate React from Phaser?
@@ -67,7 +67,7 @@ Existing station panel / visited state
 - React 保存当前 NPC、问题、回答与本次会话完成状态，并继续负责焦点、Escape、移动端和 reduced-motion。
 - 每个首发 NPC 只有 3 个问题；每个回答 2–4 句，可附一个现有站点跳转。
 - 对话可随时关闭、重复打开；关闭后焦点返回 Canvas 或触发按钮。
-- 对话打开时暂停玩家输入，但不暂停房间环境动画。
+- 对话打开时暂停玩家输入和 ROOK 巡逻，但不暂停房间环境动画。
 - 移动端不要求控制角色：ROOK 内容从 Living AI Core 提供入口，MIRA 内容从 Experience Archive 提供入口。
 - 首版不做自由文本、打字机等待、好感度、任务状态、跨设备记忆或 NPC 自动寻路。
 
@@ -75,15 +75,14 @@ Existing station panel / visited state
 
 - 概念参考：[`../design/concepts/npc-rook-mira-null-concept-v1.png`](../design/concepts/npc-rook-mira-null-concept-v1.png)
 - ROOK 建议运行时占位：约 56 × 44 px，可使用独立 2–4 帧动作条。
-- MIRA 采用与玩家兼容的 40 × 48 px 脚点和遮挡规则；正式生产需四向待机，首版不要求行走动画。
+- MIRA 采用与玩家兼容的 40 × 48 px 脚点和遮挡规则；四向各有站立与轻微手部动作，脚部不形成行走循环。
 - 保持硬边像素、有限色板和最近邻缩放；不直接缩小概念图作为 sprite。
 - 正式素材必须单独生成、键控移除、人工裁切、量化并在资产台账登记。
 
 ## 6. Implementation Order
 
-1. 写定 ROOK / MIRA 六条问题与回答，并通过公开内容边界审查。
-2. 增加 typed NPC dialogue registry、bridge 事件和 React 对话面板。
-3. 先用调试轮廓验证位置、碰撞、焦点返回与移动端等价入口。
-4. 单独生产 ROOK sprite，完成一个 NPC 垂直切片。
-5. 通过验收后生产 MIRA sprite；NULL-03 继续保持 deferred。
-
+1. 已写定 ROOK / MIRA 六条问题与回答，并通过公开内容边界测试。
+2. 已增加 typed NPC registry、bridge 事件、React 对话面板与移动端等价入口。
+3. 已把 ROOK 巡逻点、MIRA 固定点写入 Tiled，交互范围跟随移动角色。
+4. 已分别生产 ROOK / MIRA 四向运行时 sprite，并登记源图与提示词。
+5. NULL-03 继续保持 deferred；下一轮只做对话语气与路线的现场验收微调。

@@ -1,4 +1,5 @@
 import type { StationId } from '../content/stations'
+import type { NpcId } from '../content/npcs'
 import type { GameLoadingPhase } from './gameLoading'
 
 interface LabEventMap {
@@ -8,7 +9,10 @@ interface LabEventMap {
   'player:first-move': { input: 'keyboard' }
   'station:nearby': { stationId: StationId | null }
   'station:activate': { stationId: StationId }
+  'npc:nearby': { npcId: NpcId | null }
+  'npc:activate': { npcId: NpcId }
   'ui:panel-change': { open: boolean; stationId: StationId | null }
+  'ui:dialogue-change': { open: boolean; npcId: NpcId | null }
   'ui:visited-change': { visited: readonly StationId[] }
 }
 

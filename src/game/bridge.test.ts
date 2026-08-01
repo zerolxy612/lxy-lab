@@ -48,4 +48,18 @@ describe('LabBridge', () => {
 
     expect(listener).toHaveBeenCalledWith({ phase: 'assets', progress: 0.68 })
   })
+
+  it('carries NPC proximity and dialogue state across the same boundary', () => {
+    const bridge = new LabBridge()
+    const nearby = vi.fn()
+    const dialogue = vi.fn()
+    bridge.on('npc:nearby', nearby)
+    bridge.on('ui:dialogue-change', dialogue)
+
+    bridge.emit('npc:nearby', { npcId: 'rook' })
+    bridge.emit('ui:dialogue-change', { open: true, npcId: 'rook' })
+
+    expect(nearby).toHaveBeenCalledWith({ npcId: 'rook' })
+    expect(dialogue).toHaveBeenCalledWith({ open: true, npcId: 'rook' })
+  })
 })

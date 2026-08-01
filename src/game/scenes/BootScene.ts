@@ -36,6 +36,7 @@ import {
   LIVING_CORE_TEXTURE_URL,
 } from '../art/livingCoreArt'
 import { labBridge } from '../bridge'
+import { NPC_ART } from '../art/npcArt'
 
 export class BootScene extends Phaser.Scene {
   private loadFailed = false
@@ -73,6 +74,12 @@ export class BootScene extends Phaser.Scene {
       frameWidth: PLAYER_FRAME_WIDTH,
       frameHeight: PLAYER_FRAME_HEIGHT,
     })
+    Object.values(NPC_ART).forEach((art) => {
+      this.load.spritesheet(art.key, art.url, {
+        frameWidth: art.frameWidth,
+        frameHeight: art.frameHeight,
+      })
+    })
   }
 
   create() {
@@ -89,6 +96,9 @@ export class BootScene extends Phaser.Scene {
     this.textures.get(FUTURE_GATE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(RAG_PIPELINE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(OFFLINE_CORNER_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
+    Object.values(NPC_ART).forEach((art) => {
+      this.textures.get(art.key).setFilter(Phaser.Textures.FilterMode.NEAREST)
+    })
 
     const pixel = this.add.graphics()
     pixel.fillStyle(0xffffff)

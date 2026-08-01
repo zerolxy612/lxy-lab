@@ -119,6 +119,17 @@ describe('labLayout', () => {
     expect(collision.y).toBeGreaterThan(archive!.y)
   })
 
+  it('keeps ROOK mobile and MIRA anchored through Tiled-authored NPC data', () => {
+    expect(labLayout.npcs.map(({ id }) => id).sort()).toEqual(['mira', 'rook'])
+    const rook = labLayout.npcs.find(({ id }) => id === 'rook')
+    const mira = labLayout.npcs.find(({ id }) => id === 'mira')
+
+    expect(rook).toMatchObject({ movement: 'patrol', x: 620, y: 120 })
+    expect(rook?.route).toHaveLength(5)
+    expect(rook?.route[0]).toEqual({ x: 620, y: 120 })
+    expect(mira).toMatchObject({ movement: 'stationary', x: 284, y: 290, route: [] })
+  })
+
   it('rejects a map when a registered station is missing', () => {
     const incompleteMap = structuredClone(mapSource) as {
       layers: Array<{ name: string; objects: Array<{ name: string }> }>

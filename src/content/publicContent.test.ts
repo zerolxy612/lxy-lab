@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { companionPrompts } from './companion'
 import { contactLinks } from './contact'
 import { selectedProjects } from './projects'
+import { npcs } from './npcs'
 
 describe('public portfolio content', () => {
   it('keeps Selected Work focused on approved anonymous project identities', () => {
@@ -43,5 +44,12 @@ describe('public portfolio content', () => {
         href: 'https://github.com/zerolxy612',
       }),
     ])
+  })
+
+  it('ships only ROOK and MIRA with authored, public-safe dialogue', () => {
+    expect(npcs.map(({ id }) => id)).toEqual(['rook', 'mira'])
+    expect(npcs.every(({ prompts }) => prompts.length === 3)).toBe(true)
+    const dialogue = npcs.flatMap(({ prompts }) => prompts.map(({ answer }) => answer)).join(' ')
+    expect(dialogue).not.toMatch(/NULL-03|client name|internal URL/i)
   })
 })

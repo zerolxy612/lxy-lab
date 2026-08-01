@@ -1,9 +1,11 @@
 import Phaser from 'phaser'
 import type { StationId } from '../../content/stations'
+import type { NpcId } from '../../content/npcs'
 import { stationById } from '../../content/stations'
 import { labBridge } from '../bridge'
 import { LAB_HEIGHT, LAB_WIDTH } from '../config'
 import { Player } from '../entities/Player'
+import { NpcActor } from '../entities/NpcActor'
 import {
   EXPERIENCE_ARCHIVE_ORIGIN_Y,
   EXPERIENCE_ARCHIVE_TEXTURE_KEY,
@@ -32,6 +34,7 @@ import {
 import {
   InteractionSystem,
   type InteractiveStation,
+  type InteractiveNpc,
 } from '../systems/InteractionSystem'
 
 interface StationVisual {
@@ -45,14 +48,21 @@ export class LabScene extends Phaser.Scene {
   private player!: Player
   private interactionSystem!: InteractionSystem
   private controlsEnabled = true
+  private stationPanelOpen = false
+  private npcDialogueOpen = false
   private removePanelListener?: () => void
   private removeNearbyListener?: () => void
   private removeVisitedListener?: () => void
+  private removeDialogueListener?: () => void
+  private removeNpcNearbyListener?: () => void
   private readonly stationVisuals = new Map<StationId, StationVisual>()
   private readonly visitedStations = new Set<StationId>()
   private nearbyStation: StationId | null = null
   private hoveredStation: StationId | null = null
   private activeStation: StationId | null = null
+  private nearbyNpc: NpcId | null = null
+  private activeNpc: NpcId | null = null
+  private readonly npcActors: NpcActor[] = []
   private hasPlayerMoved = false
   private reducedMotion = false
   private debugVisible = false
@@ -83,7 +93,13 @@ export class LabScene extends Phaser.Scene {
   private createLab() {
     const cachedMap = this.cache.tilemap.get(LAB_MAP_KEY) as { data?: unknown } | undefined
     this.layout = parseLabMap(cachedMap?.data)
-    const { worldBounds, playerSpawn, staticObstacles, stations: stationLayouts } = this.layout
+    const {
+      worldBounds,
+      playerSpawn,
+      staticObstacles,
+      stations: stationLayouts,
+      npcs: npcLayouts,
+    } = this.layout
 
     this.physics.world.setBounds(
       worldBounds.x,
@@ -107,13 +123,20 @@ export class LabScene extends Phaser.Scene {
     })
 
     const stations = stationLayouts.map((layout) => this.createStation(layout))
-    this.interactionSystem = new InteractionSystem(this, this.player, stations)
+    const npcs = npcLayouts.map((layout) => this.createNpc(layout))
+    this.interactionSystem = new InteractionSystem(this, this.player, stations, npcs)
     this.createDebugOverlay()
 
     this.removePanelListener = labBridge.on('ui:panel-change', ({ open, stationId }) => {
-      this.controlsEnabled = !open
+      this.stationPanelOpen = open
+      this.refreshControlsEnabled()
       this.activeStation = stationId
       this.refreshAllStationStates()
+    })
+    this.removeDialogueListener = labBridge.on('ui:dialogue-change', ({ open, npcId }) => {
+      this.npcDialogueOpen = open
+      this.activeNpc = npcId
+      this.refreshControlsEnabled()
     })
     this.removeNearbyListener = labBridge.on('station:nearby', ({ stationId }) => {
       this.nearbyStation = stationId
@@ -125,6 +148,9 @@ export class LabScene extends Phaser.Scene {
       if (this.visitedStations.has('systems')) this.playRagCoreAcknowledgement()
       this.refreshAllStationStates()
     })
+    this.removeNpcNearbyListener = labBridge.on('npc:nearby', ({ npcId }) => {
+      this.nearbyNpc = npcId
+    })
     labBridge.emit('game:loading', { phase: 'ready', progress: 1 })
     labBridge.emit('game:ready', {})
 
@@ -132,22 +158,43 @@ export class LabScene extends Phaser.Scene {
       this.removePanelListener?.()
       this.removeNearbyListener?.()
       this.removeVisitedListener?.()
+      this.removeDialogueListener?.()
+      this.removeNpcNearbyListener?.()
     })
   }
 
-  update() {
+  update(_time: number, delta: number) {
     const moved = this.player.move(this.controlsEnabled)
     if (moved && !this.hasPlayerMoved) {
       this.hasPlayerMoved = true
       labBridge.emit('player:first-move', { input: 'keyboard' })
     }
 
+    this.npcActors.forEach((actor) => actor.update(
+      delta,
+      this.player,
+      actor.id === this.nearbyNpc || actor.id === this.activeNpc || !this.controlsEnabled,
+      this.reducedMotion,
+    ))
     this.interactionSystem.update(this.controlsEnabled)
 
     if (Phaser.Input.Keyboard.JustDown(this.debugKey)) {
       this.debugVisible = !this.debugVisible
       this.renderDebugOverlay()
     }
+  }
+
+  private refreshControlsEnabled() {
+    this.controlsEnabled = !this.stationPanelOpen && !this.npcDialogueOpen
+  }
+
+  private createNpc(layout: LabLayout['npcs'][number]): InteractiveNpc {
+    const actor = new NpcActor(this, layout)
+    this.npcActors.push(actor)
+    actor.zone.on('pointerdown', () => {
+      if (this.controlsEnabled) labBridge.emit('npc:activate', { npcId: actor.id })
+    })
+    return actor
   }
 
   private drawRoomBackdrop() {
@@ -404,7 +451,9 @@ export class LabScene extends Phaser.Scene {
       if (this.hoveredStation === id) this.hoveredStation = null
       this.refreshAllStationStates()
     })
-    zone.on('pointerdown', () => labBridge.emit('station:activate', { stationId: id }))
+    zone.on('pointerdown', () => {
+      if (this.controlsEnabled) labBridge.emit('station:activate', { stationId: id })
+    })
 
     this.stationVisuals.set(id, { container, focusFrame, label, visitedMark })
     this.refreshStationState(id)

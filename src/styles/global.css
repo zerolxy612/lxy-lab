@@ -704,6 +704,50 @@ kbd {
   line-height: 1.5;
 }
 
+.npc-channel-link {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr auto;
+  gap: 0.35rem 1rem;
+  align-items: center;
+  margin-top: 2rem;
+  padding: 0.9rem 0;
+  color: var(--station-accent);
+  border-block: 1px solid color-mix(in srgb, var(--station-accent) 35%, transparent);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-align: left;
+}
+
+.npc-channel-link span {
+  grid-column: 1 / -1;
+  color: #7180a1;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.npc-channel-link i {
+  font-size: 1.1rem;
+  font-style: normal;
+}
+
+.npc-channel-link:hover,
+.npc-channel-link:focus-visible {
+  color: var(--ink);
+  background: var(--station-accent);
+  outline: none;
+  padding-inline: 0.75rem;
+}
+
+.npc-channel-link:hover span,
+.npc-channel-link:focus-visible span {
+  color: rgb(7 9 22 / 68%);
+}
+
 .selected-work {
   display: grid;
   gap: 1.4rem;
@@ -928,6 +972,52 @@ kbd {
 .companion-console {
   display: grid;
   gap: 1.25rem;
+}
+
+.npc-dialogue {
+  background:
+    radial-gradient(circle at 0 20%, color-mix(in srgb, var(--station-accent) 11%, transparent), transparent 36%),
+    linear-gradient(90deg, rgb(255 255 255 / 2%) 1px, transparent 1px) 0 0 / 5rem 100%,
+    #090c1b;
+}
+
+.npc-dialogue .companion-questions button span,
+.npc-dialogue .companion-questions button[aria-pressed="true"] span,
+.npc-dialogue .companion-questions button[aria-pressed="true"] i,
+.npc-dialogue .companion-answer > span {
+  color: var(--station-accent);
+}
+
+.npc-dialogue .companion-answer {
+  border-top-color: color-mix(in srgb, var(--station-accent) 36%, transparent);
+}
+
+.npc-status {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1.6rem;
+  color: #8999bc;
+  font-size: 0.64rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.npc-status i {
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 50%;
+  background: var(--station-accent);
+  box-shadow: 0 0 0.9rem var(--station-accent);
+}
+
+.npc-dialogue[data-npc="rook"] .npc-status i {
+  animation: npc-signal 1.4s steps(2, end) infinite;
+}
+
+@keyframes npc-signal {
+  50% { opacity: 0.35; }
 }
 
 .companion-console .section-heading {

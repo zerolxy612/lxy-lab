@@ -6,15 +6,17 @@ import { ExperienceArchive } from './ExperienceArchive'
 import { LabCompanion } from './LabCompanion'
 import { SelectedWork } from './SelectedWork'
 import { restoreFocus } from './focusReturn'
+import type { NpcId } from '../content/npcs'
 
 interface PanelHostProps {
   stationId: StationId | null
   returnFocusRef: RefObject<HTMLElement | null>
   onClose: () => void
   onNavigate: (stationId: StationId) => void
+  onOpenNpc: (npcId: NpcId) => void
 }
 
-export function PanelHost({ stationId, returnFocusRef, onClose, onNavigate }: PanelHostProps) {
+export function PanelHost({ stationId, returnFocusRef, onClose, onNavigate, onOpenNpc }: PanelHostProps) {
   const panel = useRef<HTMLElement>(null)
   const closeButton = useRef<HTMLButtonElement>(null)
 
@@ -93,6 +95,16 @@ export function PanelHost({ stationId, returnFocusRef, onClose, onNavigate }: Pa
         <ul>
           {station.details.map((detail) => <li key={detail}>{detail}</li>)}
         </ul>
+      )}
+      {(stationId === 'systems' || stationId === 'experience') && (
+        <button
+          type="button"
+          className="npc-channel-link"
+          onClick={() => onOpenNpc(stationId === 'systems' ? 'rook' : 'mira')}
+        >
+          <span>Character channel</span>
+          Talk to {stationId === 'systems' ? 'ROOK' : 'MIRA'} <i aria-hidden="true">→</i>
+        </button>
       )}
     </aside>
   )

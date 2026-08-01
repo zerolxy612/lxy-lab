@@ -1,4 +1,5 @@
 import { stations, type StationId } from '../../content/stations'
+import { npcs, type NpcId } from '../../content/npcs'
 
 export const LAB_MAP_KEY = 'lab-map-v1'
 export const LAB_MAP_URL = '/assets/game/maps/lab-v1.tmj'
@@ -20,11 +21,21 @@ export interface StationLayout extends RectangleLayout {
   collision?: RectangleLayout
 }
 
+export interface NpcLayout {
+  id: NpcId
+  x: number
+  y: number
+  interactionPadding: number
+  movement: 'patrol' | 'stationary'
+  route: readonly Readonly<{ x: number; y: number }>[]
+}
+
 export interface LabLayout {
   worldBounds: RectangleLayout
   playerSpawn: Readonly<{ x: number; y: number }>
   staticObstacles: readonly RectangleLayout[]
   stations: readonly StationLayout[]
+  npcs: readonly NpcLayout[]
 }
 
 interface TiledProperty {
@@ -58,6 +69,7 @@ interface TiledMap {
 }
 
 const stationIds = new Set<StationId>(stations.map(({ id }) => id))
+const npcIds = new Set<NpcId>(npcs.map(({ id }) => id))
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
@@ -183,6 +195,14 @@ const toStationId = (value: unknown, label: string): StationId => {
   return id as StationId
 }
 
+const toNpcId = (value: unknown, label: string): NpcId => {
+  const id = assertString(value, label)
+  if (!npcIds.has(id as NpcId)) {
+    throw new Error(`Invalid Tiled map: unknown NPC id "${id}"`)
+  }
+  return id as NpcId
+}
+
 const parseColor = (value: unknown, label: string) => {
   const color = assertString(value, label)
   if (!/^#[0-9a-f]{6}$/i.test(color)) {
@@ -215,6 +235,8 @@ export function parseLabMap(source: unknown): LabLayout {
   const worldLayer = requireLayer(map, 'World')
   const collisionLayer = requireLayer(map, 'Collision')
   const stationLayer = requireLayer(map, 'Stations')
+  const npcLayer = requireLayer(map, 'NPCs')
+  const npcRouteLayer = requireLayer(map, 'NpcRoutes')
   const boundsObject = requireObject(worldLayer, 'world-bounds')
   const spawnObject = requireObject(worldLayer, 'player-spawn')
   const boundsWidth = assertNumber(boundsObject.width, 'world-bounds width')
@@ -292,10 +314,58 @@ export function parseLabMap(source: unknown): LabLayout {
     throw new Error(`Invalid Tiled map: missing stations ${missing.join(', ')}`)
   }
 
+  const routes = new Map<NpcId, Array<{ order: number; x: number; y: number }>>()
+  npcRouteLayer.objects.forEach((object) => {
+    const id = toNpcId(getProperty(object.properties, 'npcId'), `${object.name}.npcId`)
+    const order = assertNumber(getProperty(object.properties, 'order'), `${object.name}.order`)
+    const points = routes.get(id) ?? []
+    points.push({ order, x: object.x, y: object.y })
+    routes.set(id, points)
+  })
+
+  const parsedNpcIds = new Set<NpcId>()
+  const parsedNpcs = npcLayer.objects.map((object): NpcLayout => {
+    const id = toNpcId(object.name, `${object.name} NPC id`)
+    if (parsedNpcIds.has(id)) throw new Error(`Invalid Tiled map: duplicate NPC "${id}"`)
+    parsedNpcIds.add(id)
+
+    const movement = assertString(getProperty(object.properties, 'movement'), `${id}.movement`)
+    if (movement !== 'patrol' && movement !== 'stationary') {
+      throw new Error(`Invalid Tiled map: ${id}.movement must be patrol or stationary`)
+    }
+    const route = (routes.get(id) ?? [])
+      .sort((a, b) => a.order - b.order)
+      .map(({ x, y }) => ({ x, y }))
+    if (movement === 'patrol' && route.length < 2) {
+      throw new Error(`Invalid Tiled map: patrol NPC "${id}" needs at least two route points`)
+    }
+    if (movement === 'stationary' && route.length > 0) {
+      throw new Error(`Invalid Tiled map: stationary NPC "${id}" cannot have a route`)
+    }
+
+    return {
+      id,
+      x: object.x,
+      y: object.y,
+      interactionPadding: assertNumber(
+        getProperty(object.properties, 'interactionPadding'),
+        `${id}.interactionPadding`,
+      ),
+      movement,
+      route,
+    }
+  })
+
+  if (parsedNpcIds.size !== npcIds.size) {
+    const missing = npcs.map(({ id }) => id).filter((id) => !parsedNpcIds.has(id))
+    throw new Error(`Invalid Tiled map: missing NPCs ${missing.join(', ')}`)
+  }
+
   return {
     worldBounds,
     playerSpawn,
     staticObstacles,
     stations: parsedStations,
+    npcs: parsedNpcs,
   }
 }

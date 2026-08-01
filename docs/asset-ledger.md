@@ -311,3 +311,29 @@ Processing notes:
 - Built-in generation output: 1730 × 909 px.
 - Runtime Open Graph export: 1200 × 630 px PNG.
 - Exact title and subtitle spelling, character identity, Living AI Core silhouette and safe thumbnail composition were visually verified after export.
+
+## ROOK NPC v1 Prompt
+
+```text
+Create a production source sprite sheet for a browser-based pixel-art portfolio game NPC named ROOK. Exact orthographic 2 columns by 4 rows grid, eight isolated full-body robot sprites, generous equal gutters, no borders, labels, text, shadows, or props outside each cell. Flat uniform vivid chroma-key green background (#00ff00). Rows in order: facing down, left, right, up. Column 1 is idle; column 2 is one locomotion / maintenance-cycle frame. Keep identity perfectly consistent. ROOK is a compact low-center maintenance robot with a four-wheel graphite chassis, worn warm off-white armor, one amber inspection lamp, a dark front sensor panel, small cyan status pixels, and folded tool arms. Premium hand-authored 16-bit RPG pixel art, hard square pixels, limited palette, strong silhouette, no antialiasing, gradients, 3D rendering, UI, logos, or watermark. Center every frame at a consistent baseline and scale.
+```
+
+Processing notes:
+
+- Built-in generation source: 1254 × 1254 px, archived at `design/sources/rook-source-v1.png`.
+- Border-sampled soft chroma-key removal with despill; eight cells were manually banded to avoid generated row overlap.
+- Runtime sheet: `public/assets/game/sprites/rook-v1.png`, 112 × 176 px; 2 columns × 4 rows of 56 × 44 px frames.
+- Column 2 is used as the movement alternate while patrolling and a restrained maintenance gesture while paused.
+
+## MIRA NPC v1 Prompt
+
+```text
+Create a production source sprite sheet for a browser-based pixel-art portfolio game NPC named MIRA. Exact orthographic 2 columns by 4 rows grid, eight isolated full-body sprites, generous equal gutters, no borders, no labels, no text, no shadows, no props outside each cell. Flat vivid chroma-key green background (#00ff00), absolutely uniform. Rows in order: facing down, facing left, facing right, facing up. Column 1 is calm idle pose; column 2 is a very subtle stationary archive-keeper gesture (small tablet or tea-flask adjustment, slight hand/head change) — NOT a walk cycle, feet remain planted in both columns. Character identity must be perfectly consistent across all eight cells. MIRA is an adult East Asian woman, thoughtful archive curator and AI product designer, high tied dark hair, no glasses, long warm amber/vermilion technical raincoat, dark trousers and boots, compact archive satchel, small tea flask or slim data tablet. Elegant restrained retro-futurist pixel art, strong readable silhouette at tiny game scale, limited palette, crisp hard pixel edges, no antialiasing, no gradients, no 3D rendering. Match a cozy dark near-future laboratory with amber accents, but only draw the character and the green background. Center every sprite in its cell at the same baseline and scale. Square image, highest available resolution.
+```
+
+Processing notes:
+
+- Built-in generation source: 1254 × 1254 px, archived at `design/sources/mira-source-v1.png`.
+- Border-sampled soft chroma-key removal with despill; the source was divided into eight authored bands and resized with nearest-neighbor filtering.
+- Runtime sheet: `public/assets/game/sprites/mira-v1.png`, 80 × 192 px; 2 columns × 4 rows of 40 × 48 px frames.
+- MIRA has no movement route; column 2 remains a planted-foot archive gesture in runtime.
