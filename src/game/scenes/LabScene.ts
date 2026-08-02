@@ -119,7 +119,8 @@ export class LabScene extends Phaser.Scene {
     this.player = new Player(this, playerSpawn.x, playerSpawn.y)
 
     staticObstacles.forEach(({ x, y, width, height }) => {
-      this.createStaticBlock(x, y, width, height)
+      const obstacle = this.createStaticBlock(x, y, width, height)
+      this.physics.add.collider(this.player, obstacle)
     })
 
     const stations = stationLayouts.map((layout) => this.createStation(layout))

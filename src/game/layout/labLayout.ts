@@ -21,6 +21,10 @@ export interface StationLayout extends RectangleLayout {
   collision?: RectangleLayout
 }
 
+export interface StaticObstacleLayout extends RectangleLayout {
+  id: string
+}
+
 export interface NpcLayout {
   id: NpcId
   x: number
@@ -33,7 +37,7 @@ export interface NpcLayout {
 export interface LabLayout {
   worldBounds: RectangleLayout
   playerSpawn: Readonly<{ x: number; y: number }>
-  staticObstacles: readonly RectangleLayout[]
+  staticObstacles: readonly StaticObstacleLayout[]
   stations: readonly StationLayout[]
   npcs: readonly NpcLayout[]
 }
@@ -211,6 +215,13 @@ const parseColor = (value: unknown, label: string) => {
   return Number.parseInt(color.slice(1), 16)
 }
 
+export function containsPoint(rectangle: RectangleLayout, x: number, y: number) {
+  return x >= rectangle.x - rectangle.width / 2
+    && x <= rectangle.x + rectangle.width / 2
+    && y >= rectangle.y - rectangle.height / 2
+    && y <= rectangle.y + rectangle.height / 2
+}
+
 export function getStationCollisionRect(layout: StationLayout): RectangleLayout {
   if (!layout.collision) return layout
 
@@ -254,12 +265,17 @@ export function parseLabMap(source: unknown): LabLayout {
   }
 
   const stationCollisions = new Map<StationId, RectangleLayout>()
-  const staticObstacles: RectangleLayout[] = []
+  const staticObstacles: StaticObstacleLayout[] = []
+  const staticObstacleIds = new Set<string>()
   collisionLayer.objects.forEach((object) => {
     const rectangle = toCenteredRectangle(object)
     const stationIdValue = getProperty(object.properties, 'stationId')
     if (stationIdValue === undefined) {
-      staticObstacles.push(rectangle)
+      if (staticObstacleIds.has(object.name)) {
+        throw new Error(`Invalid Tiled map: duplicate static obstacle "${object.name}"`)
+      }
+      staticObstacleIds.add(object.name)
+      staticObstacles.push({ id: object.name, ...rectangle })
       return
     }
 
@@ -360,6 +376,26 @@ export function parseLabMap(source: unknown): LabLayout {
     const missing = npcs.map(({ id }) => id).filter((id) => !parsedNpcIds.has(id))
     throw new Error(`Invalid Tiled map: missing NPCs ${missing.join(', ')}`)
   }
+
+  const blockedNpcAreas = [
+    ...staticObstacles,
+    ...parsedStations.map(getStationCollisionRect),
+  ]
+  parsedNpcs.forEach(({ id, route, x, y }) => {
+    const points = [{ x, y }, ...route]
+    points.forEach((point) => {
+      const insideWorld = point.x >= worldBounds.x
+        && point.x <= worldBounds.x + worldBounds.width
+        && point.y >= worldBounds.y
+        && point.y <= worldBounds.y + worldBounds.height
+      if (!insideWorld) {
+        throw new Error(`Invalid Tiled map: NPC "${id}" point is outside world bounds`)
+      }
+      if (blockedNpcAreas.some((area) => containsPoint(area, point.x, point.y))) {
+        throw new Error(`Invalid Tiled map: NPC "${id}" point is inside a collision block`)
+      }
+    })
+  })
 
   return {
     worldBounds,

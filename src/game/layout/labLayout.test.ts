@@ -3,19 +3,13 @@ import { describe, expect, it } from 'vitest'
 import { stations } from '../../content/stations'
 import {
   getStationCollisionRect,
+  containsPoint,
   parseLabMap,
-  type RectangleLayout,
 } from './labLayout'
 
 const mapUrl = new URL('../../../public/assets/game/maps/lab-v1.tmj', import.meta.url)
 const mapSource = JSON.parse(readFileSync(mapUrl, 'utf8')) as unknown
 const labLayout = parseLabMap(mapSource)
-
-const containsPoint = (rectangle: RectangleLayout, x: number, y: number) =>
-  x >= rectangle.x - rectangle.width / 2
-  && x <= rectangle.x + rectangle.width / 2
-  && y >= rectangle.y - rectangle.height / 2
-  && y <= rectangle.y + rectangle.height / 2
 
 describe('labLayout', () => {
   it('parses the production Tiled map with its locked 16px schema', () => {
@@ -26,7 +20,7 @@ describe('labLayout', () => {
       height: 428,
     })
     expect(labLayout.playerSpawn).toEqual({ x: 480, y: 462 })
-    expect(labLayout.staticObstacles).toHaveLength(3)
+    expect(labLayout.staticObstacles).toHaveLength(4)
   })
 
   it('retains the v0.3 visual tile layers as an editable map reference', () => {
@@ -124,10 +118,32 @@ describe('labLayout', () => {
     const rook = labLayout.npcs.find(({ id }) => id === 'rook')
     const mira = labLayout.npcs.find(({ id }) => id === 'mira')
 
-    expect(rook).toMatchObject({ movement: 'patrol', x: 620, y: 120 })
+    expect(rook).toMatchObject({ movement: 'patrol', x: 600, y: 214 })
     expect(rook?.route).toHaveLength(5)
-    expect(rook?.route[0]).toEqual({ x: 620, y: 120 })
+    expect(rook?.route[0]).toEqual({ x: 600, y: 214 })
     expect(mira).toMatchObject({ movement: 'stationary', x: 284, y: 290, route: [] })
+  })
+
+  it('keeps the window wall blocked while leaving its sill-side floor walkable', () => {
+    const windowWall = labLayout.staticObstacles.find(({ id }) => id === 'window-wall')
+
+    expect(windowWall).toEqual({ id: 'window-wall', x: 480, y: 122, width: 844, height: 100 })
+    expect(containsPoint(windowWall!, 480, 172)).toBe(true)
+    expect(containsPoint(windowWall!, 480, 173)).toBe(false)
+    expect(containsPoint(windowWall!, labLayout.playerSpawn.x, labLayout.playerSpawn.y)).toBe(false)
+  })
+
+  it('keeps every NPC anchor and patrol point on collision-free floor', () => {
+    const blockedAreas = [
+      ...labLayout.staticObstacles,
+      ...labLayout.stations.map(getStationCollisionRect),
+    ]
+
+    labLayout.npcs.forEach(({ route, x, y }) => {
+      [{ x, y }, ...route].forEach((point) => {
+        expect(blockedAreas.some((area) => containsPoint(area, point.x, point.y))).toBe(false)
+      })
+    })
   })
 
   it('rejects a map when a registered station is missing', () => {

@@ -35,6 +35,7 @@ tileset 位于 `public/assets/game/tilesets/room-base-v1.png`，为 256 × 256 p
 ### `Collision`
 
 - 没有 `stationId` 属性的矩形会成为静态障碍物。
+- `window-wall` 是横跨窗景和后墙的静态碰撞带；其下沿对齐窗台线，避免玩家脚底进入玻璃区域，同时允许角色上半身在视觉上与窗景重叠。
 - 带 `stationId` 字符串属性的矩形会成为对应站点的落地碰撞。
 - 每个已注册站点必须且只能拥有一个碰撞对象。
 
@@ -74,7 +75,7 @@ future
 
 ### `NpcRoutes`
 
-巡逻点使用 Point 对象；`npcId` 指向 NPC，`order` 为路线顺序。`patrol` 至少需要两个点，`stationary` 不得拥有路线。ROOK 当前使用五点闭环，MIRA 没有路线。
+巡逻点使用 Point 对象；`npcId` 指向 NPC，`order` 为路线顺序。`patrol` 至少需要两个点，`stationary` 不得拥有路线。ROOK 当前使用 Living AI Core 右侧地板上的五点闭环，MIRA 没有路线。NPC 不使用 Arcade Physics 推挤，因此解析器会拒绝任何落在静态或站点碰撞块中的锚点与路线点。
 
 ## Runtime Validation
 
@@ -87,6 +88,7 @@ future
 - 站点缺少独立碰撞；
 - 无效颜色、坐标或非正数矩形尺寸。
 - 未知 / 重复 NPC、无效移动模式、巡逻点不足或固定 NPC 错配路线。
+- 重复静态障碍物，或 NPC 锚点 / 巡逻点进入世界边界外或任一碰撞块。
 
 Phaser 通过 `tilemapTiledJSON` 加载同一份 `.tmj`。对象解析器忽略视觉 tile layers，只校验业务对象层；固定建筑背景不会保存任何站点、碰撞或出生信息，避免空间数据出现第二份来源。
 
