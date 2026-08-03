@@ -1,9 +1,8 @@
 import Phaser from 'phaser'
 import { BootScene } from './scenes/BootScene'
+import { ElevatorScene } from './scenes/ElevatorScene'
 import { LabScene } from './scenes/LabScene'
-
-export const LAB_WIDTH = 960
-export const LAB_HEIGHT = 540
+import { LAB_HEIGHT, LAB_WIDTH } from './dimensions'
 
 export function createGameConfig(parent: HTMLElement): Phaser.Types.Core.GameConfig {
   return {
@@ -28,6 +27,6 @@ export function createGameConfig(parent: HTMLElement): Phaser.Types.Core.GameCon
       width: LAB_WIDTH,
       height: LAB_HEIGHT,
     },
-    scene: [BootScene, LabScene],
+    scene: [BootScene, ElevatorScene, LabScene],
   }
 }

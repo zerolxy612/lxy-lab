@@ -1,6 +1,6 @@
 # Xiangyu's AI Lab — Development Roadmap
 
-最后更新：2026-07-31
+最后更新：2026-08-03
 
 本文档记录当前实现、技术决策、限制和下一轮方向。公开仓库介绍维护在根目录的 [`readme.md`](../readme.md)；本地 Codex 上下文保存在被 Git 忽略的 `.codex/project-context.md`。
 
@@ -316,7 +316,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ## 8. Current Iteration — v0.6 Public Proof and Launch Readiness
 
-状态：**第三切片已完成；量化结果、外部证据、Resume、最终域名与跨浏览器发布验收待完成**
+状态：**第四切片已完成并通过浏览器验收；量化结果、外部证据、Resume、最终域名与跨浏览器发布验收待完成**
 
 ### Goal
 
@@ -356,6 +356,20 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 真实 ready 后展示 `SYSTEM ONLINE`、首次 / 回访欢迎语与三行 `XIANGYU AI LAB` 字标，再执行既有 620 ms 舱门揭幕。
 - 首次访问记录只保存一个本地布尔标记；存储不可用时安静降级，不影响开场或内容访问。
 - Skip / Escape、加载错误、900 px 以下直接进入和 `prefers-reduced-motion` 绕过规则保持不变；全部动画只使用 opacity 与 transform。
+
+### Fourth Slice — Underground Elevator Entrance
+
+- 新增独立 Phaser `ElevatorScene`；`BootScene` 完成素材加载后先进入电梯，门完全打开后才启动既有 `LabScene`，不修改移动、碰撞、站点与 NPC 逻辑。
+- 桌面首次访问在启动序列后显示语义化 `ENTER LXY LAB` 控件，点击后播放约 5.1 秒的 B1–B7 地下电梯时间线。
+- 电梯内部已重制为独立的高精度像素美术层，包含装甲门、液压管线、检修仓、地面导轨与机械警示灯；运行时切分为舱体、左右门和光效层，由可复用 `ElevatorCabin` 组件控制。
+- 电梯左侧全息屏统一为英文访问状态，不再突出地域标签；B1–B7 主显示与侧边楼层灯保持同步。
+- 开门阶段直接使用正式 Lab 背景作为门后空间，并同步恢复色彩、撤去舱体 UI 与粒子；末端冷色曝光与 `LabScene` 淡入使用同一色值，隐藏场景实例切换。
+- Lab 主界面身份、Contact、Quick Access 与移动提示在电梯阶段保持 inert 和不可见，主场景完成淡入后才整体出现。
+- 前 1 秒显示 `CONNECTING`、`IDENTITY VERIFIED` 与 `ACCESS GRANTED`；B7 到站触发可接入声音系统的 `elevator:ding` 占位事件。
+- 轿厢内复用正式 Xiangyu 角色的背向帧；候梯位置后移至轿厢地板中段，下降、制停与开门进场分别带轻微惯性、站稳和向 Lab 迈步动作，空间纵深更明确。
+- 等候与乘梯阶段都可以 Skip / Escape；完成状态写入 `sessionStorage`，同一标签页刷新时直接进入实验室，关闭标签页后下次访问会重新播放。
+- 等候阶段支持直接按 Enter 启动；入口控件移至右下侧舱壁区域并显示 Enter / Esc 键帽，不再遮挡中央角色与地面透视。
+- 900 px 以下与 `prefers-reduced-motion` 环境直接绕过电梯；桌面首次访问、同会话自动跳过与 390 × 844 紧凑屏路径完成浏览器验收。
 
 ### Confirmed Later Direction — Character Expansion
 

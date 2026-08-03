@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   BOOT_VISITOR_STORAGE_KEY,
+  ELEVATOR_COMPLETION_STORAGE_KEY,
+  hasCompletedElevator,
   isReturningVisitor,
   markBootVisit,
+  markElevatorComplete,
   shouldBypassBoot,
+  shouldBypassElevator,
 } from './bootSequencePreferences'
 
 describe('boot sequence preferences', () => {
@@ -37,5 +41,24 @@ describe('boot sequence preferences', () => {
 
     expect(isReturningVisitor(blockedStorage)).toBe(false)
     expect(() => markBootVisit(blockedStorage)).not.toThrow()
+    expect(hasCompletedElevator(blockedStorage)).toBe(false)
+    expect(() => markElevatorComplete(blockedStorage)).not.toThrow()
+  })
+
+  it('tracks elevator completion for the current session and bypasses repeat or motion-sensitive visits', () => {
+    const values = new Map<string, string>()
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value),
+    }
+
+    expect(hasCompletedElevator(storage)).toBe(false)
+    markElevatorComplete(storage)
+    expect(values.get(ELEVATOR_COMPLETION_STORAGE_KEY)).toBe('1')
+    expect(hasCompletedElevator(storage)).toBe(true)
+    expect(shouldBypassElevator({ compactViewport: false, reducedMotion: false, completed: true })).toBe(true)
+    expect(shouldBypassElevator({ compactViewport: true, reducedMotion: false, completed: false })).toBe(true)
+    expect(shouldBypassElevator({ compactViewport: false, reducedMotion: true, completed: false })).toBe(true)
+    expect(shouldBypassElevator({ compactViewport: false, reducedMotion: false, completed: false })).toBe(false)
   })
 })

@@ -68,11 +68,13 @@ export function BootSequence() {
       setPhase(next.phase)
       setProgress((current) => Math.max(current, clampLoadingProgress(next.progress)))
     })
-    const removeReadyListener = labBridge.on('game:ready', () => {
+    const showOnlineState = () => {
       setPhase('ready')
       setProgress(1)
       setReady(true)
-    })
+    }
+    const removeEntranceReadyListener = labBridge.on('game:entrance-ready', showOnlineState)
+    const removeReadyListener = labBridge.on('game:ready', showOnlineState)
     const removeErrorListener = labBridge.on('game:error', () => setVisible(false))
 
     window.addEventListener('keydown', skipOnEscape)
@@ -80,6 +82,7 @@ export function BootSequence() {
       window.clearTimeout(preludeTimer)
       window.removeEventListener('keydown', skipOnEscape)
       removeLoadingListener()
+      removeEntranceReadyListener()
       removeReadyListener()
       removeErrorListener()
     }

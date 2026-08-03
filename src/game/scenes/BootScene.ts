@@ -37,6 +37,11 @@ import {
 } from '../art/livingCoreArt'
 import { labBridge } from '../bridge'
 import { NPC_ART } from '../art/npcArt'
+import {
+  ELEVATOR_CABIN_FRAMES,
+  ELEVATOR_CABIN_TEXTURE_KEY,
+  ELEVATOR_CABIN_TEXTURE_URL,
+} from '../art/elevatorArt'
 
 export class BootScene extends Phaser.Scene {
   private loadFailed = false
@@ -63,6 +68,7 @@ export class BootScene extends Phaser.Scene {
 
     this.load.tilemapTiledJSON(LAB_MAP_KEY, LAB_MAP_URL)
     this.load.image(ROOM_BACKGROUND_TEXTURE_KEY, ROOM_BACKGROUND_TEXTURE_URL)
+    this.load.image(ELEVATOR_CABIN_TEXTURE_KEY, ELEVATOR_CABIN_TEXTURE_URL)
     this.load.image(EXPERIENCE_ARCHIVE_TEXTURE_KEY, EXPERIENCE_ARCHIVE_TEXTURE_URL)
     this.load.image(LIVING_CORE_TEXTURE_KEY, LIVING_CORE_TEXTURE_URL)
     this.load.image(LAB_COMPANION_TEXTURE_KEY, LAB_COMPANION_TEXTURE_URL)
@@ -91,6 +97,11 @@ export class BootScene extends Phaser.Scene {
     this.textures.get(LIVING_CORE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(PLAYER_SHEET_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(ROOM_BACKGROUND_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
+    const elevatorTexture = this.textures.get(ELEVATOR_CABIN_TEXTURE_KEY)
+    elevatorTexture.setFilter(Phaser.Textures.FilterMode.NEAREST)
+    Object.values(ELEVATOR_CABIN_FRAMES).forEach((frame) => {
+      elevatorTexture.add(frame.key, 0, frame.x, frame.y, frame.width, frame.height)
+    })
     this.textures.get(LAB_COMPANION_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(SELECTED_WORK_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(FUTURE_GATE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
@@ -106,6 +117,6 @@ export class BootScene extends Phaser.Scene {
     pixel.generateTexture('pixel', 2, 2)
     pixel.destroy()
 
-    this.scene.start('lab')
+    this.scene.start('elevator')
   }
 }

@@ -10,6 +10,7 @@ import { PanelHost } from '../ui/PanelHost'
 import { QuickAccess } from '../ui/QuickAccess'
 import { RoomAmbienceControl } from '../ui/RoomAmbienceControl'
 import { NpcDialogue } from '../ui/NpcDialogue'
+import { ElevatorEntrance } from '../ui/ElevatorEntrance'
 
 export function App() {
   const quickAccessTrigger = useRef<HTMLButtonElement>(null)
@@ -19,6 +20,9 @@ export function App() {
   const [activeNpc, setActiveNpc] = useState<NpcId | null>(null)
   const [visitedStations, setVisitedStations] = useState<StationId[]>([])
   const [hasMoved, setHasMoved] = useState(false)
+  const [gameReady, setGameReady] = useState(false)
+  const [gameFailed, setGameFailed] = useState(false)
+  const labChromeVisible = gameReady || gameFailed
   const visitedStationSet = useMemo(() => new Set(visitedStations), [visitedStations])
   const closePanel = useCallback(() => setActiveStation(null), [])
   const closeDialogue = useCallback(() => setActiveNpc(null), [])
@@ -84,6 +88,7 @@ export function App() {
   }, [visitedStations])
 
   useEffect(() => labBridge.on('game:ready', () => {
+    setGameReady(true)
     labBridge.emit('ui:panel-change', {
       open: activeStation !== null,
       stationId: activeStation,
@@ -95,44 +100,54 @@ export function App() {
     })
   }), [activeNpc, activeStation, visitedStations])
 
+  useEffect(() => labBridge.on('game:error', () => setGameFailed(true)), [])
+
   return (
     <main className="lab-shell">
-      <a className="skip-link" href="#quick-access">Skip to quick access</a>
       <BootSequence />
-
-      <header className="identity-lockup">
-        <span className="signal-dot" aria-hidden="true" />
-        <div>
-          <p>AI Application Engineer · Hong Kong</p>
-          <h1>Xiangyu’s AI Lab</h1>
-        </div>
-      </header>
-      <ContactLinks />
-      <RoomAmbienceControl />
 
       <div className="game-frame">
         <GameViewport />
       </div>
+      <ElevatorEntrance />
 
-      <div id="quick-access">
-        <QuickAccess
-          triggerRef={quickAccessTrigger}
-          visitedStations={visitedStationSet}
-          onSelect={openStation}
-        />
+      <div
+        className="lab-chrome"
+        data-visible={labChromeVisible}
+        inert={!labChromeVisible}
+        aria-hidden={!labChromeVisible}
+      >
+        <a className="skip-link" href="#quick-access">Skip to quick access</a>
+        <header className="identity-lockup">
+          <span className="signal-dot" aria-hidden="true" />
+          <div>
+            <p>AI Application Engineer · Hong Kong</p>
+            <h1>Xiangyu’s AI Lab</h1>
+          </div>
+        </header>
+        <ContactLinks />
+        <RoomAmbienceControl />
+        <div id="quick-access">
+          <QuickAccess
+            triggerRef={quickAccessTrigger}
+            visitedStations={visitedStationSet}
+            onSelect={openStation}
+          />
+        </div>
+        {gameReady && (
+          <InteractionPrompt
+            hasMoved={hasMoved}
+            stationId={nearbyStation}
+            npcId={nearbyNpc}
+            visited={nearbyStation ? visitedStationSet.has(nearbyStation) : false}
+          />
+        )}
+        <section className="mobile-guide" aria-label="Mobile archive guide">
+          <span>Field guide</span>
+          <strong>Five signals, one room.</strong>
+          <p>Open the archive index to explore without steering the character.</p>
+        </section>
       </div>
-
-      <InteractionPrompt
-        hasMoved={hasMoved}
-        stationId={nearbyStation}
-        npcId={nearbyNpc}
-        visited={nearbyStation ? visitedStationSet.has(nearbyStation) : false}
-      />
-      <section className="mobile-guide" aria-label="Mobile archive guide">
-        <span>Field guide</span>
-        <strong>Five signals, one room.</strong>
-        <p>Open the archive index to explore without steering the character.</p>
-      </section>
       <PanelHost
         stationId={activeStation}
         returnFocusRef={quickAccessTrigger}

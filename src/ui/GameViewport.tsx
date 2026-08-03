@@ -8,6 +8,7 @@ export function GameViewport() {
   const gameRoot = useRef<HTMLDivElement>(null)
   const retryButton = useRef<HTMLButtonElement>(null)
   const [ready, setReady] = useState(false)
+  const [entranceReady, setEntranceReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loadingPhase, setLoadingPhase] = useState<GameLoadingPhase>('runtime')
   const [loadingProgress, setLoadingProgress] = useState(0.04)
@@ -21,6 +22,7 @@ export function GameViewport() {
     let failed = false
     let activeGame: { destroy: (removeCanvas: boolean) => void } | null = null
     setReady(false)
+    setEntranceReady(false)
     setError(null)
     setLoadingPhase('runtime')
     setLoadingProgress(0.04)
@@ -46,6 +48,13 @@ export function GameViewport() {
       setLoadingPhase('ready')
       setLoadingProgress(1)
     })
+    const removeEntranceReadyListener = labBridge.on('game:entrance-ready', () => {
+      if (cancelled || failed) return
+      window.clearTimeout(startTimeout)
+      setEntranceReady(true)
+      setLoadingPhase('ready')
+      setLoadingProgress(1)
+    })
     const removeLoadingListener = labBridge.on('game:loading', ({ phase, progress }) => {
       if (cancelled || failed) return
       setLoadingPhase(phase)
@@ -68,12 +77,16 @@ export function GameViewport() {
         }
         activeGame = game
       })
-      .catch(() => fail('The interactive room could not start.'))
+      .catch((reason: unknown) => {
+        console.error('The interactive room could not start.', reason)
+        fail('The interactive room could not start.')
+      })
 
     return () => {
       cancelled = true
       window.clearTimeout(startTimeout)
       removeReadyListener()
+      removeEntranceReadyListener()
       removeLoadingListener()
       removeErrorListener()
       destroyGame()
@@ -87,8 +100,8 @@ export function GameViewport() {
   const retry = () => setAttempt((current) => current + 1)
 
   return (
-    <div className="game-stage" data-state={error ? 'error' : ready ? 'ready' : 'loading'}>
-      {!ready && !error && (
+    <div className="game-stage" data-state={error ? 'error' : ready ? 'ready' : entranceReady ? 'entrance' : 'loading'}>
+      {!entranceReady && !ready && !error && (
         <div className="game-loading" role="status">
           <span>Initialising Lab-01</span>
           <small>{gameLoadingLabel[loadingPhase]} · {Math.round(loadingProgress * 100)}%</small>
@@ -108,7 +121,7 @@ export function GameViewport() {
         role="application"
         tabIndex={error ? -1 : 0}
         aria-hidden={error ? true : undefined}
-        aria-busy={!ready && !error}
+        aria-busy={!entranceReady && !ready && !error}
         aria-label="Interactive AI laboratory. Move with WASD or arrow keys and press E or Space to interact."
         onPointerDown={() => gameRoot.current?.focus()}
       />

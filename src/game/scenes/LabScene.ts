@@ -3,7 +3,7 @@ import type { StationId } from '../../content/stations'
 import type { NpcId } from '../../content/npcs'
 import { stationById } from '../../content/stations'
 import { labBridge } from '../bridge'
-import { LAB_HEIGHT, LAB_WIDTH } from '../config'
+import { LAB_HEIGHT, LAB_WIDTH } from '../dimensions'
 import { Player } from '../entities/Player'
 import { NpcActor } from '../entities/NpcActor'
 import {
@@ -74,9 +74,15 @@ export class LabScene extends Phaser.Scene {
   private readonly collisionDebugRects: Phaser.Geom.Rectangle[] = []
   private readonly interactionDebugRects: Phaser.Geom.Rectangle[] = []
   private layout!: LabLayout
+  private entranceReveal = false
 
   constructor() {
     super('lab')
+  }
+
+  init(data: { entranceReveal?: boolean }) {
+    this.entranceReveal = data.entranceReveal === true
+    this.controlsEnabled = !this.entranceReveal
   }
 
   create() {
@@ -152,8 +158,17 @@ export class LabScene extends Phaser.Scene {
     this.removeNpcNearbyListener = labBridge.on('npc:nearby', ({ npcId }) => {
       this.nearbyNpc = npcId
     })
-    labBridge.emit('game:loading', { phase: 'ready', progress: 1 })
-    labBridge.emit('game:ready', {})
+    const signalReady = () => {
+      this.refreshControlsEnabled()
+      labBridge.emit('game:loading', { phase: 'ready', progress: 1 })
+      labBridge.emit('game:ready', {})
+    }
+    if (this.entranceReveal) {
+      this.cameras.main.fadeIn(460, 153, 237, 255)
+      this.time.delayedCall(430, signalReady)
+    } else {
+      signalReady()
+    }
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.removePanelListener?.()

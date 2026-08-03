@@ -4,6 +4,7 @@ import type { GameLoadingPhase } from './gameLoading'
 
 interface LabEventMap {
   'game:loading': { phase: GameLoadingPhase; progress: number }
+  'game:entrance-ready': Record<string, never>
   'game:ready': Record<string, never>
   'game:error': { message: string }
   'player:first-move': { input: 'keyboard' }
@@ -14,6 +15,8 @@ interface LabEventMap {
   'ui:panel-change': { open: boolean; stationId: StationId | null }
   'ui:dialogue-change': { open: boolean; npcId: NpcId | null }
   'ui:visited-change': { visited: readonly StationId[] }
+  'ui:elevator-start': Record<string, never>
+  'ui:elevator-skip': Record<string, never>
 }
 
 type Listener<K extends keyof LabEventMap> = (payload: LabEventMap[K]) => void

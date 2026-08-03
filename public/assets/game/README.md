@@ -13,6 +13,7 @@ Expected folders:
 
 Track the source and license of every third-party asset before it is committed.
 Generation sources live outside `public/` under `design/sources/` so they are not copied into production builds.
+`elevator-cabin-background-v1.png` was generated for this project with OpenAI ImageGen on 2026-08-03, then resized to the 960 × 540 Phaser canvas. Runtime code splits it into reusable shell, left-door, right-door, and floor frames.
 RAG Pipeline 与 Offline Corner 等非交互环境物件也使用独立 sprite；它们不能在背景图中烘焙碰撞、标签或交互状态。
 v0.5 环境声由 `src/audio/roomAmbience.ts` 使用 Web Audio 程序化生成，因此 `audio/` 与 `ambience/` 暂无生产文件；未来若加入采样，仍必须先登记来源和许可。
 
