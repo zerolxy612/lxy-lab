@@ -316,7 +316,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ## 8. Current Iteration — v0.6 Public Proof and Launch Readiness
 
-状态：**第四切片已完成并通过浏览器验收；量化结果、外部证据、Resume、最终域名与跨浏览器发布验收待完成**
+状态：**第五切片已完成并通过浏览器验收；量化结果、外部证据、Resume、最终域名与跨浏览器发布验收待完成**
 
 ### Goal
 
@@ -370,6 +370,16 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 等候与乘梯阶段都可以 Skip / Escape；完成状态写入 `sessionStorage`，同一标签页刷新时直接进入实验室，关闭标签页后下次访问会重新播放。
 - 等候阶段支持直接按 Enter 启动；入口控件移至右下侧舱壁区域并显示 Enter / Esc 键帽，不再遮挡中央角色与地面透视。
 - 900 px 以下与 `prefers-reduced-motion` 环境直接绕过电梯；桌面首次访问、同会话自动跳过与 390 × 844 紧凑屏路径完成浏览器验收。
+
+### Fifth Slice — Spatial Character Dialogue
+
+- ROOK 与 MIRA 的旧侧边浮窗替换为双层游戏对话系统：靠近角色时显示不暂停房间的短 ambient bark，正式互动使用带像素头像与场景定位标记的底部渐进式对话框。
+- 对话一次只展示一句 NPC 台词，Enter / 点击逐句推进，到分支点才显示三个简短玩家选项；不生成玩家气泡和聊天历史。
+- 六条内容从直接职业问答改写为机械幽默、档案趣闻与环境观察，工程判断和公开边界通过角色语气自然带出。
+- 首次、再次、第四次交谈以及 Living AI Core / Future Gate 访问状态可以触发不同开场；交谈次数和四句 ambient bark 轮换只写入 `sessionStorage`。
+- `E` / `Space`、点击 NPC、Living AI Core 与 Experience Archive 的 Character Channel 共用同一锚点协议，不修改移动、碰撞或站点逻辑。
+- 选项支持点击和 `1`–`3` 数字键；Escape、焦点循环、关闭后焦点返回与少量可选站点跳转保持完整。
+- 900 px 以下自动切换为带遮罩的底部单列对话布局；桌面 1440 × 900、移动 390 × 844 与紧凑 360 × 640 已完成浏览器验收，无横向溢出或控制台错误。
 
 ### Confirmed Later Direction — Character Expansion
 

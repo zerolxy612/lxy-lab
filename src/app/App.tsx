@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { StationId } from '../content/stations'
 import type { NpcId } from '../content/npcs'
-import { labBridge } from '../game/bridge'
+import { npcById } from '../content/npcs'
+import { labBridge, type NpcDialogueAnchor } from '../game/bridge'
 import { BootSequence } from '../ui/BootSequence'
 import { ContactLinks } from '../ui/ContactLinks'
 import { GameViewport } from '../ui/GameViewport'
@@ -10,14 +11,28 @@ import { PanelHost } from '../ui/PanelHost'
 import { QuickAccess } from '../ui/QuickAccess'
 import { RoomAmbienceControl } from '../ui/RoomAmbienceControl'
 import { NpcDialogue } from '../ui/NpcDialogue'
+import { NpcBark, type ActiveNpcBark } from '../ui/NpcBark'
+import { registerNpcTalk, takeNextNpcBark } from '../ui/npcSessionState'
 import { ElevatorEntrance } from '../ui/ElevatorEntrance'
+
+function readSessionStorage() {
+  try {
+    return window.sessionStorage
+  } catch {
+    return null
+  }
+}
 
 export function App() {
   const quickAccessTrigger = useRef<HTMLButtonElement>(null)
+  const barkId = useRef(0)
   const [nearbyStation, setNearbyStation] = useState<StationId | null>(null)
   const [activeStation, setActiveStation] = useState<StationId | null>(null)
   const [nearbyNpc, setNearbyNpc] = useState<NpcId | null>(null)
   const [activeNpc, setActiveNpc] = useState<NpcId | null>(null)
+  const [activeNpcTalkCount, setActiveNpcTalkCount] = useState(0)
+  const [activeBark, setActiveBark] = useState<ActiveNpcBark | null>(null)
+  const [dialogueAnchor, setDialogueAnchor] = useState<NpcDialogueAnchor | null>(null)
   const [visitedStations, setVisitedStations] = useState<StationId[]>([])
   const [hasMoved, setHasMoved] = useState(false)
   const [gameReady, setGameReady] = useState(false)
@@ -25,17 +40,28 @@ export function App() {
   const labChromeVisible = gameReady || gameFailed
   const visitedStationSet = useMemo(() => new Set(visitedStations), [visitedStations])
   const closePanel = useCallback(() => setActiveStation(null), [])
-  const closeDialogue = useCallback(() => setActiveNpc(null), [])
+  const closeDialogue = useCallback(() => {
+    setActiveNpc(null)
+    setDialogueAnchor(null)
+  }, [])
   const openStation = useCallback((stationId: StationId) => {
     setVisitedStations((current) => (
       current.includes(stationId) ? current : [...current, stationId]
     ))
     setActiveStation(stationId)
     setActiveNpc(null)
+    setDialogueAnchor(null)
+    setActiveBark(null)
   }, [])
-  const openNpc = useCallback((npcId: NpcId) => {
+  const openNpc = useCallback((npcId: NpcId, anchor: NpcDialogueAnchor) => {
     setActiveStation(null)
+    setActiveBark(null)
     setActiveNpc(npcId)
+    setDialogueAnchor(anchor)
+    setActiveNpcTalkCount(registerNpcTalk(readSessionStorage(), npcId))
+  }, [])
+  const requestNpc = useCallback((npcId: NpcId) => {
+    labBridge.emit('ui:npc-request', { npcId })
   }, [])
 
   useEffect(() => {
@@ -49,11 +75,26 @@ export function App() {
     )
     const removeNpcNearbyListener = labBridge.on(
       'npc:nearby',
-      ({ npcId }) => setNearbyNpc(npcId),
+      ({ npcId, anchor }) => {
+        setNearbyNpc(npcId)
+        if (!npcId || !anchor) {
+          setActiveBark(null)
+          return
+        }
+        const npc = npcById[npcId]
+        const barkIndex = takeNextNpcBark(readSessionStorage(), npcId)
+        barkId.current += 1
+        setActiveBark({
+          id: barkId.current,
+          npcId,
+          anchor,
+          line: npc.barks[barkIndex % npc.barks.length],
+        })
+      },
     )
     const removeNpcActivateListener = labBridge.on(
       'npc:activate',
-      ({ npcId }) => openNpc(npcId),
+      ({ npcId, anchor }) => openNpc(npcId, anchor),
     )
     const removeFirstMoveListener = labBridge.on(
       'player:first-move',
@@ -153,10 +194,16 @@ export function App() {
         returnFocusRef={quickAccessTrigger}
         onClose={closePanel}
         onNavigate={openStation}
-        onOpenNpc={openNpc}
+        onOpenNpc={requestNpc}
       />
+      {activeBark && !activeNpc && !activeStation && (
+        <NpcBark key={activeBark.id} bark={activeBark} />
+      )}
       <NpcDialogue
         npcId={activeNpc}
+        anchor={dialogueAnchor}
+        talkCount={activeNpcTalkCount}
+        visitedStations={visitedStationSet}
         returnFocusRef={quickAccessTrigger}
         onClose={closeDialogue}
         onNavigate={openStation}

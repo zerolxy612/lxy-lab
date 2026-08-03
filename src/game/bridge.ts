@@ -2,6 +2,11 @@ import type { StationId } from '../content/stations'
 import type { NpcId } from '../content/npcs'
 import type { GameLoadingPhase } from './gameLoading'
 
+export interface NpcDialogueAnchor {
+  x: number
+  y: number
+}
+
 interface LabEventMap {
   'game:loading': { phase: GameLoadingPhase; progress: number }
   'game:entrance-ready': Record<string, never>
@@ -10,8 +15,9 @@ interface LabEventMap {
   'player:first-move': { input: 'keyboard' }
   'station:nearby': { stationId: StationId | null }
   'station:activate': { stationId: StationId }
-  'npc:nearby': { npcId: NpcId | null }
-  'npc:activate': { npcId: NpcId }
+  'npc:nearby': { npcId: NpcId | null; anchor: NpcDialogueAnchor | null }
+  'npc:activate': { npcId: NpcId; anchor: NpcDialogueAnchor }
+  'ui:npc-request': { npcId: NpcId }
   'ui:panel-change': { open: boolean; stationId: StationId | null }
   'ui:dialogue-change': { open: boolean; npcId: NpcId | null }
   'ui:visited-change': { visited: readonly StationId[] }

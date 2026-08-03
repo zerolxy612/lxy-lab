@@ -23,6 +23,7 @@ Current release: **v0.5 — complete**.
 - Two restrained discovery details connecting the Hong Kong window, Living AI Core, and RAG Pipeline
 - Loading-driven cinematic desktop boot sequence with skip and reduced-motion support
 - A five-second B1–B7 cyberpunk elevator arrival, with Xiangyu visibly riding into the lab
+- Game-style ROOK and MIRA encounters with ambient barks, progressive dialogue, repeat reactions, and mobile adaptation
 - Tiled-owned spatial data with tested spawn, collision, and station contracts
 
 ## Work represented
@@ -68,6 +69,7 @@ npm run build
 
 - Move: `WASD` or arrow keys
 - Interact: `E` or `Space`
+- Choose an NPC question: `1`, `2`, or `3`
 - Collision debug: `F2`
 - Close panels / skip intro: `Escape`
 - Sound: use the `Ambience` / `SND` control; first visit is always muted

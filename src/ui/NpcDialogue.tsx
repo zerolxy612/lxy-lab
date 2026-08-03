@@ -1,36 +1,130 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, RefObject } from 'react'
-import type { NpcId } from '../content/npcs'
-import { npcById } from '../content/npcs'
+import type { NpcId, NpcPrompt } from '../content/npcs'
+import { npcById, selectNpcOpening } from '../content/npcs'
 import type { StationId } from '../content/stations'
+import type { NpcDialogueAnchor } from '../game/bridge'
+import { useNpcScreenAnchor } from './dialogueAnchor'
 import { restoreFocus } from './focusReturn'
 
 interface NpcDialogueProps {
   npcId: NpcId | null
+  anchor: NpcDialogueAnchor | null
+  talkCount: number
+  visitedStations: ReadonlySet<StationId>
   returnFocusRef: RefObject<HTMLElement | null>
   onClose: () => void
   onNavigate: (stationId: StationId) => void
 }
 
-export function NpcDialogue({ npcId, returnFocusRef, onClose, onNavigate }: NpcDialogueProps) {
-  const panel = useRef<HTMLElement>(null)
-  const closeButton = useRef<HTMLButtonElement>(null)
+interface ActiveNpcDialogueProps extends Omit<NpcDialogueProps, 'npcId'> {
+  npcId: NpcId
+}
+
+type DialoguePhase = 'opening' | 'choices' | 'response'
+
+type DialogueStyle = CSSProperties & {
+  '--dialogue-accent': string
+  '--npc-screen-x': string
+  '--npc-screen-y': string
+  '--game-frame-bottom': string
+}
+
+export function NpcDialogue(props: NpcDialogueProps) {
+  if (!props.npcId) return null
+  return (
+    <ActiveNpcDialogue
+      key={`${props.npcId}-${props.talkCount}`}
+      {...props}
+      npcId={props.npcId}
+    />
+  )
+}
+
+function ActiveNpcDialogue({
+  npcId,
+  anchor,
+  talkCount,
+  visitedStations,
+  returnFocusRef,
+  onClose,
+  onNavigate,
+}: ActiveNpcDialogueProps) {
+  const layer = useRef<HTMLElement>(null)
+  const advanceButton = useRef<HTMLButtonElement>(null)
+  const firstChoice = useRef<HTMLButtonElement>(null)
+  const [phase, setPhase] = useState<DialoguePhase>('opening')
+  const [lineIndex, setLineIndex] = useState(0)
   const [selectedPromptId, setSelectedPromptId] = useState<string | null>(null)
+  const npc = npcById[npcId]
+  const openingLines = useMemo(
+    () => selectNpcOpening(npcId, talkCount, visitedStations),
+    [npcId, talkCount, visitedStations],
+  )
+  const selectedPrompt = npc.prompts.find(({ id }) => id === selectedPromptId) ?? null
+  const currentLines = phase === 'opening'
+    ? openingLines
+    : phase === 'response' && selectedPrompt
+      ? selectedPrompt.lines
+      : [npc.choicePrompt]
+  const currentLine = currentLines[Math.min(lineIndex, currentLines.length - 1)]
+  const lastLine = lineIndex >= currentLines.length - 1
+  const screenAnchor = useNpcScreenAnchor(anchor)
+  const style: DialogueStyle = {
+    '--dialogue-accent': npc.accent,
+    '--npc-screen-x': `${screenAnchor.x}px`,
+    '--npc-screen-y': `${screenAnchor.y}px`,
+    '--game-frame-bottom': `${screenAnchor.frameBottom}px`,
+  }
+
+  const choosePrompt = useCallback((prompt: NpcPrompt) => {
+    setSelectedPromptId(prompt.id)
+    setLineIndex(0)
+    setPhase('response')
+  }, [])
+
+  const advance = useCallback(() => {
+    if (phase === 'choices') return
+    if (!lastLine) {
+      setLineIndex((current) => current + 1)
+      return
+    }
+    setSelectedPromptId(null)
+    setLineIndex(0)
+    setPhase('choices')
+  }, [lastLine, phase])
 
   useEffect(() => {
-    if (!npcId) return
+    if (phase === 'choices') firstChoice.current?.focus()
+    else advanceButton.current?.focus()
+  }, [lineIndex, phase])
+
+  useEffect(() => {
     const previousFocus = document.activeElement instanceof HTMLElement
       ? document.activeElement
       : null
     const fallbackFocus = returnFocusRef.current
-    closeButton.current?.focus()
+
+    return () => restoreFocus(previousFocus, fallbackFocus)
+  }, [returnFocusRef])
+
+  useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        event.preventDefault()
         onClose()
         return
       }
+
+      const shortcutIndex = Number(event.key) - 1
+      if (phase === 'choices' && shortcutIndex >= 0 && shortcutIndex < npc.prompts.length) {
+        event.preventDefault()
+        choosePrompt(npc.prompts[shortcutIndex])
+        return
+      }
+
       if (event.key !== 'Tab') return
-      const focusable = panel.current?.querySelectorAll<HTMLElement>(
+      const focusable = layer.current?.querySelectorAll<HTMLElement>(
         'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
       )
       if (!focusable?.length) return
@@ -46,73 +140,95 @@ export function NpcDialogue({ npcId, returnFocusRef, onClose, onNavigate }: NpcD
     }
 
     window.addEventListener('keydown', handleKeydown)
-    return () => {
-      window.removeEventListener('keydown', handleKeydown)
-      restoreFocus(previousFocus, fallbackFocus)
-    }
-  }, [npcId, onClose, returnFocusRef])
+    return () => window.removeEventListener('keydown', handleKeydown)
+  }, [choosePrompt, npc.prompts, onClose, phase])
 
-  if (!npcId) return null
-  const npc = npcById[npcId]
-  const selectedPrompt = npc.prompts.find(({ id }) => id === selectedPromptId)
+  const progressLabel = phase === 'opening'
+    ? `ENTRY ${String(lineIndex + 1).padStart(2, '0')} / ${String(openingLines.length).padStart(2, '0')}`
+    : phase === 'response' && selectedPrompt
+      ? `${selectedPrompt.index} ${String(lineIndex + 1).padStart(2, '0')} / ${String(selectedPrompt.lines.length).padStart(2, '0')}`
+      : 'REPLY SELECT'
+  const advanceLabel = phase === 'opening' && lastLine
+    ? 'Choose a reply'
+    : phase === 'response' && lastLine
+      ? 'Back to replies'
+      : 'Continue'
 
   return (
     <aside
-      ref={panel}
-      className="station-panel npc-dialogue"
+      ref={layer}
+      className="npc-dialogue-layer"
       data-npc={npc.id}
-      style={{ '--station-accent': npc.accent } as CSSProperties}
+      data-phase={phase}
+      style={style}
       role="dialog"
       aria-modal="true"
       aria-labelledby="npc-dialogue-title"
     >
-      <span className="panel-location" aria-hidden="true">LOCAL CHARACTER CHANNEL</span>
-      <header>
-        <div>
-          <span>{npc.role}</span>
-          <h2 id="npc-dialogue-title">{npc.name}</h2>
-        </div>
-        <button ref={closeButton} className="panel-close" onClick={onClose} aria-label="Close dialogue">
-          Close
-        </button>
-      </header>
+      <div className="npc-dialogue-target" aria-hidden="true"><i /></div>
 
-      <div className="npc-status">
-        <i aria-hidden="true" />
-        <span>{npc.status}</span>
-      </div>
-      <p className="panel-summary">{npc.summary}</p>
-
-      <section className="companion-console" aria-labelledby="npc-query-title">
-        <div className="section-heading">
-          <span>CH</span>
-          <h3 id="npc-query-title">Choose a question</h3>
+      <section className="npc-game-dialogue">
+        <div className="npc-dialogue-portrait" aria-hidden="true">
+          <span>{npc.id === 'rook' ? 'UNIT 07' : 'ARCHIVE 02'}</span>
+          <i className="npc-dialogue-sprite" />
+          <b>{npc.id === 'rook' ? 'MAINT' : 'KEEPER'}</b>
         </div>
-        <div className="companion-questions" role="group" aria-label={`Questions for ${npc.name}`}>
-          {npc.prompts.map((prompt) => (
-            <button
-              key={prompt.id}
-              type="button"
-              aria-pressed={selectedPromptId === prompt.id}
-              onClick={() => setSelectedPromptId(prompt.id)}
-            >
-              <span>{prompt.index}</span>
-              <strong>{prompt.question}</strong>
-              <i aria-hidden="true">{selectedPromptId === prompt.id ? '◆' : '◇'}</i>
+
+        <div className="npc-dialogue-body">
+          <header>
+            <div>
+              <span>{npc.role}</span>
+              <h2 id="npc-dialogue-title">{npc.name}</h2>
+            </div>
+            <button type="button" className="npc-dialogue-close" onClick={onClose}>
+              Close <kbd>Esc</kbd>
             </button>
-          ))}
-        </div>
-        <div className="companion-answer" aria-live="polite">
-          {selectedPrompt ? (
-            <>
-              <span>{npc.name} reply</span>
-              <p>{selectedPrompt.answer}</p>
-              <button type="button" onClick={() => onNavigate(selectedPrompt.route.stationId)}>
-                {selectedPrompt.route.label}<i aria-hidden="true">→</i>
-              </button>
-            </>
+          </header>
+
+          <div
+            key={`${phase}-${selectedPromptId ?? 'entry'}-${lineIndex}`}
+            className="npc-dialogue-line"
+            aria-live="polite"
+          >
+            <span>{progressLabel}</span>
+            <p>{currentLine}</p>
+          </div>
+
+          {phase === 'choices' ? (
+            <div className="npc-dialogue-choices" role="group" aria-label={`Replies to ${npc.name}`}>
+              {npc.prompts.map((prompt, index) => (
+                <button
+                  ref={index === 0 ? firstChoice : undefined}
+                  key={prompt.id}
+                  type="button"
+                  onClick={() => choosePrompt(prompt)}
+                >
+                  <span>{index + 1}</span>
+                  <strong>{prompt.question}</strong>
+                  <i aria-hidden="true">›</i>
+                </button>
+              ))}
+            </div>
           ) : (
-            <p>Select a question to open this character’s authored dialogue.</p>
+            <footer className="npc-dialogue-actions">
+              {phase === 'response' && lastLine && selectedPrompt?.route ? (
+                <button
+                  type="button"
+                  className="npc-dialogue-route"
+                  onClick={() => onNavigate(selectedPrompt.route!.stationId)}
+                >
+                  {selectedPrompt.route.label}<i aria-hidden="true">→</i>
+                </button>
+              ) : <span>{npc.status}</span>}
+              <button
+                ref={advanceButton}
+                type="button"
+                className="npc-dialogue-advance"
+                onClick={advance}
+              >
+                {advanceLabel}<kbd>Enter</kbd><i aria-hidden="true">▼</i>
+              </button>
+            </footer>
           )}
         </div>
       </section>

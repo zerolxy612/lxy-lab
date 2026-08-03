@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import type { StationId } from '../../content/stations'
 import type { NpcId } from '../../content/npcs'
 import { labBridge } from '../bridge'
+import type { NpcDialogueAnchor } from '../bridge'
 import type { Player } from '../entities/Player'
 
 export interface InteractiveStation {
@@ -12,6 +13,7 @@ export interface InteractiveStation {
 export interface InteractiveNpc {
   id: NpcId
   zone: Phaser.GameObjects.Zone
+  getDialogueAnchor: () => NpcDialogueAnchor
 }
 
 type NearbyTarget =
@@ -47,6 +49,9 @@ export class InteractionSystem {
       })
       labBridge.emit('npc:nearby', {
         npcId: nextTarget?.kind === 'npc' ? nextTarget.id : null,
+        anchor: nextTarget?.kind === 'npc'
+          ? this.npcs.find(({ id }) => id === nextTarget.id)?.getDialogueAnchor() ?? null
+          : null,
       })
     }
 
@@ -57,7 +62,13 @@ export class InteractionSystem {
       if (nextTarget.kind === 'station') {
         labBridge.emit('station:activate', { stationId: nextTarget.id })
       } else {
-        labBridge.emit('npc:activate', { npcId: nextTarget.id })
+        const npc = this.npcs.find(({ id }) => id === nextTarget.id)
+        if (npc) {
+          labBridge.emit('npc:activate', {
+            npcId: nextTarget.id,
+            anchor: npc.getDialogueAnchor(),
+          })
+        }
       }
     }
   }

@@ -63,6 +63,14 @@ export class NpcActor {
     this.syncObjects()
   }
 
+  getDialogueAnchor() {
+    const art = NPC_ART[this.id]
+    return {
+      x: this.sprite.x,
+      y: this.sprite.y - art.frameHeight * 0.82,
+    }
+  }
+
   private advancePatrol(delta: number) {
     const route = this.layout.route
     if (route.length < 2) return

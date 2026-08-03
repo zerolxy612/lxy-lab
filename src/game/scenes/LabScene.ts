@@ -55,6 +55,7 @@ export class LabScene extends Phaser.Scene {
   private removeVisitedListener?: () => void
   private removeDialogueListener?: () => void
   private removeNpcNearbyListener?: () => void
+  private removeNpcRequestListener?: () => void
   private readonly stationVisuals = new Map<StationId, StationVisual>()
   private readonly visitedStations = new Set<StationId>()
   private nearbyStation: StationId | null = null
@@ -158,6 +159,14 @@ export class LabScene extends Phaser.Scene {
     this.removeNpcNearbyListener = labBridge.on('npc:nearby', ({ npcId }) => {
       this.nearbyNpc = npcId
     })
+    this.removeNpcRequestListener = labBridge.on('ui:npc-request', ({ npcId }) => {
+      const actor = this.npcActors.find(({ id }) => id === npcId)
+      if (!actor) return
+      labBridge.emit('npc:activate', {
+        npcId,
+        anchor: actor.getDialogueAnchor(),
+      })
+    })
     const signalReady = () => {
       this.refreshControlsEnabled()
       labBridge.emit('game:loading', { phase: 'ready', progress: 1 })
@@ -176,6 +185,7 @@ export class LabScene extends Phaser.Scene {
       this.removeVisitedListener?.()
       this.removeDialogueListener?.()
       this.removeNpcNearbyListener?.()
+      this.removeNpcRequestListener?.()
     })
   }
 
@@ -208,7 +218,12 @@ export class LabScene extends Phaser.Scene {
     const actor = new NpcActor(this, layout)
     this.npcActors.push(actor)
     actor.zone.on('pointerdown', () => {
-      if (this.controlsEnabled) labBridge.emit('npc:activate', { npcId: actor.id })
+      if (this.controlsEnabled) {
+        labBridge.emit('npc:activate', {
+          npcId: actor.id,
+          anchor: actor.getDialogueAnchor(),
+        })
+      }
     })
     return actor
   }
