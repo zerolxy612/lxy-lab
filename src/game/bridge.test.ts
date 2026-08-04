@@ -66,4 +66,14 @@ describe('LabBridge', () => {
     expect(activate).toHaveBeenCalledWith({ npcId: 'rook', anchor: { x: 720, y: 210 } })
     expect(dialogue).toHaveBeenCalledWith({ open: true, npcId: 'rook' })
   })
+
+  it('locks the room while the visitor entry layer is open', () => {
+    const bridge = new LabBridge()
+    const listener = vi.fn()
+    bridge.on('ui:entry-change', listener)
+
+    bridge.emit('ui:entry-change', { open: true })
+
+    expect(listener).toHaveBeenCalledWith({ open: true })
+  })
 })

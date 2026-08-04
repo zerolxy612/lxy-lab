@@ -14,6 +14,11 @@ import { NpcDialogue } from '../ui/NpcDialogue'
 import { NpcBark, type ActiveNpcBark } from '../ui/NpcBark'
 import { registerNpcTalk, takeNextNpcBark } from '../ui/npcSessionState'
 import { ElevatorEntrance } from '../ui/ElevatorEntrance'
+import { VisitorEntry, type VisitorEntryView } from '../ui/VisitorEntry'
+import {
+  hasChosenVisitorEntry,
+  markVisitorEntryChoice,
+} from '../ui/visitorEntrySession'
 
 function readSessionStorage() {
   try {
@@ -37,7 +42,8 @@ export function App() {
   const [hasMoved, setHasMoved] = useState(false)
   const [gameReady, setGameReady] = useState(false)
   const [gameFailed, setGameFailed] = useState(false)
-  const labChromeVisible = gameReady || gameFailed
+  const [visitorEntryView, setVisitorEntryView] = useState<VisitorEntryView>('closed')
+  const labChromeVisible = (gameReady || gameFailed) && visitorEntryView === 'closed'
   const visitedStationSet = useMemo(() => new Set(visitedStations), [visitedStations])
   const closePanel = useCallback(() => setActiveStation(null), [])
   const closeDialogue = useCallback(() => {
@@ -62,6 +68,29 @@ export function App() {
   }, [])
   const requestNpc = useCallback((npcId: NpcId) => {
     labBridge.emit('ui:npc-request', { npcId })
+  }, [])
+  const openVisitorBriefing = useCallback(() => {
+    markVisitorEntryChoice(readSessionStorage(), 'briefing')
+    setActiveStation(null)
+    setActiveNpc(null)
+    setActiveBark(null)
+    setDialogueAnchor(null)
+    setVisitorEntryView('briefing')
+  }, [])
+  const exploreLab = useCallback(() => {
+    markVisitorEntryChoice(readSessionStorage(), 'explore')
+    setVisitorEntryView('closed')
+    window.requestAnimationFrame(() => {
+      const compactViewport = window.matchMedia('(max-width: 900px)').matches
+      if (compactViewport) {
+        if (quickAccessTrigger.current?.getAttribute('aria-expanded') === 'false') {
+          quickAccessTrigger.current.click()
+        }
+        quickAccessTrigger.current?.focus()
+        return
+      }
+      document.querySelector<HTMLElement>('.game-viewport')?.focus()
+    })
   }, [])
 
   useEffect(() => {
@@ -125,11 +154,20 @@ export function App() {
   }, [activeNpc])
 
   useEffect(() => {
+    labBridge.emit('ui:entry-change', {
+      open: visitorEntryView !== 'closed',
+    })
+  }, [visitorEntryView])
+
+  useEffect(() => {
     labBridge.emit('ui:visited-change', { visited: visitedStations })
   }, [visitedStations])
 
   useEffect(() => labBridge.on('game:ready', () => {
     setGameReady(true)
+    if (!hasChosenVisitorEntry(readSessionStorage())) {
+      setVisitorEntryView('choice')
+    }
     labBridge.emit('ui:panel-change', {
       open: activeStation !== null,
       stationId: activeStation,
@@ -173,6 +211,7 @@ export function App() {
             triggerRef={quickAccessTrigger}
             visitedStations={visitedStationSet}
             onSelect={openStation}
+            onOpenBriefing={openVisitorBriefing}
           />
         </div>
         {gameReady && (
@@ -189,6 +228,11 @@ export function App() {
           <p>Open the archive index to explore without steering the character.</p>
         </section>
       </div>
+      <VisitorEntry
+        view={visitorEntryView}
+        onOpenBriefing={openVisitorBriefing}
+        onExplore={exploreLab}
+      />
       <PanelHost
         stationId={activeStation}
         returnFocusRef={quickAccessTrigger}

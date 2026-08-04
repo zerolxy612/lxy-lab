@@ -50,10 +50,12 @@ export class LabScene extends Phaser.Scene {
   private controlsEnabled = true
   private stationPanelOpen = false
   private npcDialogueOpen = false
+  private visitorEntryOpen = false
   private removePanelListener?: () => void
   private removeNearbyListener?: () => void
   private removeVisitedListener?: () => void
   private removeDialogueListener?: () => void
+  private removeEntryListener?: () => void
   private removeNpcNearbyListener?: () => void
   private removeNpcRequestListener?: () => void
   private readonly stationVisuals = new Map<StationId, StationVisual>()
@@ -146,6 +148,10 @@ export class LabScene extends Phaser.Scene {
       this.activeNpc = npcId
       this.refreshControlsEnabled()
     })
+    this.removeEntryListener = labBridge.on('ui:entry-change', ({ open }) => {
+      this.visitorEntryOpen = open
+      this.refreshControlsEnabled()
+    })
     this.removeNearbyListener = labBridge.on('station:nearby', ({ stationId }) => {
       this.nearbyStation = stationId
       this.refreshAllStationStates()
@@ -184,6 +190,7 @@ export class LabScene extends Phaser.Scene {
       this.removeNearbyListener?.()
       this.removeVisitedListener?.()
       this.removeDialogueListener?.()
+      this.removeEntryListener?.()
       this.removeNpcNearbyListener?.()
       this.removeNpcRequestListener?.()
     })
@@ -211,7 +218,7 @@ export class LabScene extends Phaser.Scene {
   }
 
   private refreshControlsEnabled() {
-    this.controlsEnabled = !this.stationPanelOpen && !this.npcDialogueOpen
+    this.controlsEnabled = !this.stationPanelOpen && !this.npcDialogueOpen && !this.visitorEntryOpen
   }
 
   private createNpc(layout: LabLayout['npcs'][number]): InteractiveNpc {

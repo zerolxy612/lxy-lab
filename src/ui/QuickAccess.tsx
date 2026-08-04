@@ -9,9 +9,10 @@ interface QuickAccessProps {
   triggerRef: RefObject<HTMLButtonElement | null>
   visitedStations: ReadonlySet<StationId>
   onSelect: (stationId: StationId) => void
+  onOpenBriefing: () => void
 }
 
-export function QuickAccess({ triggerRef, visitedStations, onSelect }: QuickAccessProps) {
+export function QuickAccess({ triggerRef, visitedStations, onSelect, onOpenBriefing }: QuickAccessProps) {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -46,6 +47,11 @@ export function QuickAccess({ triggerRef, visitedStations, onSelect }: QuickAcce
     onSelect(stationId)
   }
 
+  const openBriefing = () => {
+    setOpen(false)
+    onOpenBriefing()
+  }
+
   return (
     <div className="quick-access" data-open={open}>
       <button
@@ -63,6 +69,11 @@ export function QuickAccess({ triggerRef, visitedStations, onSelect }: QuickAcce
           <span>Archive index</span>
           <p>Choose one signal. The room stays available behind every record.</p>
         </div>
+        <button className="quick-access-briefing" type="button" onClick={openBriefing}>
+          <span>00</span>
+          Visitor briefing
+          <i aria-hidden="true">→</i>
+        </button>
         {stations.map((station) => (
           <button
             key={station.id}

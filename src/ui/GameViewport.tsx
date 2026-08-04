@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { labBridge } from '../game/bridge'
 import { gameLoadingLabel, type GameLoadingPhase } from '../game/gameLoading'
+import { createActiveTimeWatchdog } from './startupWatchdog'
 
 const gameStartTimeoutMs = 20_000
 
@@ -21,6 +22,7 @@ export function GameViewport() {
     let cancelled = false
     let failed = false
     let activeGame: { destroy: (removeCanvas: boolean) => void } | null = null
+    let startupWatchdog: ReturnType<typeof createActiveTimeWatchdog> | null = null
     setReady(false)
     setEntranceReady(false)
     setError(null)
@@ -33,24 +35,25 @@ export function GameViewport() {
       activeGame.destroy(true)
       activeGame = null
     }
-    const fail = (message: string) => {
+    const fail = (message: string, broadcast = true) => {
       if (cancelled || failed) return
       failed = true
-      window.clearTimeout(startTimeout)
+      startupWatchdog?.cancel()
       destroyGame()
       setReady(false)
       setError(message)
+      if (broadcast) labBridge.emit('game:error', { message })
     }
     const removeReadyListener = labBridge.on('game:ready', () => {
       if (cancelled || failed) return
-      window.clearTimeout(startTimeout)
+      startupWatchdog?.cancel()
       setReady(true)
       setLoadingPhase('ready')
       setLoadingProgress(1)
     })
     const removeEntranceReadyListener = labBridge.on('game:entrance-ready', () => {
       if (cancelled || failed) return
-      window.clearTimeout(startTimeout)
+      startupWatchdog?.cancel()
       setEntranceReady(true)
       setLoadingPhase('ready')
       setLoadingProgress(1)
@@ -60,10 +63,20 @@ export function GameViewport() {
       setLoadingPhase(phase)
       setLoadingProgress((current) => Math.max(current, progress))
     })
-    const removeErrorListener = labBridge.on('game:error', ({ message }) => fail(message))
-    const startTimeout = window.setTimeout(() => {
-      fail('The interactive room took too long to start.')
-    }, gameStartTimeoutMs)
+    const removeErrorListener = labBridge.on(
+      'game:error',
+      ({ message }) => fail(message, false),
+    )
+    startupWatchdog = createActiveTimeWatchdog({
+      timeoutMs: gameStartTimeoutMs,
+      onTimeout: () => fail('The interactive room took too long to start.'),
+    })
+    const followPageVisibility = () => {
+      if (document.hidden) startupWatchdog?.pause()
+      else startupWatchdog?.resume()
+    }
+    document.addEventListener('visibilitychange', followPageVisibility)
+    followPageVisibility()
 
     void import('../game/createGame')
       .then(({ createLabGame }) => {
@@ -84,7 +97,8 @@ export function GameViewport() {
 
     return () => {
       cancelled = true
-      window.clearTimeout(startTimeout)
+      startupWatchdog?.cancel()
+      document.removeEventListener('visibilitychange', followPageVisibility)
       removeReadyListener()
       removeEntranceReadyListener()
       removeLoadingListener()
