@@ -316,7 +316,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ## 8. Current Iteration — v0.6 Public Proof and Launch Readiness
 
-状态：**第五切片已完成并通过浏览器验收；量化结果、外部证据、Resume、最终域名与跨浏览器发布验收待完成**
+状态：**第六切片已完成；量化结果、外部证据、可下载 Resume、最终域名与跨浏览器发布验收待完成**
 
 ### Goal
 
@@ -380,6 +380,15 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - `E` / `Space`、点击 NPC、Living AI Core 与 Experience Archive 的 Character Channel 共用同一锚点协议，不修改移动、碰撞或站点逻辑。
 - 选项支持点击和 `1`–`3` 数字键；Escape、焦点循环、关闭后焦点返回与少量可选站点跳转保持完整。
 - 900 px 以下自动切换为带遮罩的底部单列对话布局；桌面 1440 × 900、移动 390 × 844 与紧凑 360 × 640 已完成浏览器验收，无横向溢出或控制台错误。
+
+### Sixth Slice — Visitor Entry Routing
+
+- 电梯开门并确认 `LabScene` ready 后出现一次访客分流面板；同一标签页选择后写入 `sessionStorage`，刷新不重复打断，关闭标签页后恢复首次进入体验。
+- `Quick Briefing` 在同一份可滚动档案中集中展示 About、核心能力、两项 Selected Work、CV snapshot 与 Contact，不制造连续弹窗，也不伪造尚未提供的简历下载链接。
+- `Explore the Lab` 立即关闭面板并把焦点还给 Phaser 房间；面板打开期间通过 React–Phaser 事件桥锁定角色移动、站点和 NPC 交互。
+- 桌面支持 `Q` / `1`、`E` / `2`、方向键、Enter 与 Escape；移动端把探索路径改写为 `Browse Lab Stations`，直接衔接既有 Archive Index，不要求虚拟摇杆。
+- Visitor Briefing 同时加入常驻 Quick Access，可在探索后重新打开；再次关闭会恢复到 Canvas 或移动端 Archive Index。
+- 入场与简报使用单次扫描、分层揭示和短促状态反馈，并在 `prefers-reduced-motion` 下自动退化为即时切换。
 
 ### Confirmed Later Direction — Character Expansion
 

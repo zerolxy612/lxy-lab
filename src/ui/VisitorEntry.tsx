@@ -28,6 +28,24 @@ export function VisitorEntry({ view, onOpenBriefing, onExplore }: VisitorEntryPr
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (view === 'choice' && !event.repeat) {
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          event.preventDefault()
+          const nextTarget = document.activeElement === briefingButton.current
+            ? exploreButton.current
+            : briefingButton.current
+          nextTarget?.focus()
+          return
+        }
+        if (event.key === 'Enter') {
+          if (document.activeElement === exploreButton.current) {
+            event.preventDefault()
+            onExplore()
+          } else if (document.activeElement === briefingButton.current) {
+            event.preventDefault()
+            onOpenBriefing()
+          }
+          return
+        }
         if (event.key === '1' || event.key.toLowerCase() === 'q') {
           event.preventDefault()
           onOpenBriefing()
