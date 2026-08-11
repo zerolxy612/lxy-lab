@@ -1,0 +1,65 @@
+{
+  "compressionlevel": -1,
+  "height": 34,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "World",
+      "objects": [
+        { "height": 428, "id": 1, "name": "world-bounds", "rotation": 0, "type": "", "visible": true, "width": 844, "x": 58, "y": 72 },
+        { "id": 2, "name": "player-spawn", "point": true, "rotation": 0, "type": "", "visible": true, "x": 480, "y": 400 }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 2,
+      "name": "Collision",
+      "objects": [
+        { "height": 102, "id": 3, "name": "north-shelves", "rotation": 0, "type": "", "visible": true, "width": 844, "x": 58, "y": 72 },
+        { "height": 180, "id": 4, "name": "west-shelves", "rotation": 0, "type": "", "visible": true, "width": 94, "x": 58, "y": 174 },
+        { "height": 180, "id": 5, "name": "east-shelves", "rotation": 0, "type": "", "visible": true, "width": 94, "x": 808, "y": 174 },
+        { "height": 70, "id": 6, "name": "reading-table", "rotation": 0, "type": "", "visible": true, "width": 180, "x": 390, "y": 268 },
+        { "height": 62, "id": 7, "name": "catalog-console", "rotation": 0, "type": "", "visible": true, "width": 96, "x": 672, "y": 352 }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 3,
+      "name": "Interactions",
+      "objects": [
+        { "height": 122, "id": 8, "name": "reading", "properties": [{ "name": "label", "type": "string", "value": "Read LOG-001" }], "rotation": 0, "type": "", "visible": true, "width": 240, "x": 360, "y": 240 },
+        { "height": 116, "id": 9, "name": "catalog", "properties": [{ "name": "label", "type": "string", "value": "Open Catalog" }], "rotation": 0, "type": "", "visible": true, "width": 156, "x": 642, "y": 324 },
+        { "height": 72, "id": 10, "name": "exit", "properties": [{ "name": "label", "type": "string", "value": "Return to Main Lab" }], "rotation": 0, "type": "", "visible": true, "width": 128, "x": 416, "y": 428 }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 4,
+  "nextobjectid": 11,
+  "orientation": "orthogonal",
+  "properties": [{ "name": "schemaVersion", "type": "int", "value": 1 }],
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 16,
+  "tilesets": [],
+  "tilewidth": 16,
+  "type": "map",
+  "version": "1.10",
+  "width": 60
+}

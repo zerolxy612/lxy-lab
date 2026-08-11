@@ -42,6 +42,7 @@ import {
   ELEVATOR_CABIN_TEXTURE_KEY,
   ELEVATOR_CABIN_TEXTURE_URL,
 } from '../art/elevatorArt'
+import type { AvailableRoomId } from '../rooms'
 
 export class BootScene extends Phaser.Scene {
   private loadFailed = false
@@ -117,6 +118,11 @@ export class BootScene extends Phaser.Scene {
     pixel.generateTexture('pixel', 2, 2)
     pixel.destroy()
 
+    const initialRoom = this.registry.get('initialRoom') as AvailableRoomId | undefined
+    if (initialRoom === 'library') {
+      this.scene.start('library')
+      return
+    }
     this.scene.start('elevator')
   }
 }

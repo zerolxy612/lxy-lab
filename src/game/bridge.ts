@@ -1,6 +1,7 @@
 import type { StationId } from '../content/stations'
 import type { NpcId } from '../content/npcs'
 import type { GameLoadingPhase } from './gameLoading'
+import type { AvailableRoomId } from './rooms'
 
 export interface NpcDialogueAnchor {
   x: number
@@ -24,6 +25,13 @@ interface LabEventMap {
   'ui:visited-change': { visited: readonly StationId[] }
   'ui:elevator-start': Record<string, never>
   'ui:elevator-skip': Record<string, never>
+  'room:request': { roomId: AvailableRoomId; source: 'world' | 'index' | 'content' }
+  'room:leaving': { from: AvailableRoomId; to: AvailableRoomId }
+  'room:entered': { roomId: AvailableRoomId; from: AvailableRoomId | null }
+  'room:nearby': { roomId: AvailableRoomId; targetId: string | null; label: string | null }
+  'room:error': { roomId: AvailableRoomId; message: string }
+  'library:open': { surface: 'catalog' | 'article'; slug?: string }
+  'ui:room-content-change': { open: boolean }
 }
 
 type Listener<K extends keyof LabEventMap> = (payload: LabEventMap[K]) => void

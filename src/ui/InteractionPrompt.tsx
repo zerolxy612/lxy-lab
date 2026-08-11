@@ -8,12 +8,24 @@ interface InteractionPromptProps {
   stationId: StationId | null
   npcId: NpcId | null
   visited: boolean
+  roomTargetLabel?: string | null
 }
 
-export function InteractionPrompt({ hasMoved, stationId, npcId, visited }: InteractionPromptProps) {
+export function InteractionPrompt({
+  hasMoved,
+  stationId,
+  npcId,
+  visited,
+  roomTargetLabel = null,
+}: InteractionPromptProps) {
   return (
     <div className="interaction-prompt" aria-live="polite">
-      {npcId ? (
+      {roomTargetLabel ? (
+        <>
+          <kbd>E</kbd>
+          <span>{roomTargetLabel}</span>
+        </>
+      ) : npcId ? (
         <>
           <kbd>E</kbd>
           <span>Talk to {npcById[npcId].name}</span>

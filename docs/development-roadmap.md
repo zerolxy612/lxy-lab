@@ -1,6 +1,6 @@
 # Xiangyu's AI Lab — Development Roadmap
 
-最后更新：2026-08-03
+最后更新：2026-08-11
 
 本文档记录当前实现、技术决策、限制和下一轮方向。公开仓库介绍维护在根目录的 [`readme.md`](../readme.md)；本地 Codex 上下文保存在被 Git 忽略的 `.codex/project-context.md`。
 
@@ -10,13 +10,13 @@
 |---|---|---|
 | 网站主角 | Xiangyu 本人、经历、工程方法与整体 AI Lab | 任何单一项目都不能成为首页或房间的绝对焦点 |
 | 敏感 Legal AI 项目 | 以匿名案例进入 Selected Work | 可公开 HKGAI、Legal AI、government-facing 和前端职责；不公开项目名称、客户、数据与内部细节 |
-| 核心体验 | 一个可以自由移动的完整房间 | Phaser 负责移动、碰撞、站点范围与场景动画 |
+| 核心体验 | Main Lab 主场景 + 最多三个职责明确的可选房间 | Phaser 负责空间体验；扩展保持 hub-and-spoke，不演变为开放世界 |
 | 快速浏览 | 探索是选择，不是门槛 | React Quick Access 始终可以绕过 Canvas 访问内容 |
 | 移动端 | 内容优先，暂不模拟桌面游戏控制 | 小屏依靠 Quick Access，不做低质量虚拟摇杆 |
 | 视觉方向 | 青紫系统光为主，香港雨夜与个人物品建立辨识度 | 暖色只用于记忆、生活区域和少量强调 |
 | AI Assistant | 后期能力，不是当前核心 | 先做策划问题和导航，再决定是否连接 LLM |
 
-## 2. Current Implementation — v0.5 Release Baseline / v0.6 In Progress
+## 2. Current Implementation — v0.5 Release Baseline / v0.7 Prototype In Progress
 
 ### 2.1 Stack and Runtime Boundary
 
@@ -397,7 +397,39 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 首版采用人工编写的三问分支、ROOK waypoint 巡逻与 MIRA 固定位置，不增加 LLM、任务系统、新站点或复杂路径规划。
 - 现有 Lab Companion 继续承担快速导航；ROOK 讲工程取舍，MIRA 讲经历与公开边界，避免角色职责重复。
 
-## 9. Decision Log
+### Confirmed Later Direction — Multi-room World
+
+- 当前 `LabScene` 确认为主场景与交通枢纽；后续候选房间固定为 Archive Library、After Hours 与 Observatory，详见 [`multi-room-world-design.md`](./multi-room-world-design.md)。
+- Library 承载 Blog、技术笔记与持续记录；After Hours 承载兴趣、放松和非功利化彩蛋；Observatory 定位为屋顶上的未来思考空间，展示职业规划、AI 观点与未来技术判断。
+- 新结构采用 hub-and-spoke，不建立开放世界；Main Lab 的 Visitor Briefing、Quick Access、CV、项目和 Contact 继续保证快速路径。
+- 制作第二个正式房间前，先实现最小 Room Registry、typed transition protocol、返回出生点、按房间素材加载与 session world state。
+- Blog 文章必须拥有独立 URL 和语义化阅读页面；场景只负责发现与氛围，不把长文排版或文章数量绑定到 Phaser 实体。
+- 推荐顺序为多房间基础设施 → Library 垂直切片 → Observatory 垂直切片 → After Hours；不会同时生产三套完整美术。
+
+## 9. Current Prototype — v0.7 Multi-room Foundation
+
+状态：**基础设施与 Archive Library 功能纵向切片已完成；正式美术待开始**
+
+- 增加固定的 `RoomId` / Room Registry，当前可用房间为 Main Lab 与 Archive Library；After Hours 和 Observatory 只在 World Index 中显示为 planned。
+- typed bridge 已覆盖 `room:request`、`room:leaving`、`room:entered`、`room:nearby` 与 `room:error`；房间切换使用短 Phaser camera fade，不重播 Boot、电梯或 Visitor Entry。
+- 世界访问状态写入 `sessionStorage`，记录当前房间与已访问房间；刷新保持同一标签页会话，关闭标签页后重置。
+- Archive Library 使用独立 `LibraryScene`、独立 Tiled `.tmj` 与独立布局校验，不把第二个房间塞进 `lab-v1.tmj`，也没有引入通用 `BaseRoomScene`。
+- Library 原型包含 Reading Table、Catalog Terminal 与 Main Lab 出口；从 Library 返回 Lab 时使用对应安全出生点。
+- Quick Access 已升级为 World Index，桌面与移动端都可以不操控角色直接切换可用房间；计划房间保持不可点击。
+- 建立结构化 Blog 内容模型、语义化 Catalog / Article 阅读层与稳定直达路径；首篇文章为 `/blog/why-this-lab-uses-two-runtimes`。
+- 文章打开时锁定 Phaser 输入，Escape 与返回按钮恢复 Library；直达文章不播放 Boot 或电梯。
+- 自动验证现为 25 个测试文件、69 项测试，类型检查、Lint、测试与生产构建通过；桌面 Library、文章直达、390 × 844 阅读、无水平溢出与 Library → Lab 返回路径完成浏览器验收。
+
+下一步是 Library 正式美术预制作与 3–5 篇真实文章清单，不同时启动 Observatory 与 After Hours。当前程序化 Library 只承担空间、交互和内容路径证明，不代表最终视觉质量。
+
+## 10. Decision Log
+
+### 2026-08-11
+
+- 单房间约束升级为“Main Lab 主场景 + 最多三个职责明确的可选房间”；仍明确拒绝开放世界和系统性 RPG 扩张。
+- Archive Library 确认为 Blog 空间；Observatory 确认为屋顶未来思考空间；After Hours 保留为放松和个人兴趣空间。
+- Main Lab 表达现在，Library 表达积累，After Hours 表达工作之外，Observatory 表达未来；四个空间不重复职业内容。
+- Room Registry、房间转场协议、会话世界状态、World Index 与 Library 功能原型已完成；下一步进入 Library 正式美术预制作，不直接生成另外两个房间。
 
 ### 2026-07-28
 

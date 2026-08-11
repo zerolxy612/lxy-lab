@@ -1,6 +1,6 @@
 # Xiangyu's AI Lab — Tiled Map Schema v1
 
-最后更新：2026-08-01
+最后更新：2026-08-11
 
 运行时地图位于 `public/assets/game/maps/lab-v1.tmj`。它是房间空间数据的唯一来源；不要在 `LabScene.ts` 或 `labLayout.ts` 中复制站点坐标、碰撞或出生点。
 
@@ -102,3 +102,15 @@ npm run build
 ```
 
 地图测试直接读取生产 `.tmj`，因此错误不会被另一份测试 fixture 掩盖。
+
+## Archive Library Prototype Contract
+
+Library 原型地图位于 `public/assets/game/maps/library-prototype-v1.tmj`，运行时由 `LibraryScene` 独立延迟加载。它沿用 16 × 16 px、60 × 34 tiles 与 `schemaVersion = 1`，但不会复用 Lab 的站点或 NPC 对象层。
+
+必需对象层：
+
+- `World`：一个 `world-bounds` 矩形与一个 `player-spawn` Point。
+- `Collision`：Library 自己的墙体、书架、阅读桌和终端碰撞矩形。
+- `Interactions`：名称固定为 `reading`、`catalog`、`exit` 的三个矩形；每个对象包含 `label` 与正整数 `interactionPadding`。
+
+`src/game/layout/libraryLayout.ts` 会拒绝未知 / 重复互动点、缺失出生点或边界、非法坐标、非正尺寸、出生点进入碰撞体，以及不符合 960 × 544 逻辑空间的地图。Library 原型不改变 Lab 的地图契约；正式美术制作时仍应修改这张独立地图，而不是在场景代码中复制坐标。

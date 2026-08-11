@@ -76,4 +76,18 @@ describe('LabBridge', () => {
 
     expect(listener).toHaveBeenCalledWith({ open: true })
   })
+
+  it('carries room transitions without coupling React to Phaser scenes', () => {
+    const bridge = new LabBridge()
+    const request = vi.fn()
+    const entered = vi.fn()
+    bridge.on('room:request', request)
+    bridge.on('room:entered', entered)
+
+    bridge.emit('room:request', { roomId: 'library', source: 'index' })
+    bridge.emit('room:entered', { roomId: 'library', from: 'lab' })
+
+    expect(request).toHaveBeenCalledWith({ roomId: 'library', source: 'index' })
+    expect(entered).toHaveBeenCalledWith({ roomId: 'library', from: 'lab' })
+  })
 })

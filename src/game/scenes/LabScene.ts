@@ -36,6 +36,8 @@ import {
   type InteractiveStation,
   type InteractiveNpc,
 } from '../systems/InteractionSystem'
+import { transitionToRoom, type RoomTransitionData } from '../roomTransition'
+import type { AvailableRoomId } from '../rooms'
 
 interface StationVisual {
   container: Phaser.GameObjects.Container
@@ -58,6 +60,7 @@ export class LabScene extends Phaser.Scene {
   private removeEntryListener?: () => void
   private removeNpcNearbyListener?: () => void
   private removeNpcRequestListener?: () => void
+  private removeRoomRequestListener?: () => void
   private readonly stationVisuals = new Map<StationId, StationVisual>()
   private readonly visitedStations = new Set<StationId>()
   private nearbyStation: StationId | null = null
@@ -78,14 +81,34 @@ export class LabScene extends Phaser.Scene {
   private readonly interactionDebugRects: Phaser.Geom.Rectangle[] = []
   private layout!: LabLayout
   private entranceReveal = false
+  private entryFrom: AvailableRoomId | null = null
+  private transitioning = false
 
   constructor() {
     super('lab')
   }
 
-  init(data: { entranceReveal?: boolean }) {
+  init(data: RoomTransitionData & { entranceReveal?: boolean }) {
     this.entranceReveal = data.entranceReveal === true
-    this.controlsEnabled = !this.entranceReveal
+    this.entryFrom = data.entryFrom ?? null
+    this.transitioning = false
+    this.stationPanelOpen = false
+    this.npcDialogueOpen = false
+    this.visitorEntryOpen = false
+    this.nearbyStation = null
+    this.hoveredStation = null
+    this.activeStation = null
+    this.nearbyNpc = null
+    this.activeNpc = null
+    this.hasPlayerMoved = false
+    this.hasAcknowledgedCoreVisit = false
+    this.ragResponsePacket = undefined
+    this.stationVisuals.clear()
+    this.visitedStations.clear()
+    this.npcActors.length = 0
+    this.collisionDebugRects.length = 0
+    this.interactionDebugRects.length = 0
+    this.controlsEnabled = !this.entranceReveal && !this.entryFrom
   }
 
   create() {
@@ -125,7 +148,10 @@ export class LabScene extends Phaser.Scene {
     this.drawPersonalCorner()
     this.drawRagRack()
 
-    this.player = new Player(this, playerSpawn.x, playerSpawn.y)
+    const resolvedSpawn = this.entryFrom === 'library'
+      ? { x: 350, y: 382 }
+      : playerSpawn
+    this.player = new Player(this, resolvedSpawn.x, resolvedSpawn.y)
 
     staticObstacles.forEach(({ x, y, width, height }) => {
       const obstacle = this.createStaticBlock(x, y, width, height)
@@ -173,14 +199,23 @@ export class LabScene extends Phaser.Scene {
         anchor: actor.getDialogueAnchor(),
       })
     })
+    this.removeRoomRequestListener = labBridge.on('room:request', ({ roomId }) => {
+      if (roomId === 'lab' || this.transitioning) return
+      this.transitioning = transitionToRoom(this, 'lab', roomId, this.reducedMotion)
+      this.refreshControlsEnabled()
+    })
     const signalReady = () => {
       this.refreshControlsEnabled()
+      labBridge.emit('room:entered', { roomId: 'lab', from: this.entryFrom })
       labBridge.emit('game:loading', { phase: 'ready', progress: 1 })
       labBridge.emit('game:ready', {})
     }
     if (this.entranceReveal) {
       this.cameras.main.fadeIn(460, 153, 237, 255)
       this.time.delayedCall(430, signalReady)
+    } else if (this.entryFrom && !this.reducedMotion) {
+      this.cameras.main.fadeIn(260, 7, 9, 22)
+      this.time.delayedCall(240, signalReady)
     } else {
       signalReady()
     }
@@ -193,6 +228,7 @@ export class LabScene extends Phaser.Scene {
       this.removeEntryListener?.()
       this.removeNpcNearbyListener?.()
       this.removeNpcRequestListener?.()
+      this.removeRoomRequestListener?.()
     })
   }
 
@@ -218,7 +254,10 @@ export class LabScene extends Phaser.Scene {
   }
 
   private refreshControlsEnabled() {
-    this.controlsEnabled = !this.stationPanelOpen && !this.npcDialogueOpen && !this.visitorEntryOpen
+    this.controlsEnabled = !this.stationPanelOpen
+      && !this.npcDialogueOpen
+      && !this.visitorEntryOpen
+      && !this.transitioning
   }
 
   private createNpc(layout: LabLayout['npcs'][number]): InteractiveNpc {

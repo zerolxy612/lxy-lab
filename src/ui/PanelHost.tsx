@@ -7,6 +7,7 @@ import { LabCompanion } from './LabCompanion'
 import { SelectedWork } from './SelectedWork'
 import { restoreFocus } from './focusReturn'
 import type { NpcId } from '../content/npcs'
+import type { AvailableRoomId } from '../game/rooms'
 
 interface PanelHostProps {
   stationId: StationId | null
@@ -14,9 +15,17 @@ interface PanelHostProps {
   onClose: () => void
   onNavigate: (stationId: StationId) => void
   onOpenNpc: (npcId: NpcId) => void
+  onEnterRoom: (roomId: AvailableRoomId) => void
 }
 
-export function PanelHost({ stationId, returnFocusRef, onClose, onNavigate, onOpenNpc }: PanelHostProps) {
+export function PanelHost({
+  stationId,
+  returnFocusRef,
+  onClose,
+  onNavigate,
+  onOpenNpc,
+  onEnterRoom,
+}: PanelHostProps) {
   const panel = useRef<HTMLElement>(null)
   const closeButton = useRef<HTMLButtonElement>(null)
 
@@ -104,6 +113,16 @@ export function PanelHost({ stationId, returnFocusRef, onClose, onNavigate, onOp
         >
           <span>Character channel</span>
           Talk to {stationId === 'systems' ? 'ROOK' : 'MIRA'} <i aria-hidden="true">→</i>
+        </button>
+      )}
+      {stationId === 'experience' && (
+        <button
+          type="button"
+          className="room-route-link"
+          onClick={() => onEnterRoom('library')}
+        >
+          <span>Archive corridor / prototype</span>
+          Enter Archive Library <i aria-hidden="true">→</i>
         </button>
       )}
     </aside>

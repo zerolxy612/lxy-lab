@@ -2,10 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { labBridge } from '../game/bridge'
 import { gameLoadingLabel, type GameLoadingPhase } from '../game/gameLoading'
 import { createActiveTimeWatchdog } from './startupWatchdog'
+import type { AvailableRoomId } from '../game/rooms'
 
 const gameStartTimeoutMs = 20_000
 
-export function GameViewport() {
+interface GameViewportProps {
+  initialRoom?: AvailableRoomId
+}
+
+export function GameViewport({ initialRoom = 'lab' }: GameViewportProps) {
   const gameRoot = useRef<HTMLDivElement>(null)
   const retryButton = useRef<HTMLButtonElement>(null)
   const [ready, setReady] = useState(false)
@@ -83,7 +88,7 @@ export function GameViewport() {
         if (cancelled || failed) return
 
         labBridge.emit('game:loading', { phase: 'room', progress: 0.16 })
-        const game = createLabGame(parent)
+        const game = createLabGame(parent, initialRoom)
         if (cancelled || failed) {
           game.destroy(true)
           return
@@ -105,7 +110,7 @@ export function GameViewport() {
       removeErrorListener()
       destroyGame()
     }
-  }, [attempt])
+  }, [attempt, initialRoom])
 
   useEffect(() => {
     if (error) retryButton.current?.focus()

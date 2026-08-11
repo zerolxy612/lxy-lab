@@ -19,6 +19,16 @@ import {
   hasChosenVisitorEntry,
   markVisitorEntryChoice,
 } from '../ui/visitorEntrySession'
+import {
+  getRoomPath,
+  resolveInitialRoom,
+  roomById,
+  type AvailableRoomId,
+  type RoomId,
+} from '../game/rooms'
+import { readWorldSession, recordRoomVisit } from '../ui/worldSessionState'
+import { blogPostBySlug, getBlogSlug } from '../content/blog'
+import { LibraryContent, type LibrarySurface } from '../ui/LibraryContent'
 
 function readSessionStorage() {
   try {
@@ -30,7 +40,21 @@ function readSessionStorage() {
 
 export function App() {
   const quickAccessTrigger = useRef<HTMLButtonElement>(null)
+  const pendingStation = useRef<StationId | null>(null)
+  const hasEnteredInitialRoom = useRef(false)
   const barkId = useRef(0)
+  const [initialRoom] = useState(() => resolveInitialRoom(window.location.pathname))
+  const [currentRoom, setCurrentRoom] = useState<AvailableRoomId>(initialRoom)
+  const [visitedRooms, setVisitedRooms] = useState<RoomId[]>(() => (
+    [...readWorldSession(readSessionStorage()).visitedRooms]
+  ))
+  const [roomTargetLabel, setRoomTargetLabel] = useState<string | null>(null)
+  const [transitioningTo, setTransitioningTo] = useState<AvailableRoomId | null>(null)
+  const [librarySurface, setLibrarySurface] = useState<LibrarySurface>(() => {
+    const slug = getBlogSlug(window.location.pathname)
+    if (slug && blogPostBySlug[slug]) return { type: 'article', slug }
+    return window.location.pathname.startsWith('/blog/') ? { type: 'catalog' } : null
+  })
   const [nearbyStation, setNearbyStation] = useState<StationId | null>(null)
   const [activeStation, setActiveStation] = useState<StationId | null>(null)
   const [nearbyNpc, setNearbyNpc] = useState<NpcId | null>(null)
@@ -43,14 +67,33 @@ export function App() {
   const [gameReady, setGameReady] = useState(false)
   const [gameFailed, setGameFailed] = useState(false)
   const [visitorEntryView, setVisitorEntryView] = useState<VisitorEntryView>('closed')
-  const labChromeVisible = (gameReady || gameFailed) && visitorEntryView === 'closed'
+  const labChromeVisible = (gameReady || gameFailed)
+    && visitorEntryView === 'closed'
+    && librarySurface === null
+    && transitioningTo === null
   const visitedStationSet = useMemo(() => new Set(visitedStations), [visitedStations])
+  const visitedRoomSet = useMemo(() => new Set(visitedRooms), [visitedRooms])
+  const currentRoomDefinition = roomById[currentRoom]
   const closePanel = useCallback(() => setActiveStation(null), [])
   const closeDialogue = useCallback(() => {
     setActiveNpc(null)
     setDialogueAnchor(null)
   }, [])
+  const requestRoom = useCallback((roomId: AvailableRoomId, source: 'world' | 'index' | 'content' = 'index') => {
+    setActiveStation(null)
+    setActiveNpc(null)
+    setActiveBark(null)
+    setDialogueAnchor(null)
+    setLibrarySurface(null)
+    if (roomId === currentRoom) return
+    labBridge.emit('room:request', { roomId, source })
+  }, [currentRoom])
   const openStation = useCallback((stationId: StationId) => {
+    if (currentRoom !== 'lab') {
+      pendingStation.current = stationId
+      requestRoom('lab', 'content')
+      return
+    }
     setVisitedStations((current) => (
       current.includes(stationId) ? current : [...current, stationId]
     ))
@@ -58,7 +101,7 @@ export function App() {
     setActiveNpc(null)
     setDialogueAnchor(null)
     setActiveBark(null)
-  }, [])
+  }, [currentRoom, requestRoom])
   const openNpc = useCallback((npcId: NpcId, anchor: NpcDialogueAnchor) => {
     setActiveStation(null)
     setActiveBark(null)
@@ -91,6 +134,20 @@ export function App() {
       }
       document.querySelector<HTMLElement>('.game-viewport')?.focus()
     })
+  }, [])
+  const openLibraryCatalog = useCallback(() => {
+    setLibrarySurface({ type: 'catalog' })
+  }, [])
+  const openArticle = useCallback((slug: string) => {
+    setLibrarySurface({ type: 'article', slug })
+    const path = `/blog/${slug}`
+    if (window.location.pathname !== path) window.history.pushState(null, '', path)
+  }, [])
+  const closeLibraryContent = useCallback(() => {
+    setLibrarySurface(null)
+    if (window.location.pathname.startsWith('/blog/')) {
+      window.history.pushState(null, '', getRoomPath('library'))
+    }
   }, [])
 
   useEffect(() => {
@@ -160,14 +217,15 @@ export function App() {
   }, [visitorEntryView])
 
   useEffect(() => {
+    labBridge.emit('ui:room-content-change', { open: librarySurface !== null })
+  }, [librarySurface])
+
+  useEffect(() => {
     labBridge.emit('ui:visited-change', { visited: visitedStations })
   }, [visitedStations])
 
   useEffect(() => labBridge.on('game:ready', () => {
     setGameReady(true)
-    if (!hasChosenVisitorEntry(readSessionStorage())) {
-      setVisitorEntryView('choice')
-    }
     labBridge.emit('ui:panel-change', {
       open: activeStation !== null,
       stationId: activeStation,
@@ -177,18 +235,85 @@ export function App() {
       open: activeNpc !== null,
       npcId: activeNpc,
     })
-  }), [activeNpc, activeStation, visitedStations])
+    labBridge.emit('ui:room-content-change', { open: librarySurface !== null })
+  }), [activeNpc, activeStation, librarySurface, visitedStations])
+
+  useEffect(() => {
+    const removeLeavingListener = labBridge.on('room:leaving', ({ to }) => {
+      setRoomTargetLabel(null)
+      setTransitioningTo(to)
+    })
+    const removeEnteredListener = labBridge.on('room:entered', ({ roomId }) => {
+      const nextSession = recordRoomVisit(readSessionStorage(), roomId)
+      setCurrentRoom(roomId)
+      setVisitedRooms([...nextSession.visitedRooms])
+      window.setTimeout(() => setTransitioningTo(null), 180)
+
+      if (roomId === 'lab' && !hasChosenVisitorEntry(readSessionStorage())) {
+        setVisitorEntryView('choice')
+      }
+      if (roomId === 'lab' && pendingStation.current) {
+        const stationId = pendingStation.current
+        pendingStation.current = null
+        setVisitedStations((current) => (
+          current.includes(stationId) ? current : [...current, stationId]
+        ))
+        setActiveStation(stationId)
+      }
+
+      if (hasEnteredInitialRoom.current && librarySurface === null) {
+        const path = getRoomPath(roomId)
+        if (window.location.pathname !== path) window.history.pushState(null, '', path)
+      }
+      hasEnteredInitialRoom.current = true
+    })
+    const removeNearbyListener = labBridge.on('room:nearby', ({ label }) => {
+      setRoomTargetLabel(label)
+    })
+    const removeLibraryListener = labBridge.on('library:open', ({ surface, slug }) => {
+      if (surface === 'article' && slug) openArticle(slug)
+      else openLibraryCatalog()
+    })
+
+    return () => {
+      removeLeavingListener()
+      removeEnteredListener()
+      removeNearbyListener()
+      removeLibraryListener()
+    }
+  }, [librarySurface, openArticle, openLibraryCatalog])
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const slug = getBlogSlug(window.location.pathname)
+      if (slug && blogPostBySlug[slug]) {
+        setLibrarySurface({ type: 'article', slug })
+        if (currentRoom !== 'library') requestRoom('library', 'content')
+        return
+      }
+      if (window.location.pathname.startsWith('/blog/')) {
+        setLibrarySurface({ type: 'catalog' })
+        if (currentRoom !== 'library') requestRoom('library', 'content')
+        return
+      }
+      setLibrarySurface(null)
+      const requestedRoom = resolveInitialRoom(window.location.pathname)
+      if (requestedRoom !== currentRoom) requestRoom(requestedRoom, 'index')
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [currentRoom, requestRoom])
 
   useEffect(() => labBridge.on('game:error', () => setGameFailed(true)), [])
 
   return (
     <main className="lab-shell">
-      <BootSequence />
+      {initialRoom === 'lab' && <BootSequence />}
 
       <div className="game-frame">
-        <GameViewport />
+        <GameViewport initialRoom={initialRoom} />
       </div>
-      <ElevatorEntrance />
+      {initialRoom === 'lab' && <ElevatorEntrance />}
 
       <div
         className="lab-chrome"
@@ -200,8 +325,8 @@ export function App() {
         <header className="identity-lockup">
           <span className="signal-dot" aria-hidden="true" />
           <div>
-            <p>AI Application Engineer · Hong Kong</p>
-            <h1>Xiangyu’s AI Lab</h1>
+            <p>{currentRoomDefinition.eyebrow}</p>
+            <h1>{currentRoom === 'lab' ? 'Xiangyu’s AI Lab' : currentRoomDefinition.label}</h1>
           </div>
         </header>
         <ContactLinks />
@@ -212,6 +337,9 @@ export function App() {
             visitedStations={visitedStationSet}
             onSelect={openStation}
             onOpenBriefing={openVisitorBriefing}
+            currentRoom={currentRoom}
+            visitedRooms={visitedRoomSet}
+            onRoomSelect={(roomId) => requestRoom(roomId, 'index')}
           />
         </div>
         {gameReady && (
@@ -220,12 +348,15 @@ export function App() {
             stationId={nearbyStation}
             npcId={nearbyNpc}
             visited={nearbyStation ? visitedStationSet.has(nearbyStation) : false}
+            roomTargetLabel={roomTargetLabel}
           />
         )}
         <section className="mobile-guide" aria-label="Mobile archive guide">
           <span>Field guide</span>
-          <strong>Five signals, one room.</strong>
-          <p>Open the archive index to explore without steering the character.</p>
+          <strong>{currentRoom === 'lab' ? 'Five signals, one hub.' : 'The first shelf is open.'}</strong>
+          <p>{currentRoom === 'lab'
+            ? 'Open the World Index to explore without steering the character.'
+            : 'Use the World Index or open the public note directly.'}</p>
         </section>
       </div>
       <VisitorEntry
@@ -239,6 +370,7 @@ export function App() {
         onClose={closePanel}
         onNavigate={openStation}
         onOpenNpc={requestNpc}
+        onEnterRoom={(roomId) => requestRoom(roomId, 'content')}
       />
       {activeBark && !activeNpc && !activeStation && (
         <NpcBark key={activeBark.id} bark={activeBark} />
@@ -252,6 +384,18 @@ export function App() {
         onClose={closeDialogue}
         onNavigate={openStation}
       />
+      <LibraryContent
+        surface={librarySurface}
+        returnFocusRef={quickAccessTrigger}
+        onClose={closeLibraryContent}
+        onOpenArticle={openArticle}
+      />
+      {transitioningTo && (
+        <div className="room-transition" role="status" aria-live="polite">
+          <span>TRANSIT / {roomById[transitioningTo].eyebrow}</span>
+          <strong>{roomById[transitioningTo].label}</strong>
+        </div>
+      )}
     </main>
   )
 }
