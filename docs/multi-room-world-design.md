@@ -70,15 +70,13 @@ Library 是博客的游戏化入口。它不是第二个 Experience Archive：Ex
 
 ### Content Structure
 
-首版分类建议：
+首版已采用的分类：
 
-- `AI Systems`
-- `Frontend & Interaction`
-- `Engineering Notes`
-- `Field Notes`
-- `Personal Logs`
+- `Architecture`
+- `Character Systems`
+- `Experience Design`
 
-房间内只摆放 4–6 篇精选或最新文章。分类书架只负责发现，完整文章库由 `Catalog Terminal` 打开语义化 Blog Index。文章数量增长时不增加碰撞物或无限延长地图。
+房间内由 Reading Table 展示唯一精选记录，完整文章库由 `Catalog Terminal` 打开语义化 Blog Index。首个纵向切片不启用分类书架：当前三篇文章已经在 Catalog 中拥有清晰分类，重复入口不会增加发现价值。文章数量增长时不增加碰撞物或无限延长地图。
 
 ### Interaction Candidates
 

@@ -5,14 +5,14 @@ import { restoreFocus } from './focusReturn'
 
 export type LibrarySurface =
   | { type: 'catalog' }
-  | { type: 'article'; slug: string }
+  | { type: 'article'; slug: string; presentation: 'desk' | 'standalone' }
   | null
 
 interface LibraryContentProps {
   surface: LibrarySurface
   returnFocusRef: RefObject<HTMLElement | null>
   onClose: () => void
-  onOpenArticle: (slug: string) => void
+  onOpenArticle: (slug: string, presentation?: 'desk' | 'standalone') => void
 }
 
 export function LibraryContent({
@@ -79,16 +79,26 @@ export function LibraryContent({
           </div>
           <button ref={closeButton} type="button" onClick={onClose}>Close <kbd>Esc</kbd></button>
         </header>
-        <p>The first shelf holds {blogPosts.length} public notes. Each record comes from a system or design decision already present in the lab.</p>
+        <p>The first shelf holds {blogPosts.length} public field notes. Scan by subject, then open the decision that matters to you.</p>
         <div className="library-catalog__list">
           {blogPosts.map((post) => (
-            <button key={post.slug} type="button" onClick={() => onOpenArticle(post.slug)}>
-              <span>{post.index}</span>
-              <span>
+            <button
+              key={post.slug}
+              type="button"
+              className={post.featured ? 'is-featured' : undefined}
+              onClick={() => onOpenArticle(post.slug)}
+            >
+              <span className="library-catalog__record">
+                <b>{post.index}</b>
+                <small>{post.readingTime}</small>
+              </span>
+              <span className="library-catalog__entry">
+                <i>{post.featured ? `Featured / ${post.category}` : post.category}</i>
                 <b>{post.title}</b>
                 <small>{post.summary}</small>
+                <strong>{post.catalogSignal}</strong>
               </span>
-              <i>{post.readingTime} →</i>
+              <i className="library-catalog__open" aria-hidden="true">→</i>
             </button>
           ))}
         </div>
@@ -102,37 +112,58 @@ export function LibraryContent({
 
   const post = blogPostBySlug[surface.slug]
   if (!post) return null
+  const postIndex = blogPosts.findIndex(({ slug }) => slug === post.slug)
+  const nextPost = blogPosts[(postIndex + 1) % blogPosts.length]
 
   return (
     <article
       ref={layer}
       className="blog-reader"
+      data-presentation={surface.presentation}
       role="dialog"
       aria-modal="true"
       aria-labelledby="blog-reader-title"
     >
-      <header className="blog-reader__topline">
-        <span>ARCHIVE LIBRARY / {post.index}</span>
-        <button ref={closeButton} type="button" onClick={onClose}>Return to library <kbd>Esc</kbd></button>
-      </header>
-      <div className="blog-reader__layout">
-        <aside aria-label="Article metadata">
-          <span>{post.category}</span>
+      <aside className="blog-reader__room" aria-label="Archive reading desk">
+        <header>
+          <span>ARCHIVE LIBRARY</span>
+          <strong>READING DESK / 01</strong>
+        </header>
+        <div className="blog-reader__room-view" aria-hidden="true">
+          <span>SESSION HELD</span>
+        </div>
+        <div className="blog-reader__record">
+          <span>{post.index}</span>
           <dl>
             <div><dt>Published</dt><dd>{post.published}</dd></div>
             <div><dt>Reading time</dt><dd>{post.readingTime}</dd></div>
-            <div><dt>Record</dt><dd>{post.index}</dd></div>
+            <div><dt>Classification</dt><dd>Public note</dd></div>
           </dl>
-          <i>PUBLIC NOTE</i>
-        </aside>
-        <div className="blog-reader__document">
+        </div>
+        <nav aria-label="Article sections">
+          {post.sections.map((section, index) => (
+            <a key={section.heading} href={`#record-section-${index + 1}`}>
+              <span>0{index + 1}</span>
+              {section.heading}
+            </a>
+          ))}
+        </nav>
+        <i>ROOM PAUSED / RECORD OPEN</i>
+      </aside>
+      <section className="blog-reader__desk">
+        <header className="blog-reader__topline">
+          <span>{post.category} / {post.index}</span>
+          <button ref={closeButton} type="button" onClick={onClose}>Return to library <kbd>Esc</kbd></button>
+        </header>
+        <div className="blog-reader__document" tabIndex={-1}>
           <header>
-            <p>{post.category}</p>
+            <p>{post.featured ? 'Featured field note' : 'Public field note'}</p>
             <h1 id="blog-reader-title">{post.title}</h1>
             <strong>{post.summary}</strong>
+            <blockquote>{post.catalogSignal}</blockquote>
           </header>
           {post.sections.map((section, index) => (
-            <section key={section.heading}>
+            <section key={section.heading} id={`record-section-${index + 1}`}>
               <span>0{index + 1}</span>
               <div>
                 <h2>{section.heading}</h2>
@@ -141,11 +172,18 @@ export function LibraryContent({
             </section>
           ))}
           <footer>
-            <span>END OF RECORD</span>
-            <button type="button" onClick={onClose}>Return to Archive Library <i aria-hidden="true">→</i></button>
+            <span>END OF {post.index}</span>
+            <div>
+              <button type="button" className="blog-reader__return" onClick={onClose}>Return to library</button>
+              {nextPost.slug !== post.slug && (
+                <button type="button" onClick={() => onOpenArticle(nextPost.slug, surface.presentation)}>
+                  Next: {nextPost.index} <i aria-hidden="true">→</i>
+                </button>
+              )}
+            </div>
           </footer>
         </div>
-      </div>
+      </section>
     </article>
   )
 }

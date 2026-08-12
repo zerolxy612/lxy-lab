@@ -53,7 +53,7 @@ export function App() {
   const [roomTransit, setRoomTransit] = useState(false)
   const [librarySurface, setLibrarySurface] = useState<LibrarySurface>(() => {
     const slug = getBlogSlug(window.location.pathname)
-    if (slug && blogPostBySlug[slug]) return { type: 'article', slug }
+    if (slug && blogPostBySlug[slug]) return { type: 'article', slug, presentation: 'standalone' }
     return window.location.pathname.startsWith('/blog/') ? { type: 'catalog' } : null
   })
   const [nearbyStation, setNearbyStation] = useState<StationId | null>(null)
@@ -140,8 +140,8 @@ export function App() {
   const openLibraryCatalog = useCallback(() => {
     setLibrarySurface({ type: 'catalog' })
   }, [])
-  const openArticle = useCallback((slug: string) => {
-    setLibrarySurface({ type: 'article', slug })
+  const openArticle = useCallback((slug: string, presentation: 'desk' | 'standalone' = 'desk') => {
+    setLibrarySurface({ type: 'article', slug, presentation })
     const path = `/blog/${slug}`
     if (window.location.pathname !== path) window.history.pushState(null, '', path)
   }, [])
@@ -304,7 +304,7 @@ export function App() {
     const handlePopState = () => {
       const slug = getBlogSlug(window.location.pathname)
       if (slug && blogPostBySlug[slug]) {
-        setLibrarySurface({ type: 'article', slug })
+        setLibrarySurface({ type: 'article', slug, presentation: 'standalone' })
         if (currentRoom !== 'library') requestRoom('library', 'content')
         return
       }

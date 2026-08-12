@@ -11,6 +11,8 @@ export interface BlogPost {
   category: string
   published: string
   readingTime: string
+  catalogSignal: string
+  featured?: boolean
   sections: readonly BlogSection[]
 }
 
@@ -19,10 +21,11 @@ export const blogPosts: readonly BlogPost[] = [
     slug: 'why-this-lab-uses-two-runtimes',
     index: 'LOG-001',
     title: 'Why This Lab Uses Two Runtimes',
-    summary: 'A short architecture note on letting React own readable interface state while Phaser owns movement and space.',
-    category: 'Frontend & Interaction',
+    summary: 'Why React owns readable interface state while Phaser owns movement and space.',
+    category: 'Architecture',
     published: '2026-08-11',
     readingTime: '4 min',
+    catalogSignal: 'Two runtimes, one deliberate boundary.',
     sections: [
       {
         heading: 'Space and interface are different jobs',
@@ -51,10 +54,11 @@ export const blogPosts: readonly BlogPost[] = [
     slug: 'designing-npc-dialogue-without-an-llm',
     index: 'LOG-002',
     title: 'Designing NPC Dialogue Without an LLM',
-    summary: 'Why ROOK and MIRA rely on authored state, repeated encounters, and room context instead of an always-online model.',
-    category: 'AI Systems',
+    summary: 'How authored state and room context give ROOK and MIRA continuity without an always-online model.',
+    category: 'Character Systems',
     published: '2026-08-11',
     readingTime: '5 min',
+    catalogSignal: 'Consistency can matter more than infinite dialogue.',
     sections: [
       {
         heading: 'Conversation starts before the dialogue box',
@@ -90,10 +94,12 @@ export const blogPosts: readonly BlogPost[] = [
     slug: 'the-elevator-is-part-of-the-portfolio',
     index: 'LOG-003',
     title: 'The Elevator Is Part of the Portfolio',
-    summary: 'A five-second arrival sequence can say more about a digital place than another paragraph on a landing page.',
-    category: 'Engineering Notes',
+    summary: 'How a five-second arrival sequence turns navigation into part of the portfolio.',
+    category: 'Experience Design',
     published: '2026-08-12',
     readingTime: '5 min',
+    catalogSignal: 'The path through the work is part of the work.',
+    featured: true,
     sections: [
       {
         heading: 'An entrance makes a promise',
@@ -130,6 +136,8 @@ export const blogPosts: readonly BlogPost[] = [
 export const blogPostBySlug = Object.fromEntries(
   blogPosts.map((post) => [post.slug, post]),
 ) as Record<string, BlogPost>
+
+export const featuredBlogPost = blogPosts.find(({ featured }) => featured) ?? blogPosts[0]
 
 export function getBlogSlug(pathname: string) {
   const match = pathname.match(/^\/blog\/([^/]+)\/?$/)

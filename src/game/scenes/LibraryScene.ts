@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { featuredBlogPost } from '../../content/blog'
 import {
   LIBRARY_BACKGROUND_TEXTURE_KEY,
   LIBRARY_BACKGROUND_TEXTURE_URL,
@@ -25,15 +26,21 @@ import type { AvailableRoomId } from '../rooms'
 interface InteractiveLibraryTarget {
   layout: LibraryInteraction
   zone: Phaser.GameObjects.Zone
-  frame: Phaser.GameObjects.Rectangle
 }
 
-const prototypePostSlug = 'why-this-lab-uses-two-runtimes'
+interface LibraryTargetVisual {
+  glow: Phaser.GameObjects.Ellipse
+  signal: Phaser.GameObjects.Rectangle
+  sprite: Phaser.GameObjects.Image
+  label?: Phaser.GameObjects.Text
+}
 
 export class LibraryScene extends Phaser.Scene {
   private player!: Player
   private targets: InteractiveLibraryTarget[] = []
+  private readonly targetVisuals = new Map<LibraryInteractionId, LibraryTargetVisual>()
   private nearbyTarget: LibraryInteractionId | null = null
+  private hoveredTarget: LibraryInteractionId | null = null
   private controlsEnabled = true
   private contentOpen = false
   private quickAccessOpen = false
@@ -41,6 +48,11 @@ export class LibraryScene extends Phaser.Scene {
   private reducedMotion = false
   private entryFrom: AvailableRoomId | null = null
   private transferDoor?: LibraryTransferDoor
+  private layout!: ReturnType<typeof parseLibraryMap>
+  private debugVisible = false
+  private debugKey!: Phaser.Input.Keyboard.Key
+  private debugGraphics!: Phaser.GameObjects.Graphics
+  private debugLabel!: Phaser.GameObjects.Text
   private interactKeys: Phaser.Input.Keyboard.Key[] = []
   private removeRoomRequestListener?: () => void
   private removeContentListener?: () => void
@@ -57,7 +69,10 @@ export class LibraryScene extends Phaser.Scene {
     this.contentOpen = false
     this.quickAccessOpen = false
     this.nearbyTarget = null
+    this.hoveredTarget = null
     this.targets = []
+    this.targetVisuals.clear()
+    this.debugVisible = false
   }
 
   preload() {
@@ -79,6 +94,7 @@ export class LibraryScene extends Phaser.Scene {
     try {
       const cachedMap = this.cache.tilemap.get(LIBRARY_MAP_KEY) as { data?: unknown } | undefined
       const layout = parseLibraryMap(cachedMap?.data)
+      this.layout = layout
       this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       this.textures.get(LIBRARY_BACKGROUND_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
       this.textures.get(LIBRARY_READING_TABLE_TEXTURE_KEY)
@@ -105,6 +121,7 @@ export class LibraryScene extends Phaser.Scene {
         this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E),
         this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
       ]
+      this.createDebugOverlay()
 
       this.removeRoomRequestListener = labBridge.on('room:request', ({ roomId }) => {
         if (roomId === 'library' || this.transitioning) return
@@ -145,6 +162,10 @@ export class LibraryScene extends Phaser.Scene {
   update() {
     this.player.move(this.controlsEnabled)
     this.updateNearbyTarget()
+    if (Phaser.Input.Keyboard.JustDown(this.debugKey)) {
+      this.debugVisible = !this.debugVisible
+      this.renderDebugOverlay()
+    }
   }
 
   private drawLibraryRoom() {
@@ -161,8 +182,22 @@ export class LibraryScene extends Phaser.Scene {
     const light = this.add.ellipse(468, 282, 220, 116, 0xffc45c, 0.055)
       .setBlendMode(Phaser.BlendModes.ADD)
       .setDepth(270)
-    this.add.image(480, 303, LIBRARY_READING_TABLE_TEXTURE_KEY)
+    const focusGlow = this.add.ellipse(480, 319, 176, 62, 0xffc45c, 0)
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setDepth(298)
+    const sprite = this.add.image(480, 303, LIBRARY_READING_TABLE_TEXTURE_KEY)
       .setDepth(303)
+    const signal = this.add.rectangle(480, 278, 42, 2, 0xffc45c, 0)
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setDepth(304)
+    const label = this.add.text(480, 252, `FEATURED / ${featuredBlogPost.index}`, {
+      color: '#d7b365',
+      fontFamily: 'sans-serif',
+      fontSize: '7px',
+      fontStyle: 'bold',
+      letterSpacing: 1.05,
+    }).setOrigin(0.5).setAlpha(0.7).setDepth(305)
+    this.targetVisuals.set('reading', { glow: focusGlow, signal, sprite, label })
 
     if (!this.reducedMotion) {
       this.tweens.add({
@@ -180,9 +215,16 @@ export class LibraryScene extends Phaser.Scene {
     const screenGlow = this.add.ellipse(720, 330, 86, 78, 0x5cdfff, 0.035)
       .setBlendMode(Phaser.BlendModes.ADD)
       .setDepth(360)
-    this.add.image(720, 382, LIBRARY_CATALOG_TERMINAL_TEXTURE_KEY)
+    const focusGlow = this.add.ellipse(720, 388, 76, 112, 0x5cdfff, 0)
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setDepth(374)
+    const sprite = this.add.image(720, 382, LIBRARY_CATALOG_TERMINAL_TEXTURE_KEY)
       .setOrigin(0.5, 0.68)
       .setDepth(382)
+    const signal = this.add.rectangle(720, 335, 28, 2, 0x5cdfff, 0)
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setDepth(383)
+    this.targetVisuals.set('catalog', { glow: focusGlow, signal, sprite })
 
     if (!this.reducedMotion) {
       this.tweens.add({
@@ -204,24 +246,22 @@ export class LibraryScene extends Phaser.Scene {
   }
 
   private createTarget(layout: LibraryInteraction): InteractiveLibraryTarget {
-    const frame = this.add.rectangle(layout.x, layout.y, layout.width, layout.height)
-      .setStrokeStyle(1, layout.id === 'exit' ? 0x5cdfff : 0xffc45c, 0.16)
-      .setAlpha(0)
-      .setDepth(1000)
     const zone = this.add.zone(layout.x, layout.y, layout.width, layout.height)
       .setInteractive({ useHandCursor: true })
-    const accent = layout.id === 'exit' ? 0x5cdfff : 0xffc45c
-    zone.on('pointerover', () => frame.setAlpha(1).setStrokeStyle(2, accent, 0.82))
+    zone.on('pointerover', () => {
+      this.hoveredTarget = layout.id
+      this.refreshTargetVisuals()
+    })
     zone.on('pointerout', () => {
-      const nearby = this.nearbyTarget === layout.id
-      frame.setAlpha(nearby ? 1 : 0).setStrokeStyle(nearby ? 2 : 1, accent, nearby ? 0.82 : 0.16)
+      if (this.hoveredTarget === layout.id) this.hoveredTarget = null
+      this.refreshTargetVisuals()
     })
     zone.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       if (this.controlsEnabled && pointer.event?.target === this.game.canvas) {
         this.activateTarget(layout.id)
       }
     })
-    return { layout, zone, frame }
+    return { layout, zone }
   }
 
   private updateNearbyTarget() {
@@ -238,16 +278,9 @@ export class LibraryScene extends Phaser.Scene {
       labBridge.emit('room:nearby', {
         roomId: 'library',
         targetId: nextId,
-        label: next?.layout.label ?? null,
+        label: next ? this.getTargetLabel(next.layout) : null,
       })
-      this.targets.forEach(({ layout, frame }) => {
-        frame.setAlpha(layout.id === nextId ? 1 : 0)
-        frame.setStrokeStyle(
-          layout.id === nextId ? 2 : 1,
-          layout.id === 'exit' ? 0x5cdfff : 0xffc45c,
-          layout.id === nextId ? 0.82 : 0.16,
-        )
-      })
+      this.refreshTargetVisuals()
     }
 
     if (
@@ -270,7 +303,7 @@ export class LibraryScene extends Phaser.Scene {
     }
     labBridge.emit('library:open', {
       surface: targetId === 'catalog' ? 'catalog' : 'article',
-      slug: targetId === 'reading' ? prototypePostSlug : undefined,
+      slug: targetId === 'reading' ? featuredBlogPost.slug : undefined,
     })
   }
 
@@ -278,5 +311,97 @@ export class LibraryScene extends Phaser.Scene {
     this.controlsEnabled = !this.contentOpen
       && !this.quickAccessOpen
       && !this.transitioning
+  }
+
+  private refreshTargetVisuals() {
+    const focusedTarget = this.hoveredTarget ?? this.nearbyTarget
+    this.targetVisuals.forEach((visual, id) => {
+      const focused = id === focusedTarget
+      this.tweens.killTweensOf([visual.glow, visual.signal, visual.sprite, visual.label])
+      const duration = this.reducedMotion ? 0 : 150
+      this.tweens.add({
+        targets: visual.glow,
+        alpha: focused ? (id === 'reading' ? 0.22 : 0.18) : 0,
+        scaleX: focused ? 1.08 : 1,
+        scaleY: focused ? 1.08 : 1,
+        duration,
+        ease: 'Quad.Out',
+      })
+      this.tweens.add({
+        targets: visual.signal,
+        alpha: focused ? 0.92 : 0,
+        scaleX: focused ? 1.25 : 1,
+        duration,
+        ease: 'Quad.Out',
+      })
+      this.tweens.add({
+        targets: visual.sprite,
+        scaleX: focused ? 1.012 : 1,
+        scaleY: focused ? 1.012 : 1,
+        duration,
+        ease: 'Quad.Out',
+      })
+      if (visual.label) {
+        this.tweens.add({
+          targets: visual.label,
+          alpha: focused ? 1 : 0.7,
+          duration,
+          ease: 'Quad.Out',
+        })
+      }
+    })
+    this.transferDoor?.setFocused(focusedTarget === 'exit')
+  }
+
+  private getTargetLabel(layout: LibraryInteraction) {
+    return layout.id === 'reading' ? `Read ${featuredBlogPost.index}` : layout.label
+  }
+
+  private createDebugOverlay() {
+    this.debugKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.F2)
+    this.debugGraphics = this.add.graphics().setDepth(2000).setVisible(false)
+    this.debugLabel = this.add.text(LAB_WIDTH - 68, LAB_HEIGHT - 31, 'F2 / DEBUG', {
+      color: '#586687',
+      fontFamily: 'sans-serif',
+      fontSize: '9px',
+      letterSpacing: 1,
+    }).setOrigin(1, 0).setDepth(2001)
+  }
+
+  private renderDebugOverlay() {
+    this.debugGraphics.clear().setVisible(this.debugVisible)
+    this.debugLabel.setColor(this.debugVisible ? '#ffc45c' : '#586687')
+    if (!this.debugVisible) return
+
+    const { worldBounds, playerSpawn, collision, interactions } = this.layout
+    this.debugGraphics.fillStyle(0xff4d72, 0.1)
+    this.debugGraphics.lineStyle(2, 0xff4d72, 0.85)
+    collision.forEach((rectangle) => {
+      const rect = this.toPhaserRectangle(rectangle)
+      this.debugGraphics.fillRectShape(rect)
+      this.debugGraphics.strokeRectShape(rect)
+    })
+
+    this.debugGraphics.fillStyle(0x5cdfff, 0.06)
+    this.debugGraphics.lineStyle(1, 0x5cdfff, 0.78)
+    interactions.forEach((interaction) => {
+      const rect = this.toPhaserRectangle(interaction)
+      this.debugGraphics.fillRectShape(rect)
+      this.debugGraphics.strokeRectShape(rect)
+    })
+
+    this.debugGraphics.lineStyle(2, 0xffc45c, 0.9)
+    this.debugGraphics.strokeRectShape(this.toPhaserRectangle(worldBounds))
+    this.debugGraphics.fillStyle(0x8a63ff, 1)
+    this.debugGraphics.fillCircle(playerSpawn.x, playerSpawn.y, 5)
+  }
+
+  private toPhaserRectangle(rectangle: LibraryRectangle) {
+    return new Phaser.Geom.Rectangle(
+      rectangle.x - rectangle.width / 2,
+      rectangle.y - rectangle.height / 2,
+      rectangle.width,
+      rectangle.height,
+    )
   }
 }

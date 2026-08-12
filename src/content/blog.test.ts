@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { blogPosts, getBlogSlug } from './blog'
+import { blogPosts, featuredBlogPost, getBlogSlug } from './blog'
 
 describe('public blog content', () => {
   it('ships three complete public notes with stable unique records', () => {
@@ -9,6 +9,14 @@ describe('public blog content', () => {
     expect(blogPosts.every(({ sections }) => sections.length >= 3)).toBe(true)
     expect(blogPosts.flatMap(({ sections }) => sections)
       .every(({ paragraphs }) => paragraphs.length > 0)).toBe(true)
+    expect(blogPosts.every(({ catalogSignal }) => catalogSignal.length <= 64)).toBe(true)
+    expect(new Set(blogPosts.map(({ category }) => category)).size).toBe(3)
+  })
+
+  it('defines one stable featured record for the Library reading table', () => {
+    expect(blogPosts.filter(({ featured }) => featured)).toHaveLength(1)
+    expect(featuredBlogPost.index).toBe('LOG-003')
+    expect(featuredBlogPost.slug).toBe('the-elevator-is-part-of-the-portfolio')
   })
 
   it('resolves stable article paths without accepting nested guesses', () => {

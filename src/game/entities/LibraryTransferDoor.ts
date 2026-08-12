@@ -127,6 +127,26 @@ export class LibraryTransferDoor {
     return true
   }
 
+  setFocused(focused: boolean) {
+    if (this.opening) return
+    this.scene.tweens.killTweensOf([this.thresholdGlow, this.statusLight])
+    const duration = this.reducedMotion ? 0 : 140
+    this.scene.tweens.add({
+      targets: this.thresholdGlow,
+      alpha: focused ? 0.72 : 0.48,
+      scaleX: focused ? 1.12 : 1,
+      duration,
+      ease: 'Quad.Out',
+    })
+    this.scene.tweens.add({
+      targets: this.statusLight,
+      alpha: focused ? 1 : 0.72,
+      scaleX: focused ? 1.25 : 1,
+      duration,
+      ease: 'Quad.Out',
+    })
+  }
+
   private createPanel(x: number) {
     const panel = this.scene.add.container(x, 0)
     panel.add(this.scene.add.rectangle(0, 0, 50, 36, 0x0b1a25, 0.88)
