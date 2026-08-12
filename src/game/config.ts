@@ -3,6 +3,7 @@ import { BootScene } from './scenes/BootScene'
 import { ElevatorScene } from './scenes/ElevatorScene'
 import { LabScene } from './scenes/LabScene'
 import { LibraryScene } from './scenes/LibraryScene'
+import { ArchiveCorridorScene } from './scenes/ArchiveCorridorScene'
 import { LAB_HEIGHT, LAB_WIDTH } from './dimensions'
 import type { AvailableRoomId } from './rooms'
 
@@ -35,6 +36,6 @@ export function createGameConfig(
     callbacks: {
       preBoot: (game) => game.registry.set('initialRoom', initialRoom),
     },
-    scene: [BootScene, ElevatorScene, LabScene, LibraryScene],
+    scene: [BootScene, ElevatorScene, LabScene, ArchiveCorridorScene, LibraryScene],
   }
 }

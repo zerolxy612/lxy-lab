@@ -1,6 +1,6 @@
 # Xiangyu's AI Lab — Development Roadmap
 
-最后更新：2026-08-11
+最后更新：2026-08-12
 
 本文档记录当前实现、技术决策、限制和下一轮方向。公开仓库介绍维护在根目录的 [`readme.md`](../readme.md)；本地 Codex 上下文保存在被 Git 忽略的 `.codex/project-context.md`。
 
@@ -408,19 +408,33 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ## 9. Current Prototype — v0.7 Multi-room Foundation
 
-状态：**基础设施与 Archive Library 功能纵向切片已完成；正式美术待开始**
+状态：**基础设施与 Archive Library 首个正式纵向切片已完成**
 
 - 增加固定的 `RoomId` / Room Registry，当前可用房间为 Main Lab 与 Archive Library；After Hours 和 Observatory 只在 World Index 中显示为 planned。
 - typed bridge 已覆盖 `room:request`、`room:leaving`、`room:entered`、`room:nearby` 与 `room:error`；房间切换使用短 Phaser camera fade，不重播 Boot、电梯或 Visitor Entry。
 - 世界访问状态写入 `sessionStorage`，记录当前房间与已访问房间；刷新保持同一标签页会话，关闭标签页后重置。
 - Archive Library 使用独立 `LibraryScene`、独立 Tiled `.tmj` 与独立布局校验，不把第二个房间塞进 `lab-v1.tmj`，也没有引入通用 `BaseRoomScene`。
+- Library environment concept v1 已转化为独立的 960 × 540 architecture-only 正式背景；Reading Table 与 Catalog Terminal 也已作为独立正式互动素材接入，原型几何绘制与常驻交互框已移除。
+- Reading Table 直达文章、Catalog Terminal 打开索引、桌面角色比例与 390 × 844 无水平溢出路径完成浏览器验收；内容推进优先于增加空装饰。
+- 第二篇公开文章 `Designing NPC Dialogue Without an LLM` 已接入 Catalog 与稳定直达路径，记录 ROOK / MIRA 的 ambient bark、会话状态、非功利化选择与 live LLM no-go 判断。
+- 第三篇公开文章 `The Elevator Is Part of the Portfolio` 已接入 Catalog 与稳定直达路径，记录入场仪式、角色连续性、session 级播放策略与无障碍退出判断；Catalog 和启动记录数改为由内容数据生成。
+- Catalog 扩展到两篇后发现并修复 Canvas `pointerdown` 与新挂载 DOM 面板之间的点击穿透；Library 互动改为在 `pointerup` 激活，终端现在稳定停留在索引层。
 - Library 原型包含 Reading Table、Catalog Terminal 与 Main Lab 出口；从 Library 返回 Lab 时使用对应安全出生点。
+- Archive Wing 左墙接入实验曾完成英文提示、`E` / `Space`、鼠标、短闸门 Tween 与地图回程点验证；空间验收认为它仍削弱 Main Lab 原有构图，因此运行时接入已撤回。
+- Main Lab 已恢复改门前的玩家出生点、Experience Archive、Offline Corner、MIRA、碰撞与地面导线布局；Library 继续通过 World Index 与直达路径访问。
+- `archive-wing-entrance-v1` 源图 / 运行时素材、`RoomDoor` 组件和可选 `RoomRoutes` 解析契约均保留为下一版入口的设计库存，不把失败的位置判断等同于废弃可复用成果。
+- Main Lab 与 Library 的正式连接改为 `A-02 Archive Transfer`：从 Experience Archive 或 World Index 发起，桌面端进入可步行的 Archive Wing 短走廊，角色走入素材中的档案门后抵达 Library；移动端与 reduced-motion 路径保持直接切换，不再把大型入口放进 Main Lab 构图。
+- Main Lab 底部中央原有格栅现在承载紧凑的双片地面出口；靠近后显示 `Enter Archive Transfer`，支持 `E` / `Space` 与鼠标，开启后进入短走廊。从 Library 返回时使用 Tiled 配置的中央安全落点。
+- Archive Wing 走廊完成视觉整合：补齐全屏服务层建筑壳、透视地台、顶部结构梁、设备柱与双向路线灯带，重新编排路由信息和移动提示；现有入口素材成为空间主体而非悬浮展示图，交互长度保持不变。
+- Archive Wing 随后完成 v2 美术重制：以旧入口机械语言与 Library 暖色档案材质为参考，生成完整 16:9 建筑背景，左侧门洞、连续步行平台、右侧 Main Lab 转运端和全屏墙体一次成图；运行时删除用于补齐 v1 透明素材的大部分程序化建筑结构，只保留角色、状态与低频反馈。
+- Library 底部中央原画门已升级为 A–02 双向转运端：从走廊抵达时播放短开合反馈，靠近显示 `Enter Main Lab Transfer`，返回时先开启双片门再进入走廊；reduced-motion 路径仍可直接切换。
+- 实体门撤下后重新验收 World Index，修复其指针事件穿透到 Phaser 站点的问题，确保 Archive Library 的当前主入口不会误开底层 Lab 内容。
 - Quick Access 已升级为 World Index，桌面与移动端都可以不操控角色直接切换可用房间；计划房间保持不可点击。
 - 建立结构化 Blog 内容模型、语义化 Catalog / Article 阅读层与稳定直达路径；首篇文章为 `/blog/why-this-lab-uses-two-runtimes`。
 - 文章打开时锁定 Phaser 输入，Escape 与返回按钮恢复 Library；直达文章不播放 Boot 或电梯。
-- 自动验证现为 25 个测试文件、69 项测试，类型检查、Lint、测试与生产构建通过；桌面 Library、文章直达、390 × 844 阅读、无水平溢出与 Library → Lab 返回路径完成浏览器验收。
+- 自动验证现为 26 个测试文件、76 项测试，覆盖 Main Lab 基线布局、Archive Wing 桌面 / 紧凑屏路由、Library 内容与响应式阅读；类型检查、Lint、测试与生产构建保持通过。
 
-下一步是 Library 正式美术预制作与 3–5 篇真实文章清单，不同时启动 Observatory 与 After Hours。当前程序化 Library 只承担空间、交互和内容路径证明，不代表最终视觉质量。
+下一步回到 Library 内容本身，审阅三篇文章在 Catalog 中的摘要节奏与分类密度；场景层暂不增加空装饰，也不同时启动 Observatory 与 After Hours。
 
 ## 10. Decision Log
 
@@ -429,7 +443,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 单房间约束升级为“Main Lab 主场景 + 最多三个职责明确的可选房间”；仍明确拒绝开放世界和系统性 RPG 扩张。
 - Archive Library 确认为 Blog 空间；Observatory 确认为屋顶未来思考空间；After Hours 保留为放松和个人兴趣空间。
 - Main Lab 表达现在，Library 表达积累，After Hours 表达工作之外，Observatory 表达未来；四个空间不重复职业内容。
-- Room Registry、房间转场协议、会话世界状态、World Index 与 Library 功能原型已完成；下一步进入 Library 正式美术预制作，不直接生成另外两个房间。
+- Room Registry、房间转场协议、会话世界状态、World Index 与 Library 正式美术切片已完成；Main Lab 实体入口退回设计阶段，现有素材保留但不占用运行地图。下一步先确定入口的空间逻辑，不直接生成另外两个房间。
 
 ### 2026-07-28
 

@@ -41,7 +41,7 @@
       "objects": [
         { "height": 122, "id": 8, "name": "reading", "properties": [{ "name": "label", "type": "string", "value": "Read LOG-001" }], "rotation": 0, "type": "", "visible": true, "width": 240, "x": 360, "y": 240 },
         { "height": 116, "id": 9, "name": "catalog", "properties": [{ "name": "label", "type": "string", "value": "Open Catalog" }], "rotation": 0, "type": "", "visible": true, "width": 156, "x": 642, "y": 324 },
-        { "height": 72, "id": 10, "name": "exit", "properties": [{ "name": "label", "type": "string", "value": "Return to Main Lab" }], "rotation": 0, "type": "", "visible": true, "width": 128, "x": 416, "y": 428 }
+        { "height": 72, "id": 10, "name": "exit", "properties": [{ "name": "label", "type": "string", "value": "Enter Main Lab Transfer" }], "rotation": 0, "type": "", "visible": true, "width": 128, "x": 416, "y": 428 }
       ],
       "opacity": 1,
       "type": "objectgroup",

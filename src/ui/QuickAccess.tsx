@@ -14,6 +14,7 @@ interface QuickAccessProps {
   currentRoom: AvailableRoomId
   visitedRooms: ReadonlySet<RoomId>
   onRoomSelect: (roomId: AvailableRoomId) => void
+  onOpenChange: (open: boolean) => void
 }
 
 export function QuickAccess({
@@ -24,6 +25,7 @@ export function QuickAccess({
   currentRoom,
   visitedRooms,
   onRoomSelect,
+  onOpenChange,
 }: QuickAccessProps) {
   const [open, setOpen] = useState(false)
 
@@ -53,6 +55,10 @@ export function QuickAccess({
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [open, triggerRef])
 
+  useEffect(() => {
+    onOpenChange(open)
+  }, [onOpenChange, open])
+
   const selectStation = (stationId: StationId) => {
     setOpen(false)
     triggerRef.current?.focus()
@@ -65,7 +71,12 @@ export function QuickAccess({
   }
 
   return (
-    <div className="quick-access" data-open={open}>
+    <div
+      className="quick-access"
+      data-open={open}
+      onPointerDown={(event) => event.stopPropagation()}
+      onPointerUp={(event) => event.stopPropagation()}
+    >
       <button
         ref={triggerRef}
         className="quick-access-trigger"

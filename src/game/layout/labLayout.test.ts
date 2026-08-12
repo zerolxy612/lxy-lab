@@ -11,6 +11,57 @@ const mapUrl = new URL('../../../public/assets/game/maps/lab-v1.tmj', import.met
 const mapSource = JSON.parse(readFileSync(mapUrl, 'utf8')) as unknown
 const labLayout = parseLabMap(mapSource)
 
+function createMapWithRoomRoute(includeReturnSpawn = true) {
+  const routedMap = structuredClone(mapSource) as { layers: unknown[] }
+  routedMap.layers = routedMap.layers.filter((layer) => (
+    (layer as { name?: string }).name !== 'RoomRoutes'
+  ))
+  const routeObjects: Array<Record<string, unknown>> = [
+    {
+      height: 60,
+      id: 25,
+      name: 'archive-library-door',
+      properties: [
+        { name: 'roomId', type: 'string', value: 'library' },
+        { name: 'label', type: 'string', value: 'Enter Archive Library' },
+        { name: 'interactionPadding', type: 'int', value: 12 },
+        { name: 'orientation', type: 'string', value: 'bottom' },
+      ],
+      type: 'room-route',
+      visible: true,
+      width: 100,
+      x: 430,
+      y: 390,
+    },
+  ]
+  if (includeReturnSpawn) {
+    routeObjects.push({
+      height: 0,
+      id: 26,
+      name: 'archive-library-return-spawn',
+      point: true,
+      properties: [{ name: 'roomId', type: 'string', value: 'library' }],
+      type: 'room-return-spawn',
+      visible: true,
+      width: 0,
+      x: 350,
+      y: 382,
+    })
+  }
+  routedMap.layers.push({
+    draworder: 'topdown',
+    id: 8,
+    name: 'RoomRoutes',
+    objects: routeObjects,
+    opacity: 1,
+    type: 'objectgroup',
+    visible: true,
+    x: 0,
+    y: 0,
+  })
+  return routedMap
+}
+
 describe('labLayout', () => {
   it('parses the production Tiled map with its locked 16px schema', () => {
     expect(labLayout.worldBounds).toEqual({
@@ -19,8 +70,32 @@ describe('labLayout', () => {
       width: 844,
       height: 428,
     })
-    expect(labLayout.playerSpawn).toEqual({ x: 480, y: 462 })
+    expect(labLayout.playerSpawn).toEqual({ x: 480, y: 430 })
     expect(labLayout.staticObstacles).toHaveLength(4)
+    expect(labLayout.roomRoutes).toEqual([
+      expect.objectContaining({
+        id: 'library',
+        label: 'Enter Archive Transfer',
+        orientation: 'bottom',
+        returnSpawn: { x: 480, y: 430 },
+        visualOffsetY: 2,
+      }),
+    ])
+  })
+
+  it('keeps the reusable room route contract available for a future entrance', () => {
+    const routedLayout = parseLabMap(createMapWithRoomRoute())
+
+    expect(routedLayout.roomRoutes).toEqual([
+      expect.objectContaining({
+        id: 'library',
+        label: 'Enter Archive Library',
+        orientation: 'bottom',
+        returnSpawn: { x: 350, y: 382 },
+        visualOffsetX: 0,
+        visualOffsetY: 0,
+      }),
+    ])
   })
 
   it('retains the v0.3 visual tile layers as an editable map reference', () => {
@@ -144,6 +219,28 @@ describe('labLayout', () => {
         expect(blockedAreas.some((area) => containsPoint(area, point.x, point.y))).toBe(false)
       })
     })
+  })
+
+  it('keeps a configured Library return spawn on collision-free floor', () => {
+    const routedLayout = parseLabMap(createMapWithRoomRoute())
+    const route = routedLayout.roomRoutes.find(({ id }) => id === 'library')
+    expect(route).toBeDefined()
+
+    const blockedAreas = [
+      ...routedLayout.staticObstacles,
+      ...routedLayout.stations.map(getStationCollisionRect),
+    ]
+    expect(blockedAreas.some((area) => containsPoint(
+      area,
+      route!.returnSpawn.x,
+      route!.returnSpawn.y,
+    ))).toBe(false)
+    expect(route!.orientation).toBe('bottom')
+  })
+
+  it('rejects a room route without a matching return spawn', () => {
+    expect(() => parseLabMap(createMapWithRoomRoute(false)))
+      .toThrow('missing return spawn for "library"')
   })
 
   it('rejects a map when a registered station is missing', () => {

@@ -121,7 +121,7 @@ export function PanelHost({
           className="room-route-link"
           onClick={() => onEnterRoom('library')}
         >
-          <span>Archive corridor / prototype</span>
+          <span>Archive transfer / A–02</span>
           Enter Archive Library <i aria-hidden="true">→</i>
         </button>
       )}

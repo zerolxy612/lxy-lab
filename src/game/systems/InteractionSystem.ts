@@ -4,6 +4,7 @@ import type { NpcId } from '../../content/npcs'
 import { labBridge } from '../bridge'
 import type { NpcDialogueAnchor } from '../bridge'
 import type { Player } from '../entities/Player'
+import type { AvailableRoomId } from '../rooms'
 
 export interface InteractiveStation {
   id: StationId
@@ -16,9 +17,16 @@ export interface InteractiveNpc {
   getDialogueAnchor: () => NpcDialogueAnchor
 }
 
+export interface InteractiveRoomRoute {
+  id: AvailableRoomId
+  label: string
+  zone: Phaser.GameObjects.Zone
+}
+
 type NearbyTarget =
   | { kind: 'station'; id: StationId }
   | { kind: 'npc'; id: NpcId }
+  | { kind: 'room'; id: AvailableRoomId }
 
 export class InteractionSystem {
   private nearbyTarget: NearbyTarget | null = null
@@ -29,6 +37,8 @@ export class InteractionSystem {
     private readonly player: Player,
     private readonly stations: readonly InteractiveStation[],
     private readonly npcs: readonly InteractiveNpc[],
+    private readonly roomRoutes: readonly InteractiveRoomRoute[] = [],
+    private readonly roomId: AvailableRoomId = 'lab',
   ) {
     this.interactKeys = [
       scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E),
@@ -53,6 +63,14 @@ export class InteractionSystem {
           ? this.npcs.find(({ id }) => id === nextTarget.id)?.getDialogueAnchor() ?? null
           : null,
       })
+      const roomRoute = nextTarget?.kind === 'room'
+        ? this.roomRoutes.find(({ id }) => id === nextTarget.id)
+        : undefined
+      labBridge.emit('room:nearby', {
+        roomId: this.roomId,
+        targetId: roomRoute?.id ?? null,
+        label: roomRoute?.label ?? null,
+      })
     }
 
     if (
@@ -61,7 +79,7 @@ export class InteractionSystem {
     ) {
       if (nextTarget.kind === 'station') {
         labBridge.emit('station:activate', { stationId: nextTarget.id })
-      } else {
+      } else if (nextTarget.kind === 'npc') {
         const npc = this.npcs.find(({ id }) => id === nextTarget.id)
         if (npc) {
           labBridge.emit('npc:activate', {
@@ -69,6 +87,8 @@ export class InteractionSystem {
             anchor: npc.getDialogueAnchor(),
           })
         }
+      } else {
+        labBridge.emit('room:request', { roomId: nextTarget.id, source: 'world' })
       }
     }
   }
@@ -83,6 +103,10 @@ export class InteractionSystem {
       })),
       ...this.stations.map(({ id, zone }) => ({
         target: { kind: 'station' as const, id },
+        zone,
+      })),
+      ...this.roomRoutes.map(({ id, zone }) => ({
+        target: { kind: 'room' as const, id },
         zone,
       })),
     ].filter(({ zone }) =>

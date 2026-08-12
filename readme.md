@@ -6,11 +6,11 @@ An explorable pixel-art portfolio about AI application engineering, interactive 
 
 ## About the project
 
-Xiangyu’s AI Lab turns a personal portfolio into a compact explorable world anchored by one walkable research lab. Visitors can explore five stations with a character, enter the Archive Library prototype, or use the always-available World Index to reach the same content directly.
+Xiangyu’s AI Lab turns a personal portfolio into a compact explorable world anchored by one walkable research lab. Visitors can explore five stations with a character or use the always-available World Index to enter the Archive Library and reach the same content directly.
 
 This is a focused interactive website, not a full RPG. Atmosphere creates curiosity; readable project details, accessible navigation, and direct contact routes remain the foundation.
 
-Current stable release: **v0.5 — complete**. Multi-room and Archive Library work is currently a **v0.7 functional prototype**.
+Current stable release: **v0.5 — complete**. Multi-room and Archive Library work is currently a **v0.7 formal vertical slice**.
 
 ## Highlights
 
@@ -27,6 +27,7 @@ Current stable release: **v0.5 — complete**. Multi-room and Archive Library wo
 - Game-style ROOK and MIRA encounters with ambient barks, progressive dialogue, repeat reactions, and mobile adaptation
 - Tiled-owned spatial data with tested spawn, collision, and station contracts
 - A minimal multi-room registry, session-scoped World Index, and independent Archive Library Phaser scene
+- A preserved Archive Wing art and interaction prototype, currently held outside the Main Lab map while its physical placement is redesigned
 - A semantic Blog catalog and direct article route that remain readable without controlling the character
 
 ## Work represented
@@ -88,6 +89,7 @@ On screens below 900 px, use the Archive Index and Quick Access instead of chara
 - [Asset provenance ledger](docs/asset-ledger.md)
 - [Room ambience contract](docs/room-ambience.md)
 - [Multi-room world direction](docs/multi-room-world-design.md)
+- [Archive Library art direction](docs/archive-library-art-direction.md)
 - [AI Companion LLM decision](docs/ai-companion-decision.md)
 
 Generated source art is kept under `design/sources/`; optimized runtime assets live under `public/assets/`. The asset ledger records production methods and confirms where project-owned references were used.

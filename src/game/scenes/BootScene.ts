@@ -1,5 +1,11 @@
 import Phaser from 'phaser'
 import {
+  ARCHIVE_CORRIDOR_TEXTURE_KEY,
+  ARCHIVE_CORRIDOR_TEXTURE_URL,
+  ARCHIVE_DOOR_TEXTURE_KEY,
+  ARCHIVE_DOOR_TEXTURE_URL,
+} from '../art/archiveDoorArt'
+import {
   EXPERIENCE_ARCHIVE_TEXTURE_KEY,
   EXPERIENCE_ARCHIVE_TEXTURE_URL,
 } from '../art/experienceArchiveArt'
@@ -68,6 +74,8 @@ export class BootScene extends Phaser.Scene {
     })
 
     this.load.tilemapTiledJSON(LAB_MAP_KEY, LAB_MAP_URL)
+    this.load.image(ARCHIVE_CORRIDOR_TEXTURE_KEY, ARCHIVE_CORRIDOR_TEXTURE_URL)
+    this.load.image(ARCHIVE_DOOR_TEXTURE_KEY, ARCHIVE_DOOR_TEXTURE_URL)
     this.load.image(ROOM_BACKGROUND_TEXTURE_KEY, ROOM_BACKGROUND_TEXTURE_URL)
     this.load.image(ELEVATOR_CABIN_TEXTURE_KEY, ELEVATOR_CABIN_TEXTURE_URL)
     this.load.image(EXPERIENCE_ARCHIVE_TEXTURE_KEY, EXPERIENCE_ARCHIVE_TEXTURE_URL)
@@ -95,6 +103,9 @@ export class BootScene extends Phaser.Scene {
     labBridge.emit('game:loading', { phase: 'systems', progress: 0.92 })
 
     this.textures.get(EXPERIENCE_ARCHIVE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
+    const archiveDoorTexture = this.textures.get(ARCHIVE_DOOR_TEXTURE_KEY)
+    archiveDoorTexture.setFilter(Phaser.Textures.FilterMode.NEAREST)
+    this.textures.get(ARCHIVE_CORRIDOR_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(LIVING_CORE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(PLAYER_SHEET_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)
     this.textures.get(ROOM_BACKGROUND_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST)

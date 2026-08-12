@@ -22,6 +22,7 @@ interface LabEventMap {
   'ui:panel-change': { open: boolean; stationId: StationId | null }
   'ui:dialogue-change': { open: boolean; npcId: NpcId | null }
   'ui:entry-change': { open: boolean }
+  'ui:index-change': { open: boolean }
   'ui:visited-change': { visited: readonly StationId[] }
   'ui:elevator-start': Record<string, never>
   'ui:elevator-skip': Record<string, never>

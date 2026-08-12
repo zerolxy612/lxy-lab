@@ -53,7 +53,7 @@
           "visible": true,
           "width": 0,
           "x": 480,
-          "y": 462
+          "y": 430
         }
       ],
       "opacity": 1,
@@ -470,10 +470,53 @@
       "visible": true,
       "x": 0,
       "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 8,
+      "name": "RoomRoutes",
+      "objects": [
+        {
+          "height": 20,
+          "id": 24,
+          "name": "archive-transfer-exit",
+          "properties": [
+            { "name": "roomId", "type": "string", "value": "library" },
+            { "name": "label", "type": "string", "value": "Enter Archive Transfer" },
+            { "name": "interactionPadding", "type": "int", "value": 12 },
+            { "name": "orientation", "type": "string", "value": "bottom" },
+            { "name": "visualOffsetY", "type": "int", "value": 2 }
+          ],
+          "type": "room-route",
+          "visible": true,
+          "width": 128,
+          "x": 416,
+          "y": 474
+        },
+        {
+          "height": 0,
+          "id": 25,
+          "name": "archive-library-return-spawn",
+          "point": true,
+          "properties": [
+            { "name": "roomId", "type": "string", "value": "library" }
+          ],
+          "type": "room-return-spawn",
+          "visible": true,
+          "width": 0,
+          "x": 480,
+          "y": 430
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
     }
   ],
-  "nextlayerid": 8,
-  "nextobjectid": 24,
+  "nextlayerid": 9,
+  "nextobjectid": 26,
   "orientation": "orthogonal",
   "properties": [
     {

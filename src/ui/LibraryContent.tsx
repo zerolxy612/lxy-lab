@@ -79,7 +79,7 @@ export function LibraryContent({
           </div>
           <button ref={closeButton} type="button" onClick={onClose}>Close <kbd>Esc</kbd></button>
         </header>
-        <p>One public note is wired into this prototype. Future shelves will grow from real writing, not placeholder books.</p>
+        <p>The first shelf holds {blogPosts.length} public notes. Each record comes from a system or design decision already present in the lab.</p>
         <div className="library-catalog__list">
           {blogPosts.map((post) => (
             <button key={post.slug} type="button" onClick={() => onOpenArticle(post.slug)}>
@@ -94,7 +94,7 @@ export function LibraryContent({
         </div>
         <footer>
           <span>CATALOG STATUS</span>
-          <b>1 PUBLIC NOTE / PROTOTYPE</b>
+          <b>{blogPosts.length} PUBLIC NOTES / FIRST SHELF</b>
         </footer>
       </aside>
     )

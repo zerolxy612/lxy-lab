@@ -1,8 +1,8 @@
 # Xiangyu's AI Lab — Tiled Map Schema v1
 
-最后更新：2026-08-11
+最后更新：2026-08-12
 
-运行时地图位于 `public/assets/game/maps/lab-v1.tmj`。它是房间空间数据的唯一来源；不要在 `LabScene.ts` 或 `labLayout.ts` 中复制站点坐标、碰撞或出生点。
+运行时地图位于 `public/assets/game/maps/lab-v1.tmj`。它是 Main Lab 站点、碰撞与初始出生点的唯一来源；不要在 `LabScene.ts` 或 `labLayout.ts` 中复制这些坐标。
 
 ## Map Contract
 
@@ -63,6 +63,7 @@ future
 | Property | Tiled type | 用途 |
 |---|---|---|
 | `labelGap` | int | 站点视觉底部到标题的距离，默认 12 px |
+| `labelOffsetX` | int | 标题相对站点中心的水平偏移；用于避让建筑入口 |
 
 ### `NPCs`
 
@@ -77,6 +78,17 @@ future
 
 巡逻点使用 Point 对象；`npcId` 指向 NPC，`order` 为路线顺序。`patrol` 至少需要两个点，`stationary` 不得拥有路线。ROOK 当前使用 Living AI Core 右侧地板上的五点闭环，MIRA 没有路线。NPC 不使用 Arcade Physics 推挤，因此解析器会拒绝任何落在静态或站点碰撞块中的锚点与路线点。
 
+### `RoomRoutes`
+
+当 Main Lab 启用实体房间入口时，每个入口由两个对象组成：
+
+- `room-route` 矩形：定义玩家靠近后出现的房间入口交互区。
+- `room-return-spawn` Point：定义从该房间回到 Main Lab 的安全落点。
+
+两个对象都用 `roomId` 关联已开放房间。`room-route` 还需要 `label`、正数 `interactionPadding` 与 `orientation`（当前允许 `left | bottom`），并可使用 `visualOffsetX` / `visualOffsetY` 让建筑美术与入口触发范围分别对齐。
+
+`RoomRoutes` 是可选层。左墙 `ARCHIVE WING` 大型入口方案在 2026-08-12 空间验收后撤回；当前 `lab-v1.tmj` 在底部中央格栅加入紧凑的 `A–02 Archive Transfer` 地面出口，角色靠近后可进入独立短走廊。World Index 与内容面板继续提供直达路径。
+
 ## Runtime Validation
 
 `src/game/layout/labLayout.ts` 在场景创建前解析地图，并拒绝以下情况：
@@ -89,6 +101,7 @@ future
 - 无效颜色、坐标或非正数矩形尺寸。
 - 未知 / 重复 NPC、无效移动模式、巡逻点不足或固定 NPC 错配路线。
 - 重复静态障碍物，或 NPC 锚点 / 巡逻点进入世界边界外或任一碰撞块。
+- 当存在 `RoomRoutes` 时，拒绝未开放 / 重复的房间入口、缺少配对回程点，或回程点位于世界外 / 碰撞体内。
 
 Phaser 通过 `tilemapTiledJSON` 加载同一份 `.tmj`。对象解析器忽略视觉 tile layers，只校验业务对象层；固定建筑背景不会保存任何站点、碰撞或出生信息，避免空间数据出现第二份来源。
 

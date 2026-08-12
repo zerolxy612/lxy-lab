@@ -6,6 +6,8 @@ import { labBridge } from '../bridge'
 import { LAB_HEIGHT, LAB_WIDTH } from '../dimensions'
 import { Player } from '../entities/Player'
 import { NpcActor } from '../entities/NpcActor'
+import { RoomDoor } from '../entities/RoomDoor'
+import { ArchiveFloorExit } from '../entities/ArchiveFloorExit'
 import {
   EXPERIENCE_ARCHIVE_ORIGIN_Y,
   EXPERIENCE_ARCHIVE_TEXTURE_KEY,
@@ -38,12 +40,17 @@ import {
 } from '../systems/InteractionSystem'
 import { transitionToRoom, type RoomTransitionData } from '../roomTransition'
 import type { AvailableRoomId } from '../rooms'
+import type { InteractiveRoomRoute } from '../systems/InteractionSystem'
 
 interface StationVisual {
   container: Phaser.GameObjects.Container
   focusFrame: Phaser.GameObjects.Rectangle
   label: Phaser.GameObjects.Text
   visitedMark: Phaser.GameObjects.Text
+}
+
+interface OpeningRoomRoute extends InteractiveRoomRoute {
+  open: (reducedMotion: boolean, onComplete: () => void) => boolean
 }
 
 export class LabScene extends Phaser.Scene {
@@ -53,11 +60,13 @@ export class LabScene extends Phaser.Scene {
   private stationPanelOpen = false
   private npcDialogueOpen = false
   private visitorEntryOpen = false
+  private quickAccessOpen = false
   private removePanelListener?: () => void
   private removeNearbyListener?: () => void
   private removeVisitedListener?: () => void
   private removeDialogueListener?: () => void
   private removeEntryListener?: () => void
+  private removeIndexListener?: () => void
   private removeNpcNearbyListener?: () => void
   private removeNpcRequestListener?: () => void
   private removeRoomRequestListener?: () => void
@@ -69,6 +78,7 @@ export class LabScene extends Phaser.Scene {
   private nearbyNpc: NpcId | null = null
   private activeNpc: NpcId | null = null
   private readonly npcActors: NpcActor[] = []
+  private readonly roomDoors = new Map<AvailableRoomId, OpeningRoomRoute>()
   private hasPlayerMoved = false
   private reducedMotion = false
   private debugVisible = false
@@ -95,6 +105,7 @@ export class LabScene extends Phaser.Scene {
     this.stationPanelOpen = false
     this.npcDialogueOpen = false
     this.visitorEntryOpen = false
+    this.quickAccessOpen = false
     this.nearbyStation = null
     this.hoveredStation = null
     this.activeStation = null
@@ -106,6 +117,7 @@ export class LabScene extends Phaser.Scene {
     this.stationVisuals.clear()
     this.visitedStations.clear()
     this.npcActors.length = 0
+    this.roomDoors.clear()
     this.collisionDebugRects.length = 0
     this.interactionDebugRects.length = 0
     this.controlsEnabled = !this.entranceReveal && !this.entryFrom
@@ -131,6 +143,7 @@ export class LabScene extends Phaser.Scene {
       staticObstacles,
       stations: stationLayouts,
       npcs: npcLayouts,
+      roomRoutes,
     } = this.layout
 
     this.physics.world.setBounds(
@@ -148,9 +161,8 @@ export class LabScene extends Phaser.Scene {
     this.drawPersonalCorner()
     this.drawRagRack()
 
-    const resolvedSpawn = this.entryFrom === 'library'
-      ? { x: 350, y: 382 }
-      : playerSpawn
+    const resolvedSpawn = roomRoutes.find(({ id }) => id === this.entryFrom)?.returnSpawn
+      ?? playerSpawn
     this.player = new Player(this, resolvedSpawn.x, resolvedSpawn.y)
 
     staticObstacles.forEach(({ x, y, width, height }) => {
@@ -160,7 +172,15 @@ export class LabScene extends Phaser.Scene {
 
     const stations = stationLayouts.map((layout) => this.createStation(layout))
     const npcs = npcLayouts.map((layout) => this.createNpc(layout))
-    this.interactionSystem = new InteractionSystem(this, this.player, stations, npcs)
+    const doors = roomRoutes.map((layout) => this.createRoomDoor(layout))
+    this.interactionSystem = new InteractionSystem(
+      this,
+      this.player,
+      stations,
+      npcs,
+      doors,
+      'lab',
+    )
     this.createDebugOverlay()
 
     this.removePanelListener = labBridge.on('ui:panel-change', ({ open, stationId }) => {
@@ -176,6 +196,10 @@ export class LabScene extends Phaser.Scene {
     })
     this.removeEntryListener = labBridge.on('ui:entry-change', ({ open }) => {
       this.visitorEntryOpen = open
+      this.refreshControlsEnabled()
+    })
+    this.removeIndexListener = labBridge.on('ui:index-change', ({ open }) => {
+      this.quickAccessOpen = open
       this.refreshControlsEnabled()
     })
     this.removeNearbyListener = labBridge.on('station:nearby', ({ stationId }) => {
@@ -199,9 +223,16 @@ export class LabScene extends Phaser.Scene {
         anchor: actor.getDialogueAnchor(),
       })
     })
-    this.removeRoomRequestListener = labBridge.on('room:request', ({ roomId }) => {
+    this.removeRoomRequestListener = labBridge.on('room:request', ({ roomId, source }) => {
       if (roomId === 'lab' || this.transitioning) return
-      this.transitioning = transitionToRoom(this, 'lab', roomId, this.reducedMotion)
+      const door = source === 'world' ? this.roomDoors.get(roomId) : undefined
+      if (door) {
+        this.transitioning = door.open(this.reducedMotion, () => {
+          transitionToRoom(this, 'lab', roomId, this.reducedMotion)
+        })
+      } else {
+        this.transitioning = transitionToRoom(this, 'lab', roomId, this.reducedMotion)
+      }
       this.refreshControlsEnabled()
     })
     const signalReady = () => {
@@ -226,6 +257,7 @@ export class LabScene extends Phaser.Scene {
       this.removeVisitedListener?.()
       this.removeDialogueListener?.()
       this.removeEntryListener?.()
+      this.removeIndexListener?.()
       this.removeNpcNearbyListener?.()
       this.removeNpcRequestListener?.()
       this.removeRoomRequestListener?.()
@@ -257,14 +289,15 @@ export class LabScene extends Phaser.Scene {
     this.controlsEnabled = !this.stationPanelOpen
       && !this.npcDialogueOpen
       && !this.visitorEntryOpen
+      && !this.quickAccessOpen
       && !this.transitioning
   }
 
   private createNpc(layout: LabLayout['npcs'][number]): InteractiveNpc {
     const actor = new NpcActor(this, layout)
     this.npcActors.push(actor)
-    actor.zone.on('pointerdown', () => {
-      if (this.controlsEnabled) {
+    actor.zone.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (this.controlsEnabled && this.isCanvasPointer(pointer)) {
         labBridge.emit('npc:activate', {
           npcId: actor.id,
           anchor: actor.getDialogueAnchor(),
@@ -272,6 +305,30 @@ export class LabScene extends Phaser.Scene {
       }
     })
     return actor
+  }
+
+  private createRoomDoor(layout: LabLayout['roomRoutes'][number]) {
+    const door = layout.orientation === 'bottom'
+      ? new ArchiveFloorExit(this, layout, this.reducedMotion)
+      : new RoomDoor(this, layout, this.reducedMotion)
+    this.roomDoors.set(layout.id, door)
+
+    const zoneWidth = layout.width + layout.interactionPadding
+    const zoneHeight = layout.height + layout.interactionPadding
+    this.interactionDebugRects.push(
+      new Phaser.Geom.Rectangle(
+        layout.x - zoneWidth / 2,
+        layout.y - zoneHeight / 2,
+        zoneWidth,
+        zoneHeight,
+      ),
+    )
+    door.zone.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (this.controlsEnabled && this.isCanvasPointer(pointer)) {
+        labBridge.emit('room:request', { roomId: layout.id, source: 'world' })
+      }
+    })
+    return door
   }
 
   private drawRoomBackdrop() {
@@ -493,7 +550,7 @@ export class LabScene extends Phaser.Scene {
       .setDepth(1000)
 
     const label = this.add.text(
-      x,
+      x + (layout.labelOffsetX ?? 0),
       y + height / 2 + (layout.labelGap ?? 12),
       stationById[id].title.toUpperCase(),
       {
@@ -528,8 +585,10 @@ export class LabScene extends Phaser.Scene {
       if (this.hoveredStation === id) this.hoveredStation = null
       this.refreshAllStationStates()
     })
-    zone.on('pointerdown', () => {
-      if (this.controlsEnabled) labBridge.emit('station:activate', { stationId: id })
+    zone.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (this.controlsEnabled && this.isCanvasPointer(pointer)) {
+        labBridge.emit('station:activate', { stationId: id })
+      }
     })
 
     this.stationVisuals.set(id, { container, focusFrame, label, visitedMark })
@@ -732,6 +791,10 @@ export class LabScene extends Phaser.Scene {
       .setDisplaySize(width, height)
       .setAlpha(0)
       .refreshBody()
+  }
+
+  private isCanvasPointer(pointer: Phaser.Input.Pointer) {
+    return pointer.event?.target === this.game.canvas
   }
 
   private createDebugOverlay() {

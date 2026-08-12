@@ -1,6 +1,6 @@
 # Xiangyu's AI Lab — Asset Ledger
 
-最后更新：2026-08-01
+最后更新：2026-08-12
 
 所有进入运行时的正式美术素材都必须保留来源、处理方式和当前状态。第三方素材在未确认许可前不得进入 `public/assets/game/`。
 
@@ -9,6 +9,30 @@
 | Asset | File | Production method | Status |
 |---|---|---|---|
 | NPC roster concept v1 | `design/concepts/npc-rook-mira-null-concept-v1.png` | OpenAI built-in image generation；使用项目自有 Xiangyu 玩家、Lab Companion 与正式房间背景作为比例、材质和像素语言参考 | ROOK / MIRA selected；NULL-03 deferred；not runtime-ready |
+| Archive Library environment concept v1 | `design/concepts/archive-library-environment-concept-v1.png` | OpenAI built-in image generation；依据既有 Library Tiled 布局与项目色彩方向生成；无外部图像参考 | Composition selected for pre-production；not runtime-ready |
+
+### Archive Library Environment Concept v1 Prompt
+
+```text
+Use case: stylized-concept
+Asset type: pre-production environment concept for a 960 × 540 Phaser pixel-art room, 16:9 landscape
+Primary request: design a polished underground Archive Library that belongs to the same secret AI laboratory world as a dark blue industrial research lab, but has its own warm, contemplative identity.
+Scene/backdrop: a compact enclosed archive room seen in a fixed three-quarter top-down game camera. Dark graphite metal walls, worn floor panels, mechanical shelving, paper records, brass archive hardware, subtle future retrieval machinery. The entire room must fit in one frame.
+Composition/framing: preserve a clear game-readable layout. A continuous bank of mechanical bookshelves occupies the upper wall. Short shelf wings occupy the upper left and upper right sides. A central reading table sits slightly above the middle, with a warm task lamp and one open book. A compact catalog terminal sits in the lower-right quadrant. A cyan-lit return threshold or compact transit door sits at the bottom center and visually reconnects to the Main Lab. Keep the lower-center floor and paths around every interaction point open for a walking player. Strong silhouettes, clean collision-friendly footprints, no confusing stairs or height changes.
+Style/medium: high-quality cyberpunk pixel-art environment concept, deliberate pixel clusters, restrained detail density, 16 px grid sensibility, crisp edges, production game background rather than painterly illustration.
+Lighting/mood: quiet late-night archive, warm amber reading pools against deep navy and graphite shadows; sparse cyan status lights only for catalog and exit; intimate, thoughtful, slightly mysterious, not ominous.
+Color palette: charcoal, near-black navy, oxidized brass, muted paper cream, tobacco brown, warm amber; cyan used sparingly as a connection to the AI Lab.
+Materials/textures: scratched painted steel, dark brass rails, aged paper cards, cloth book spines, frosted terminal glass, subtle floor wear.
+Constraints: no character, no NPC, no foreground UI, no logos, no readable labels, no city skyline, no explicit Hong Kong text. Keep all major props fully visible and separable for later asset production. Maintain wide open walkable floor in the central and lower-center area.
+Avoid: generic neon overload, nightclub mood, cathedral-scale library, fantasy wood library, photorealism, isometric cutaway, dramatic camera tilt, excessive clutter, tiny illegible text, baked interaction outlines, watermark.
+```
+
+Processing notes:
+
+- Built-in generation output: 1672 × 941 px, approximately 16:9.
+- No external or third-party reference image was used.
+- Concept includes interactive props for composition review and is intentionally not loaded by Phaser.
+- Runtime production will split architecture, reading table, catalog terminal and exit overlay into separate assets.
 
 ### NPC Roster Concept v1 Prompt
 
@@ -33,6 +57,9 @@ Constraints: preserve the project's chunky pixel scale and hard edges; distinct 
 | Experience Archive v1 | `public/assets/game/sprites/experience-archive-v1.png` | `design/sources/experience-archive-source-v1.png` | OpenAI built-in image generation；纯色键控背景移除；裁切、最近邻缩放、48 色量化；无外部参考图 | v0.3 integrated |
 | Room base tileset v1 | `public/assets/game/tilesets/room-base-v1.png` | `design/sources/room-tileset-source-v1.png` | OpenAI built-in image generation；16 个概念单元规范化为 256 个 16 px tiles；48 色统一量化；无外部参考图 | v0.3 integrated |
 | Lab room background v1 | `public/assets/game/backgrounds/lab-room-background-v1.png` | `design/sources/lab-room-background-source-v1.png` | OpenAI built-in image generation；使用当前房间截图与项目自有 room tileset / Living Core 源图作为布局、材质和像素密度参考；整理为 960 × 540 px | v0.5 integrated |
+| Library room background v1 | `public/assets/game/backgrounds/library-room-background-v1.png` | `design/sources/library-room-background-source-v1.png` | OpenAI built-in precise-object edit；从 Library 环境概念移除互动家具与松散道具，保留建筑壳、书墙、地板和返回门；整理为 960 × 540 px | v0.7 integrated；interactive props pending |
+| Library Reading Table v1 | `public/assets/game/sprites/library-reading-table-v1.png` | `design/sources/library-reading-table-source-v1.png` | OpenAI built-in image generation；纯色键控移除、裁切、BOX 缩放并导出透明 PNG；无外部参考图 | v0.7 integrated |
+| Library Catalog Terminal v1 | `public/assets/game/sprites/library-catalog-terminal-v1.png` | `design/sources/library-catalog-terminal-source-v1.png` | OpenAI built-in image generation；纯色键控移除、裁切、BOX 缩放并导出透明 PNG；无外部参考图 | v0.7 integrated |
 | Lab Companion v1 | `public/assets/game/sprites/lab-companion-v1.png` | `design/sources/lab-companion-source-v1.png` | OpenAI built-in image generation；使用项目自有背景、Living Core 与 Archive 源图作风格参考；绿色键控移除、统一裁切、48 色量化 | v0.5 integrated |
 | Selected Work console v1 | `public/assets/game/sprites/selected-work-console-v1.png` | `design/sources/selected-work-console-source-v1.png` | OpenAI built-in image generation；使用项目自有背景与正式站点源图作风格参考；绿色键控移除、统一裁切、64 色量化 | v0.5 integrated |
 | Future Gate v1 | `public/assets/game/sprites/future-gate-v1.png` | `design/sources/future-gate-source-v1.png` | OpenAI built-in image generation；使用项目自有背景、Living Core 与 tileset 源图作风格参考；绿色键控移除、统一裁切、48 色量化 | v0.5 integrated |
@@ -168,6 +195,75 @@ Processing notes:
 - Runtime background: 960 × 540 px opaque PNG, loaded with Phaser `NEAREST` filtering.
 - Interactive objects, labels, player and UI were intentionally excluded so Tiled remains the source of station positions, collisions and player spawn.
 - The former Tiled visual tile layers remain in the `.tmj` as an editable v0.3 reference; v0.5 renders this fixed-canvas background as the primary architectural layer.
+
+## Library Room Background v1 Edit Prompt
+
+```text
+Use case: precise-object-edit
+Asset type: architecture-only production source for a 960 × 540 Phaser pixel-art room background
+Input image: the Archive Library environment concept is the edit target.
+Primary request: remove only the interactive and loose foreground props so this becomes a clean architecture-only room background.
+Remove: the central reading desk, its lamp, open book, rug, the lower-right catalog computer and its cabinet, the left rolling archive cart, the right freestanding cabinet, the side counter paper boxes, and any other loose floor objects.
+Replace removed areas: continue the existing dark graphite floor panels, seams, subtle wear, and restrained ambient shadows naturally through every cleared footprint.
+Keep unchanged: exact camera, room shell, upper mechanical book wall, fixed left and right shelf wings, wall materials, floor perspective, bottom-center cyan Lab return doorway, embedded wall lights, warm/cool color relationship, crisp pixel-art rendering, and the full wide composition.
+Composition requirement: preserve a broad empty walkable floor from the center through the lower-center. Leave clean negative-space footprints for a later 180 × 70 reading table at upper-middle and a later 96 × 62 catalog terminal in the lower-right quadrant.
+Constraints: architecture only; no characters, furniture, desks, computers, carts, crates, papers, books on the floor, UI, text, logo, interaction frame, outline, watermark, or new objects. Do not redesign the room or change the doorway.
+Avoid: smooth repainting, blurred inpainting, painterly texture, extra neon, new props, altered perspective, changed crop.
+```
+
+Processing notes:
+
+- Edit target was the project-owned Archive Library environment concept v1.
+- Built-in edit output: 1672 × 941 px; runtime export is 960 × 540 px.
+- Background is loaded by `LibraryScene` with Phaser `NEAREST` filtering.
+- Reading Table and Catalog Terminal are loaded as separate interactive sprites so their visual states remain independent from the background.
+
+## Library Reading Table v1 Prompt
+
+```text
+Use case: stylized-concept
+Asset type: isolated production source for a Phaser pixel-art interactive environment prop
+Primary request: create one formal Archive Library reading table for a secret underground AI laboratory, designed as the main article interaction point.
+Subject: one wide, low graphite-and-dark-brass archive desk with a sturdy industrial base. An open cream-paper book sits clearly at the center. A compact articulated brass task lamp rises from the back-left corner and points toward the book. Add one slim mechanical card tray and two small closed archive volumes, but keep the silhouette uncluttered.
+Style/medium: premium hand-authored-looking 16-bit RPG pixel art, crisp square pixels, deliberate chunky clusters, limited palette, dark outlines, top-down three-quarter game-room perspective. No antialiasing, smooth 3D, painterly shading, or photorealism.
+Composition/framing: exactly one isolated complete table, centered, wide and low, approximately 2.6:1 visible width-to-height. Its eventual game footprint is 180 × 70 logical pixels beside a 40 × 48 player. Show the tabletop and front industrial base clearly. Generous padding on every side.
+Lighting/mood: contained warm amber task light represented only by bright pixels on the lamp, page edges, and tabletop; quiet late-night reading mood. No aura or detached glow.
+Color palette: near-black navy, graphite, oxidized dark brass, warm amber, muted paper cream, tiny tobacco-brown book accents. No cyan except one optional single-pixel status indicator.
+Scene/backdrop: perfectly flat solid #00FF00 chroma-key background for removal. The background must be one uniform color with no shadow, gradient, texture, reflection, floor plane, or lighting variation.
+Constraints: one table only; no character; no chair; no floor; no rug; no wall; no shelves; no readable writing; no text, letters, numbers, logo, UI, border, cast shadow, contact shadow, reflection, or watermark. Do not use #00FF00 anywhere in the subject. Keep all object edges crisp, opaque, and fully separated from the background.
+Avoid: fantasy wooden desk, modern office desk, oversized lamp, piles of clutter, floating book, open drawers, neon haze, soft transparent light, generic cyberpunk hologram.
+```
+
+Processing notes:
+
+- Built-in source generation used no external or third-party references.
+- Chroma-key removal sampled the source border and produced an RGBA intermediate.
+- Runtime texture is 208 × 96 px; visible art is approximately 184 × 72 px.
+- Phaser places the sprite at the existing 180 × 70 Tiled collision footprint and adds a separate restrained amber light pulse.
+
+## Library Catalog Terminal v1 Prompt
+
+```text
+Use case: stylized-concept
+Asset type: isolated production source for a Phaser pixel-art interactive environment prop
+Primary request: create one compact Archive Library catalog terminal for a secret underground AI laboratory, designed as the secondary interaction point for browsing article records.
+Subject: one sturdy freestanding retrieval terminal with a narrow graphite-and-dark-brass cabinet, a slightly tilted frosted cyan display, a small physical keyboard or row of mechanical index keys, one paper-card return slot, one amber service light, and a stable floor base. It should feel like an old archive catalog machine upgraded with restrained future retrieval technology.
+Style/medium: premium hand-authored-looking 16-bit RPG pixel art, crisp square pixels, deliberate chunky clusters, limited palette, dark outlines, top-down three-quarter game-room perspective. No antialiasing, smooth 3D, painterly shading, or photorealism.
+Composition/framing: exactly one isolated complete terminal, centered, compact and upright, approximately 1.25:1 visible width-to-height. Its eventual game footprint is about 96 × 62 logical pixels beside a 40 × 48 player. Show the display, controls, card slot, and full base clearly. Generous padding on every side.
+Lighting/mood: contained cyan screen light with one tiny warm amber maintenance lamp; quiet archival equipment, not a dramatic command console. No aura or detached glow.
+Color palette: near-black navy, graphite, oxidized dark brass, sparse cyan and blue-white screen pixels, one tiny amber status light.
+Screen content: abstract horizontal index lines and geometric record blocks only, with no readable text or symbols.
+Scene/backdrop: perfectly flat solid #00FF00 chroma-key background for removal. The background must be one uniform color with no shadow, gradient, texture, reflection, floor plane, or lighting variation.
+Constraints: one terminal only; no character; no chair; no desk; no floor; no wall; no shelves; no paper pile; no readable writing; no text, letters, numbers, logo, UI overlay, border, cast shadow, contact shadow, reflection, or watermark. Do not use #00FF00 anywhere in the subject. Keep all object edges crisp, opaque, and fully separated from the background.
+Avoid: arcade cabinet, desktop computer, giant touchscreen, transparent hologram, vending machine, bulky server rack, neon haze, soft transparent light, corporate kiosk.
+```
+
+Processing notes:
+
+- Built-in source generation used no external or third-party references.
+- Chroma-key removal sampled the source border and produced an RGBA intermediate.
+- Runtime texture is 96 × 144 px; visible art is approximately 77 × 128 px.
+- Phaser anchors the sprite over the existing 96 × 62 Tiled floor collision and adds a separate restrained cyan screen pulse.
 
 ## Lab Companion v1 Prompt
 
@@ -337,3 +433,48 @@ Processing notes:
 - Border-sampled soft chroma-key removal with despill; the source was divided into eight authored bands and resized with nearest-neighbor filtering.
 - Runtime sheet: `public/assets/game/sprites/mira-v1.png`, 80 × 192 px; 2 columns × 4 rows of 40 × 48 px frames.
 - MIRA has no movement route; column 2 remains a planted-foot archive gesture in runtime.
+
+## Archive Wing Entrance v1 Prompt
+
+```text
+Use case: stylized-concept
+Asset type: isolated production game asset for a 960x540 Phaser top-down pixel-art laboratory
+Primary request: create a wall-integrated ARCHIVE WING corridor entrance for the LEFT SIDE WALL of a futuristic AI laboratory. It must read as a real opening cut into the building, not a freestanding door or teleport portal.
+Subject: one compact left-wall architectural module viewed in fixed three-quarter top-down RPG perspective. The corridor runs horizontally off-screen to the left and opens toward the walkable room on the right. Include a deep dark recessed passage, thick graphite structural jambs tied into the left wall, a short metal threshold floor extending to the right, two parallel brass/cyan guide rails that lead into the room, narrow mechanical index drawers or record slots built into the upper/lower jamb, one restrained warm amber archive status lamp, and sparse cyan system lights. At the inner end of the recess, include a pair of dark industrial sliding shutters whose screen-plane movement would be vertical (one toward the top, one toward the bottom) when animated. No floating frame and no circular portal.
+Style/medium: premium hand-authored 16-bit RPG pixel art, crisp square pixel clusters, strong dark outlines, limited palette, no antialiasing, no painterly rendering, no smooth 3D.
+Composition/framing: isolated complete horizontal entrance module, approximately 1.35:1 width-to-height, opening faces RIGHT, corridor depth reads toward LEFT. Full object visible with generous padding. Must remain readable near a 40x48 pixel player at final runtime size around 192x152 pixels.
+Lighting/mood: quiet knowledge infrastructure inside a rainy-night AI lab; mostly dark navy gunmetal, restrained oxidized brass and paper-amber signals, tiny cyan connection lights. No large glow.
+Scene/backdrop: perfectly flat solid #00FF00 chroma-key background for removal. One uniform green with no shadow, gradient, texture, reflection, floor plane, or lighting variation.
+Constraints: no character; no UI; no readable text, letters, numbers or logos; no city; no freestanding door; no arch-shaped fantasy portal; no cast shadow or contact shadow; no watermark. Do not use #00FF00 anywhere in the subject. Keep every edge crisp and fully separated from the background.
+Avoid: household door, elevator facade, circular portal, Stargate, holographic gate, generic neon overload, front-facing doorway, symmetrical freestanding cabinet, smooth 3D render.
+```
+
+Processing notes:
+
+- Built-in image generation source: 1254 × 1254 px with alpha, archived at `design/sources/archive-wing-entrance-source-v1.png`; no reference image or external asset was used.
+- Runtime texture: `public/assets/game/sprites/archive-wing-entrance-v1.png`, 208 × 208 px with alpha, cropped and resized for the 960 × 540 room.
+- Runtime status (2026-08-12): the left-wall placement was removed after spatial review. The source, runtime texture, preload registration, and reusable shutter component are intentionally retained, but the asset is not currently instantiated in `lab-v1.tmj`.
+- Phaser adds two masked vertical shutters, the status-light wake state and the small English environmental label; the generated asset contains no text.
+- The first freestanding bottom-wall door concept was rejected because it did not connect to the Lab architecture. It is not retained as a runtime asset.
+
+## Archive Wing Corridor v2 Prompt
+
+```text
+Use case: stylized-concept
+Asset type: production game environment background for a 960×540 Phaser scene
+Primary request: Redesign the Archive Wing transfer corridor as a complete, cohesive environment rather than a floating doorway cutout.
+Input images: Image 1 is the current mechanical archive doorway and material-language reference; Image 2 is the Archive Library environment reference for warm brass, graphite shelving, restrained cyan signals, and pixel-art rendering quality.
+Scene/backdrop: A compact underground service corridor connecting Main Lab to Archive Library, shown in a clean three-quarter orthographic/top-down game view. The architectural shell must fill the entire wide frame from edge to edge. On the left, integrate a deep archive doorway with dark interior, mechanical file drawers, brass rails and one warm maintenance lamp. From the doorway, a broad walkable platform extends horizontally toward the right-side Main Lab transfer threshold, with continuous floor plates, guard structure, wall ribs, conduits and a clear endpoint. The corridor must feel physically attached to walls, ceiling beams and floor infrastructure—not isolated on empty black.
+Style/medium: polished high-resolution pixel-art environment, crisp hard edges, limited palette, nearest-neighbor-friendly forms, matching a premium cyberpunk portfolio game; detailed but readable at 960×540.
+Composition/framing: exact wide 16:9 composition; full-frame architecture; strong left-to-right traversal; keep a clear 90–120 px tall walkable lane across the lower-middle for a 40×48 player sprite; preserve clear dark doorway on left and safe spawn area at far right; avoid central furniture or obstacles.
+Lighting/mood: quiet after-hours archive infrastructure, graphite blue-black environment, warm amber localized near archive records, restrained cyan route lights toward Main Lab, subtle Hong Kong underground industrial atmosphere.
+Materials/textures: armored graphite wall panels, worn floor plates, brass archive trim, shallow drawers, ventilation grilles, cable channels, service rails.
+Constraints: environment only; no characters; no text; no letters; no numbers; no logos; no UI; no watermark. Do not include a floating island, transparent background, black void, exterior sky, library desk, computer terminal, elevator cabin, or excessive neon. Maintain plausible player scale and a continuous walkable floor from right spawn to left doorway.
+```
+
+Processing notes:
+
+- Built-in image generation used `archive-wing-entrance-source-v1.png` as the mechanical-language reference and `archive-library-environment-concept-v1.png` as the Library material / lighting reference.
+- Generated RGB source: `design/sources/archive-wing-corridor-source-v2.png`, 1672 × 941 px.
+- Runtime background: `public/assets/game/backgrounds/archive-wing-corridor-v2.png`, resized to 960 × 540 px; the scene no longer needs transparency or a programmatically reconstructed architecture shell.
+- Phaser continues to own the player, direction rail, route status, low-frequency light pulse and dust; the generated background contains no text or characters.

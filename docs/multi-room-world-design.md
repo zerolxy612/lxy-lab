@@ -1,7 +1,7 @@
 # Xiangyu's AI Lab — Multi-room World Design
 
-最后更新：2026-08-11  
-状态：**Phase 1 与 Library 垂直切片原型已完成；正式美术尚未开始**
+最后更新：2026-08-12
+状态：**Phase 1 与 Library 首个正式垂直切片已完成；Main Lab 实体入口退回设计阶段**
 
 ## 1. Product Decision
 
@@ -163,12 +163,16 @@ Observatory 不作为普通博客列表。这里只有 3–5 份低频更新、�
 ### World Routes
 
 - 初次入口：Boot → Elevator → Main Lab → Visitor Entry。
-- Main Lab → Library：Archive corridor 或室内短途门。
+- Main Lab → Library：Experience Archive、MIRA 与 World Index 发起 `A-02 Archive Transfer`；桌面端进入独立短走廊，角色沿现有 Archive Wing 素材走入档案门，实体入口不占用 Main Lab 场景。
 - Main Lab → After Hours：员工通道或维护侧门。
 - Main Lab → Observatory：屋顶升降平台 / `ROOF ACCESS`。
 - 新房间首版都直接返回 Main Lab，不建立 Library ↔ Bar 等横向连接。
 
-入口电梯的美术组件可以复用，但内部房间切换采用 1–2 秒短转场。不得重复身份验证、B1–B7 完整行程或 Visitor Entry。
+入口电梯保留为外部访客进入 Main Lab 的一次性仪式，不承担内部房间交通。Main Lab 与 Library 之间使用独立的 Archive Wing 短走廊：桌面访客需要走过一段很短的阈限空间，移动端与 reduced-motion 路径直接切换；素材不再作为 Main Lab 内的大型实体门。不得重复身份验证、B1–B7 完整行程或 Visitor Entry。
+
+Library 内部的返程口使用背景原画底部中央门体，并叠加与 A–02 同源的青色双片门反馈。抵达时短暂开合，返回时先开门后进入走廊，让路线两端都具有可读的空间因果。
+
+Archive Wing 不是透明素材悬浮在空背景上的展示页。运行时用完整服务层外壳、透视地台、顶部结构梁、两侧设备柱与方向灯带把入口嵌入建筑；状态信息收敛到顶部路由头与底部控制栏，中央只保留角色和短距离行走。环境动画仅包含路线脉冲、低频工作灯和少量尘粒，不增加新的互动点。
 
 ### URL and Direct Access
 
@@ -250,7 +254,7 @@ Session World State
 
 ### Phase 2 — Archive Library Vertical Slice
 
-状态：**功能原型已完成（2026-08-11）；正式场景美术与内容扩充待开始**
+状态：**首个正式切片已完成（2026-08-11）；内容扩充继续进行**
 
 - 只制作一张阅读桌、一个分类书架和一个 Catalog Terminal。
 - 建立 Blog 内容模型、Blog Index 与一篇完整文章路由。
@@ -270,13 +274,13 @@ Session World State
 
 ## 12. Next Action
 
-Phase 1 与 Library 功能垂直切片已经通过：Main Lab 已注册为 `lab`，Room Registry、typed transition protocol、`sessionStorage` world state、返回出生点、World Index、独立 Library 场景与一篇真实 Blog 文章均已接入。文章可由 `/blog/why-this-lab-uses-two-runtimes` 直接访问；桌面与移动端阅读路径均已验证。
+Phase 1 与 Library 首个正式垂直切片已经通过：Main Lab 已注册为 `lab`，Room Registry、typed transition protocol、`sessionStorage` world state、World Index、独立 Library 场景、正式背景 / 道具和三篇真实 Blog 文章均已接入。Archive Wing 的左墙位置实验已撤回，Main Lab 恢复原始布局；World Index 与文章直达路径目前承担 Library 访问入口。
 
-下一步进入 **Library 正式美术预制作**，仍不同时生产三张完整房间背景：
+Library 正式美术已接入，实体入口素材与组件已完成但暂不放入运行地图，环境方向记录于 [`archive-library-art-direction.md`](./archive-library-art-direction.md)。仍不同时生产三张完整房间背景：
 
-1. 先锁定 Library 的构图、材质、光色与三个互动点的视觉层级。
-2. 制作一张 960 × 540 正式概念图，并确保阅读桌、Catalog Terminal、出口和玩家活动区不与 Tiled 碰撞契约冲突。
-3. 把首篇文章扩充为 3–5 篇真实内容清单，再决定书架分类与 Catalog Index 的信息密度。
+1. Library 的构图、正式背景、Reading Table 与 Catalog Terminal 已按 Tiled 几何收敛；Main Lab Archive Wing 需要先重新确定空间位置，再恢复 Tiled 入口。
+2. 三篇真实文章已经进入 Catalog；下一步审阅摘要节奏、分类密度与首屏扫描体验。
+3. 内容达到 4–5 篇后，再决定是否需要书架分类与 Catalog Index 分组。
 4. Library 视觉与内容验收后，再进入 Observatory 的屋顶垂直切片；After Hours 保持最后制作。
 
-当前原型明确不是 Library 的最终美术，只用于证明架构、路径、内容与可访问性边界。
+当前切片已经具备正式视觉基线，但仍不是 Library 的完整内容版本；新增元素必须承担发现、阅读或叙事职责。

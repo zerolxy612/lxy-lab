@@ -43,13 +43,14 @@ export function App() {
   const pendingStation = useRef<StationId | null>(null)
   const hasEnteredInitialRoom = useRef(false)
   const barkId = useRef(0)
+  const roomTransitTimer = useRef<number | null>(null)
   const [initialRoom] = useState(() => resolveInitialRoom(window.location.pathname))
   const [currentRoom, setCurrentRoom] = useState<AvailableRoomId>(initialRoom)
   const [visitedRooms, setVisitedRooms] = useState<RoomId[]>(() => (
     [...readWorldSession(readSessionStorage()).visitedRooms]
   ))
   const [roomTargetLabel, setRoomTargetLabel] = useState<string | null>(null)
-  const [transitioningTo, setTransitioningTo] = useState<AvailableRoomId | null>(null)
+  const [roomTransit, setRoomTransit] = useState(false)
   const [librarySurface, setLibrarySurface] = useState<LibrarySurface>(() => {
     const slug = getBlogSlug(window.location.pathname)
     if (slug && blogPostBySlug[slug]) return { type: 'article', slug }
@@ -67,10 +68,11 @@ export function App() {
   const [gameReady, setGameReady] = useState(false)
   const [gameFailed, setGameFailed] = useState(false)
   const [visitorEntryView, setVisitorEntryView] = useState<VisitorEntryView>('closed')
+  const [quickAccessOpen, setQuickAccessOpen] = useState(false)
   const labChromeVisible = (gameReady || gameFailed)
     && visitorEntryView === 'closed'
     && librarySurface === null
-    && transitioningTo === null
+    && !roomTransit
   const visitedStationSet = useMemo(() => new Set(visitedStations), [visitedStations])
   const visitedRoomSet = useMemo(() => new Set(visitedRooms), [visitedRooms])
   const currentRoomDefinition = roomById[currentRoom]
@@ -217,6 +219,10 @@ export function App() {
   }, [visitorEntryView])
 
   useEffect(() => {
+    labBridge.emit('ui:index-change', { open: quickAccessOpen })
+  }, [quickAccessOpen])
+
+  useEffect(() => {
     labBridge.emit('ui:room-content-change', { open: librarySurface !== null })
   }, [librarySurface])
 
@@ -235,19 +241,26 @@ export function App() {
       open: activeNpc !== null,
       npcId: activeNpc,
     })
+    labBridge.emit('ui:index-change', { open: quickAccessOpen })
     labBridge.emit('ui:room-content-change', { open: librarySurface !== null })
-  }), [activeNpc, activeStation, librarySurface, visitedStations])
+  }), [activeNpc, activeStation, librarySurface, quickAccessOpen, visitedStations])
 
   useEffect(() => {
-    const removeLeavingListener = labBridge.on('room:leaving', ({ to }) => {
+    const removeLeavingListener = labBridge.on('room:leaving', () => {
+      if (roomTransitTimer.current !== null) window.clearTimeout(roomTransitTimer.current)
       setRoomTargetLabel(null)
-      setTransitioningTo(to)
+      setRoomTransit(true)
     })
     const removeEnteredListener = labBridge.on('room:entered', ({ roomId }) => {
       const nextSession = recordRoomVisit(readSessionStorage(), roomId)
       setCurrentRoom(roomId)
       setVisitedRooms([...nextSession.visitedRooms])
-      window.setTimeout(() => setTransitioningTo(null), 180)
+      if (roomTransit) {
+        roomTransitTimer.current = window.setTimeout(() => {
+          setRoomTransit(false)
+          roomTransitTimer.current = null
+        }, 180)
+      }
 
       if (roomId === 'lab' && !hasChosenVisitorEntry(readSessionStorage())) {
         setVisitorEntryView('choice')
@@ -281,7 +294,11 @@ export function App() {
       removeNearbyListener()
       removeLibraryListener()
     }
-  }, [librarySurface, openArticle, openLibraryCatalog])
+  }, [librarySurface, openArticle, openLibraryCatalog, roomTransit])
+
+  useEffect(() => () => {
+    if (roomTransitTimer.current !== null) window.clearTimeout(roomTransitTimer.current)
+  }, [])
 
   useEffect(() => {
     const handlePopState = () => {
@@ -340,6 +357,7 @@ export function App() {
             currentRoom={currentRoom}
             visitedRooms={visitedRoomSet}
             onRoomSelect={(roomId) => requestRoom(roomId, 'index')}
+            onOpenChange={setQuickAccessOpen}
           />
         </div>
         {gameReady && (
@@ -390,12 +408,6 @@ export function App() {
         onClose={closeLibraryContent}
         onOpenArticle={openArticle}
       />
-      {transitioningTo && (
-        <div className="room-transition" role="status" aria-live="polite">
-          <span>TRANSIT / {roomById[transitioningTo].eyebrow}</span>
-          <strong>{roomById[transitioningTo].label}</strong>
-        </div>
-      )}
     </main>
   )
 }

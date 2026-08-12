@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
+import { blogPosts } from '../content/blog'
 import {
   clampLoadingProgress,
   gameLoadingLabel,
@@ -21,7 +22,7 @@ const bootLogSteps = [
   { phaseIndex: 0, command: 'Connecting Hong Kong night channel', complete: 'SIGNAL LOCKED' },
   { phaseIndex: 1, command: 'Waking Living AI Core', complete: 'CORE STABLE' },
   { phaseIndex: 2, command: 'Indexing public memories', complete: 'ARCHIVE READY' },
-  { phaseIndex: 3, command: 'Synchronizing project signals', complete: '02 RECORDS FOUND' },
+  { phaseIndex: 3, command: 'Synchronizing project signals', complete: `${String(blogPosts.length).padStart(2, '0')} RECORDS FOUND` },
 ] as const
 
 function readBootPreferences() {

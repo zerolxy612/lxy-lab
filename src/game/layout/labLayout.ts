@@ -1,5 +1,6 @@
 import { stations, type StationId } from '../../content/stations'
 import { npcs, type NpcId } from '../../content/npcs'
+import { rooms, type AvailableRoomId } from '../rooms'
 
 export const LAB_MAP_KEY = 'lab-map-v1'
 export const LAB_MAP_URL = '/assets/game/maps/lab-v1.tmj'
@@ -18,6 +19,7 @@ export interface StationLayout extends RectangleLayout {
   color: number
   interactionPadding: number
   labelGap?: number
+  labelOffsetX?: number
   collision?: RectangleLayout
 }
 
@@ -34,12 +36,23 @@ export interface NpcLayout {
   route: readonly Readonly<{ x: number; y: number }>[]
 }
 
+export interface RoomRouteLayout extends RectangleLayout {
+  id: AvailableRoomId
+  label: string
+  interactionPadding: number
+  orientation: 'left' | 'bottom'
+  visualOffsetX: number
+  visualOffsetY: number
+  returnSpawn: Readonly<{ x: number; y: number }>
+}
+
 export interface LabLayout {
   worldBounds: RectangleLayout
   playerSpawn: Readonly<{ x: number; y: number }>
   staticObstacles: readonly StaticObstacleLayout[]
   stations: readonly StationLayout[]
   npcs: readonly NpcLayout[]
+  roomRoutes: readonly RoomRouteLayout[]
 }
 
 interface TiledProperty {
@@ -74,6 +87,9 @@ interface TiledMap {
 
 const stationIds = new Set<StationId>(stations.map(({ id }) => id))
 const npcIds = new Set<NpcId>(npcs.map(({ id }) => id))
+const availableRoomIds = new Set<string>(
+  rooms.filter(({ status }) => status === 'available').map(({ id }) => id),
+)
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
@@ -207,6 +223,14 @@ const toNpcId = (value: unknown, label: string): NpcId => {
   return id as NpcId
 }
 
+const toRoomId = (value: unknown, label: string): AvailableRoomId => {
+  const id = assertString(value, label)
+  if (id === 'lab' || !availableRoomIds.has(id)) {
+    throw new Error(`Invalid Tiled map: unavailable room id "${id}"`)
+  }
+  return id as AvailableRoomId
+}
+
 const parseColor = (value: unknown, label: string) => {
   const color = assertString(value, label)
   if (!/^#[0-9a-f]{6}$/i.test(color)) {
@@ -248,6 +272,7 @@ export function parseLabMap(source: unknown): LabLayout {
   const stationLayer = requireLayer(map, 'Stations')
   const npcLayer = requireLayer(map, 'NPCs')
   const npcRouteLayer = requireLayer(map, 'NpcRoutes')
+  const roomRouteLayer = map.layers.find(({ name }) => name === 'RoomRoutes')
   const boundsObject = requireObject(worldLayer, 'world-bounds')
   const spawnObject = requireObject(worldLayer, 'player-spawn')
   const boundsWidth = assertNumber(boundsObject.width, 'world-bounds width')
@@ -305,6 +330,7 @@ export function parseLabMap(source: unknown): LabLayout {
       `${id}.interactionPadding`,
     )
     const labelGapValue = getProperty(object.properties, 'labelGap')
+    const labelOffsetXValue = getProperty(object.properties, 'labelOffsetX')
 
     return {
       ...visual,
@@ -314,6 +340,9 @@ export function parseLabMap(source: unknown): LabLayout {
       labelGap: labelGapValue === undefined
         ? undefined
         : assertNumber(labelGapValue, `${id}.labelGap`),
+      labelOffsetX: labelOffsetXValue === undefined
+        ? undefined
+        : assertNumber(labelOffsetXValue, `${id}.labelOffsetX`),
       collision: {
         x: collision.x - visual.x,
         y: collision.y - visual.y,
@@ -377,6 +406,71 @@ export function parseLabMap(source: unknown): LabLayout {
     throw new Error(`Invalid Tiled map: missing NPCs ${missing.join(', ')}`)
   }
 
+  const roomReturnSpawns = new Map<AvailableRoomId, { x: number; y: number }>()
+  const roomRouteObjects = roomRouteLayer?.objects ?? []
+  roomRouteObjects
+    .filter(({ type }) => type === 'room-return-spawn')
+    .forEach((object) => {
+      const id = toRoomId(getProperty(object.properties, 'roomId'), `${object.name}.roomId`)
+      if (!object.point) {
+        throw new Error(`Invalid Tiled map: ${object.name} must be a point`)
+      }
+      if (roomReturnSpawns.has(id)) {
+        throw new Error(`Invalid Tiled map: duplicate return spawn for "${id}"`)
+      }
+      roomReturnSpawns.set(id, { x: object.x, y: object.y })
+    })
+
+  const parsedRoomIds = new Set<AvailableRoomId>()
+  const roomRoutes = roomRouteObjects
+    .filter(({ type }) => type === 'room-route')
+    .map((object): RoomRouteLayout => {
+      const id = toRoomId(getProperty(object.properties, 'roomId'), `${object.name}.roomId`)
+      if (parsedRoomIds.has(id)) {
+        throw new Error(`Invalid Tiled map: duplicate room route for "${id}"`)
+      }
+      parsedRoomIds.add(id)
+      const returnSpawn = roomReturnSpawns.get(id)
+      if (!returnSpawn) {
+        throw new Error(`Invalid Tiled map: missing return spawn for "${id}"`)
+      }
+
+      return {
+        ...toCenteredRectangle(object),
+        id,
+        label: assertString(getProperty(object.properties, 'label'), `${object.name}.label`),
+        interactionPadding: assertNumber(
+          getProperty(object.properties, 'interactionPadding'),
+          `${object.name}.interactionPadding`,
+        ),
+        orientation: (() => {
+          const orientation = assertString(
+            getProperty(object.properties, 'orientation'),
+            `${object.name}.orientation`,
+          )
+          if (orientation !== 'left' && orientation !== 'bottom') {
+            throw new Error(
+              `Invalid Tiled map: ${object.name}.orientation must be left or bottom`,
+            )
+          }
+          return orientation
+        })(),
+        visualOffsetX: getProperty(object.properties, 'visualOffsetX') === undefined
+          ? 0
+          : assertNumber(
+            getProperty(object.properties, 'visualOffsetX'),
+            `${object.name}.visualOffsetX`,
+          ),
+        visualOffsetY: getProperty(object.properties, 'visualOffsetY') === undefined
+          ? 0
+          : assertNumber(
+            getProperty(object.properties, 'visualOffsetY'),
+            `${object.name}.visualOffsetY`,
+          ),
+        returnSpawn,
+      }
+    })
+
   const blockedNpcAreas = [
     ...staticObstacles,
     ...parsedStations.map(getStationCollisionRect),
@@ -397,11 +491,25 @@ export function parseLabMap(source: unknown): LabLayout {
     })
   })
 
+  roomRoutes.forEach(({ id, returnSpawn }) => {
+    const insideWorld = returnSpawn.x >= worldBounds.x
+      && returnSpawn.x <= worldBounds.x + worldBounds.width
+      && returnSpawn.y >= worldBounds.y
+      && returnSpawn.y <= worldBounds.y + worldBounds.height
+    if (!insideWorld) {
+      throw new Error(`Invalid Tiled map: room "${id}" return spawn is outside world bounds`)
+    }
+    if (blockedNpcAreas.some((area) => containsPoint(area, returnSpawn.x, returnSpawn.y))) {
+      throw new Error(`Invalid Tiled map: room "${id}" return spawn is inside a collision block`)
+    }
+  })
+
   return {
     worldBounds,
     playerSpawn,
     staticObstacles,
     stations: parsedStations,
     npcs: parsedNpcs,
+    roomRoutes,
   }
 }
