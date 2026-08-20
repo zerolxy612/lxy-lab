@@ -435,8 +435,9 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 实体门撤下后重新验收 World Index，修复其指针事件穿透到 Phaser 站点的问题，确保 Archive Library 的当前主入口不会误开底层 Lab 内容。
 - Quick Access 已升级为 World Index，桌面与移动端都可以不操控角色直接切换可用房间；计划房间保持不可点击。
 - 建立结构化 Blog 内容模型、语义化 Catalog / Article 阅读层与稳定直达路径；首篇文章为 `/blog/why-this-lab-uses-two-runtimes`。
+- 三篇现有文章已迁移为仓库内 Markdown；本地 `/author` 提供单作者工作台，覆盖草稿、实时预览、图片上传、发布、编辑、精选切换、可恢复删除与回收站恢复。该工具只在本地开发环境出现，不向线上访客暴露管理接口。
 - 文章打开时锁定 Phaser 输入，Escape 与返回按钮恢复 Library；直达文章不播放 Boot 或电梯。
-- 自动验证现为 26 个测试文件、77 项测试，覆盖 Main Lab 基线布局、Archive Wing 桌面 / 紧凑屏路由、Library 内容、唯一推荐记录与响应式阅读；类型检查、Lint、测试与生产构建保持通过。
+- 自动验证现为 26 个测试文件、79 项测试，覆盖 Main Lab 基线布局、Archive Wing 桌面 / 紧凑屏路由、Library 内容、Markdown 解析、唯一推荐记录与响应式阅读；类型检查、Lint、测试与生产构建保持通过。
 
 本阶段确认书架保持环境叙事：三篇文章已有 Catalog 分类与章节导航，再增加分类书架只会形成重复入口。Archive Library 本轮需求到此收口；后续只有新增真实文章或证据时再扩充内容，不以空交互延长地图，也不同时启动 Observatory 与 After Hours。
 

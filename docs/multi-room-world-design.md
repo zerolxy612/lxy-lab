@@ -92,11 +92,12 @@ Library 是博客的游戏化入口。它不是第二个 Experience Archive：Ex
 ### Article Contract
 
 - 每篇文章拥有稳定 slug 与独立 URL，例如 `/blog/agent-interface-notes`。
-- 标题、摘要、发布日期、分类、阅读时间和正文由结构化内容源管理。
+- 标题、摘要、发布日期、分类、阅读时间和正文由 `content/blog/<slug>/index.md` 管理。
 - 正文使用语义化 React 页面或阅读层，不在 Phaser Canvas 中排长文。
 - 文章 URL 可以直接访问；直接访问时不强制播放 Boot、电梯或走入 Library。
 - 返回世界时恢复 Library 与玩家位置；关闭正文时焦点返回触发书架或 Catalog。
-- 首版不做全文搜索、评论、点赞、账号或 CMS；文章规模证明需要后再选择内容工具。
+- 单作者通过仅限本地开发环境的 `/author` 工作台完成草稿、预览、图片、发布、修改与可恢复删除；内容仍是可审查、可版本控制的 Markdown 文件，不引入线上账号系统或数据库。
+- 首版不做全文搜索、评论、点赞、多用户权限或线上 CMS；文章规模证明需要后再选择内容工具。
 
 ## 5. After Hours — The Person
 
@@ -229,7 +230,7 @@ Session World State
 - 战斗、任务日志、成就、背包、货币和好感度。
 - 为每篇博客文章制作独立场景或实体书。
 - 为四个房间重复制作 About、CV 和项目内容。
-- 首版 Blog CMS、全文搜索、评论或用户账号。
+- 线上 Blog CMS、全文搜索、评论、多用户权限或访客账号。
 - Observatory 的真实卫星 API、实时天气或天文数据。
 - 为了扩展性提前建立通用场景编辑器或插件系统。
 

@@ -29,6 +29,7 @@ Current stable release: **v0.5 — complete**. Multi-room and Archive Library wo
 - A minimal multi-room registry, session-scoped World Index, and independent Archive Library Phaser scene
 - A preserved Archive Wing art and interaction prototype, currently held outside the Main Lab map while its physical placement is redesigned
 - A semantic Blog catalog and direct article route that remain readable without controlling the character
+- A local-only Author Studio for drafting, previewing, uploading images, publishing, editing, and recoverable deletion
 
 ## Work represented
 
@@ -67,6 +68,7 @@ npm run typecheck
 npm run lint
 npm test
 npm run build
+npm run blog:check
 ```
 
 ## Controls
@@ -90,6 +92,7 @@ On screens below 900 px, use the Archive Index and Quick Access instead of chara
 - [Room ambience contract](docs/room-ambience.md)
 - [Multi-room world direction](docs/multi-room-world-design.md)
 - [Archive Library art direction](docs/archive-library-art-direction.md)
+- [Blog authoring guide](docs/blog-authoring.md)
 - [AI Companion LLM decision](docs/ai-companion-decision.md)
 
 Generated source art is kept under `design/sources/`; optimized runtime assets live under `public/assets/`. The asset ledger records production methods and confirms where project-owned references were used.

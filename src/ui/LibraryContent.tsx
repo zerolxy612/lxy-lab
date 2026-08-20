@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { blogPostBySlug, blogPosts } from '../content/blog'
 import { restoreFocus } from './focusReturn'
 
@@ -114,6 +116,10 @@ export function LibraryContent({
   if (!post) return null
   const postIndex = blogPosts.findIndex(({ slug }) => slug === post.slug)
   const nextPost = blogPosts[(postIndex + 1) % blogPosts.length]
+  const sectionBodies = post.body.split(/^##\s+/m).slice(1).map((section) => {
+    const [heading, ...content] = section.split('\n')
+    return { heading: heading.trim(), content: content.join('\n').trim() }
+  })
 
   return (
     <article
@@ -162,12 +168,25 @@ export function LibraryContent({
             <strong>{post.summary}</strong>
             <blockquote>{post.catalogSignal}</blockquote>
           </header>
-          {post.sections.map((section, index) => (
+          {sectionBodies.map((section, index) => (
             <section key={section.heading} id={`record-section-${index + 1}`}>
               <span>0{index + 1}</span>
               <div>
                 <h2>{section.heading}</h2>
-                {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    a: ({ children, ...props }) => <a {...props} target="_blank" rel="noreferrer">{children}</a>,
+                    img: ({ alt, ...props }) => (
+                      <span className="blog-reader__image">
+                        <img {...props} alt={alt ?? ''} />
+                        {alt && <small>{alt}</small>}
+                      </span>
+                    ),
+                  }}
+                >
+                  {section.content}
+                </ReactMarkdown>
               </div>
             </section>
           ))}

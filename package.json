@@ -12,12 +12,15 @@
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint .",
     "test": "vitest run",
+    "blog:check": "tsc -b --pretty false && vitest run src/content/blog.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {
     "phaser": "^3.90.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
