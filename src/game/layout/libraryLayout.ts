@@ -1,7 +1,7 @@
 export const LIBRARY_MAP_KEY = 'library-prototype-map-v1'
 export const LIBRARY_MAP_URL = '/assets/game/maps/library-prototype-v1.tmj'
 
-export type LibraryInteractionId = 'reading' | 'catalog' | 'exit'
+export type LibraryInteractionId = 'reading' | 'catalog' | 'return' | 'exit'
 
 export interface LibraryRectangle {
   x: number
@@ -37,7 +37,7 @@ interface TiledObject {
   properties?: TiledProperty[]
 }
 
-const interactionIds = new Set<LibraryInteractionId>(['reading', 'catalog', 'exit'])
+const interactionIds = new Set<LibraryInteractionId>(['reading', 'catalog', 'return', 'exit'])
 
 const isRecord = (value: unknown): value is Record<string, unknown> => (
   typeof value === 'object' && value !== null
@@ -136,8 +136,11 @@ export function parseLibraryMap(source: unknown): LibraryLayout {
     }
   })
 
-  if (new Set(interactions.map(({ id }) => id)).size !== interactionIds.size) {
-    throw new Error('Invalid Library map: reading, catalog, and exit are required')
+  if (
+    interactions.length !== interactionIds.size
+    || new Set(interactions.map(({ id }) => id)).size !== interactionIds.size
+  ) {
+    throw new Error('Invalid Library map: reading, catalog, return, and exit are required')
   }
 
   return {

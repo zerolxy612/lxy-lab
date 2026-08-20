@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { featuredBlogPost } from '../../content/blog'
+import { blogPosts, featuredBlogPost } from '../../content/blog'
 import {
   LIBRARY_BACKGROUND_TEXTURE_KEY,
   LIBRARY_BACKGROUND_TEXTURE_URL,
@@ -12,6 +12,7 @@ import { labBridge } from '../bridge'
 import { LAB_HEIGHT, LAB_WIDTH } from '../dimensions'
 import { LibraryTransferDoor } from '../entities/LibraryTransferDoor'
 import { Player } from '../entities/Player'
+import { selectReturnPost } from '../libraryAtmosphere'
 import {
   LIBRARY_MAP_KEY,
   LIBRARY_MAP_URL,
@@ -31,7 +32,7 @@ interface InteractiveLibraryTarget {
 interface LibraryTargetVisual {
   glow: Phaser.GameObjects.Ellipse
   signal: Phaser.GameObjects.Rectangle
-  sprite: Phaser.GameObjects.Image
+  sprite: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle
   label?: Phaser.GameObjects.Text
 }
 
@@ -53,6 +54,9 @@ export class LibraryScene extends Phaser.Scene {
   private debugKey!: Phaser.Input.Keyboard.Key
   private debugGraphics!: Phaser.GameObjects.Graphics
   private debugLabel!: Phaser.GameObjects.Text
+  private returnCursor = 0
+  private returnSlip?: Phaser.GameObjects.Rectangle
+  private returnLabel?: Phaser.GameObjects.Text
   private interactKeys: Phaser.Input.Keyboard.Key[] = []
   private removeRoomRequestListener?: () => void
   private removeContentListener?: () => void
@@ -72,6 +76,7 @@ export class LibraryScene extends Phaser.Scene {
     this.hoveredTarget = null
     this.targets = []
     this.targetVisuals.clear()
+    this.returnCursor = 0
     this.debugVisible = false
   }
 
@@ -176,6 +181,8 @@ export class LibraryScene extends Phaser.Scene {
 
     this.drawReadingTable()
     this.drawCatalog()
+    this.drawReturnSlot()
+    this.drawArchiveActivity()
   }
 
   private drawReadingTable() {
@@ -224,7 +231,17 @@ export class LibraryScene extends Phaser.Scene {
     const signal = this.add.rectangle(720, 335, 28, 2, 0x5cdfff, 0)
       .setBlendMode(Phaser.BlendModes.ADD)
       .setDepth(383)
-    this.targetVisuals.set('catalog', { glow: focusGlow, signal, sprite })
+    const label = this.add.text(720, 320, `CATALOG / ${blogPosts.length} RECORDS`, {
+      color: '#72bacd',
+      fontFamily: 'sans-serif',
+      fontSize: '6px',
+      fontStyle: 'bold',
+      letterSpacing: 0.8,
+    }).setOrigin(0.5).setAlpha(0.55).setDepth(384)
+    const scan = this.add.rectangle(720, 347, 30, 1, 0x7cecff, this.reducedMotion ? 0.16 : 0)
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setDepth(384)
+    this.targetVisuals.set('catalog', { glow: focusGlow, signal, sprite, label })
 
     if (!this.reducedMotion) {
       this.tweens.add({
@@ -235,7 +252,77 @@ export class LibraryScene extends Phaser.Scene {
         repeat: -1,
         ease: 'Sine.InOut',
       })
+      this.tweens.add({
+        targets: scan,
+        y: { from: 347, to: 363 },
+        alpha: { from: 0, to: 0.42 },
+        duration: 920,
+        hold: 100,
+        yoyo: true,
+        repeat: -1,
+        repeatDelay: 3600,
+        ease: 'Quart.Out',
+      })
     }
+  }
+
+  private drawReturnSlot() {
+    const post = selectReturnPost(blogPosts, this.returnCursor)
+    if (!post) return
+    const glow = this.add.ellipse(160, 328, 76, 48, 0xffa95c, 0)
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setDepth(334)
+    const panel = this.add.rectangle(156, 327, 46, 18, 0x17151a, 0.64)
+      .setDepth(340)
+    const slot = this.add.rectangle(156, 324, 30, 2, 0xc98745, 0.68)
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setDepth(341)
+    this.returnSlip = this.add.rectangle(156, 329, 21, 7, 0xd2b67f, 0.72)
+      .setDepth(339)
+    this.returnLabel = this.add.text(172, 340, `RETURN / ${post.index}`, {
+      color: '#b88b55',
+      fontFamily: 'sans-serif',
+      fontSize: '6px',
+      fontStyle: 'bold',
+      letterSpacing: 0.75,
+    }).setOrigin(0.5).setAlpha(0.24).setDepth(342)
+    this.targetVisuals.set('return', { glow, signal: slot, sprite: panel, label: this.returnLabel })
+
+    if (!this.reducedMotion) {
+      this.tweens.add({
+        targets: this.returnSlip,
+        y: { from: 327, to: 331 },
+        alpha: { from: 0.42, to: 0.78 },
+        duration: 1250,
+        yoyo: true,
+        repeat: -1,
+        repeatDelay: 5200,
+        ease: 'Sine.InOut',
+      })
+    }
+  }
+
+  private drawArchiveActivity() {
+    const indicators = [330, 480, 630].map((x, index) => (
+      this.add.rectangle(x, 176, 18, 2, index === 1 ? 0xffbd62 : 0xc88448, this.reducedMotion ? 0.12 : 0)
+        .setBlendMode(Phaser.BlendModes.ADD)
+        .setDepth(180)
+    ))
+    if (this.reducedMotion) return
+    indicators.forEach((indicator, index) => {
+      this.tweens.add({
+        targets: indicator,
+        alpha: { from: 0.04, to: index === 1 ? 0.28 : 0.18 },
+        scaleX: { from: 0.35, to: 1 },
+        duration: 420,
+        delay: 120 + index * 130,
+        hold: 520,
+        yoyo: true,
+        repeat: -1,
+        repeatDelay: 7200 + index * 900,
+        ease: 'Quart.Out',
+      })
+    })
   }
 
   private createStaticBlock(rectangle: LibraryRectangle) {
@@ -301,6 +388,15 @@ export class LibraryScene extends Phaser.Scene {
       }
       return
     }
+    if (targetId === 'return') {
+      const post = selectReturnPost(blogPosts, this.returnCursor)
+      if (!post) return
+      this.returnCursor += 1
+      const nextPost = selectReturnPost(blogPosts, this.returnCursor)
+      if (nextPost) this.returnLabel?.setText(`RETURN / ${nextPost.index}`)
+      labBridge.emit('library:open', { surface: 'article', slug: post.slug })
+      return
+    }
     labBridge.emit('library:open', {
       surface: targetId === 'catalog' ? 'catalog' : 'article',
       slug: targetId === 'reading' ? featuredBlogPost.slug : undefined,
@@ -329,7 +425,7 @@ export class LibraryScene extends Phaser.Scene {
       })
       this.tweens.add({
         targets: visual.signal,
-        alpha: focused ? 0.92 : 0,
+        alpha: focused ? 0.92 : (id === 'return' ? 0.35 : 0),
         scaleX: focused ? 1.25 : 1,
         duration,
         ease: 'Quad.Out',
@@ -342,9 +438,10 @@ export class LibraryScene extends Phaser.Scene {
         ease: 'Quad.Out',
       })
       if (visual.label) {
+        const idleAlpha = id === 'reading' ? 0.7 : id === 'catalog' ? 0.55 : 0.24
         this.tweens.add({
           targets: visual.label,
-          alpha: focused ? 1 : 0.7,
+          alpha: focused ? 1 : idleAlpha,
           duration,
           ease: 'Quad.Out',
         })
@@ -354,7 +451,12 @@ export class LibraryScene extends Phaser.Scene {
   }
 
   private getTargetLabel(layout: LibraryInteraction) {
-    return layout.id === 'reading' ? `Read ${featuredBlogPost.index}` : layout.label
+    if (layout.id === 'reading') return `Read ${featuredBlogPost.index}`
+    if (layout.id === 'return') {
+      const post = selectReturnPost(blogPosts, this.returnCursor)
+      return post ? `Recover ${post.index}` : layout.label
+    }
+    return layout.label
   }
 
   private createDebugOverlay() {

@@ -85,7 +85,7 @@ Library 是博客的游戏化入口。它不是第二个 Experience Archive：Ex
 | Reading Table | 台灯亮起，展开一本书 | 当前精选文章 |
 | Category Shelves | 对应书脊微亮 | 分类文章列表 |
 | Catalog Terminal | 索引滚动与检索声 | 完整 Blog Index |
-| Return Slot | 偶尔吐出一张旧卡片 | 随机旧文章或短句彩蛋 |
+| Return Slot | 低频推出旧记录卡，靠近后显示当前编号 | 在非精选旧文章之间按次序循环 |
 
 可以后期加入一名 Library NPC，但首个垂直切片不依赖新角色。MIRA 可以通过少量跨房间台词建立联系，不必立即制作新的管理员。
 

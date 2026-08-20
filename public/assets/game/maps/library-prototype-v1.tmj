@@ -41,6 +41,7 @@
       "objects": [
         { "height": 122, "id": 8, "name": "reading", "properties": [{ "name": "label", "type": "string", "value": "Read Featured Record" }], "rotation": 0, "type": "", "visible": true, "width": 240, "x": 360, "y": 240 },
         { "height": 116, "id": 9, "name": "catalog", "properties": [{ "name": "label", "type": "string", "value": "Open Catalog" }], "rotation": 0, "type": "", "visible": true, "width": 156, "x": 642, "y": 324 },
+        { "height": 110, "id": 11, "name": "return", "properties": [{ "name": "label", "type": "string", "value": "Recover Old Record" }], "rotation": 0, "type": "", "visible": true, "width": 100, "x": 116, "y": 278 },
         { "height": 72, "id": 10, "name": "exit", "properties": [{ "name": "label", "type": "string", "value": "Enter Main Lab Transfer" }], "rotation": 0, "type": "", "visible": true, "width": 128, "x": 416, "y": 428 }
       ],
       "opacity": 1,
@@ -51,7 +52,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 11,
+  "nextobjectid": 12,
   "orientation": "orthogonal",
   "properties": [{ "name": "schemaVersion", "type": "int", "value": 1 }],
   "renderorder": "right-down",

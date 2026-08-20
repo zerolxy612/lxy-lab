@@ -124,6 +124,6 @@ Library 原型地图位于 `public/assets/game/maps/library-prototype-v1.tmj`，
 
 - `World`：一个 `world-bounds` 矩形与一个 `player-spawn` Point。
 - `Collision`：Library 自己的墙体、书架、阅读桌和终端碰撞矩形。
-- `Interactions`：名称固定为 `reading`、`catalog`、`exit` 的三个矩形；每个对象包含 `label` 与正整数 `interactionPadding`。
+- `Interactions`：名称固定为 `reading`、`catalog`、`return`、`exit` 的四个矩形；每个对象包含非空 `label`。`return` 位于左侧书架边缘，负责轮换找回非精选旧记录，不新增大型地面热点。
 
 `src/game/layout/libraryLayout.ts` 会拒绝未知 / 重复互动点、缺失出生点或边界、非法坐标、非正尺寸、出生点进入碰撞体，以及不符合 960 × 544 逻辑空间的地图。Library 原型不改变 Lab 的地图契约；正式美术制作时仍应修改这张独立地图，而不是在场景代码中复制坐标。

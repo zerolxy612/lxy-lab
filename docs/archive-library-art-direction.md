@@ -13,7 +13,7 @@ Archive Library 是 Main Lab 的安静反面：它仍属于同一座地下 AI La
 
 1. **Contained warmth** — 暖光只集中在书架工作灯、阅读桌和少量维修灯；房间主体继续使用深蓝黑与石墨色。
 2. **Physical records, future retrieval** — 书、纸卡、抽屉和机械轨道提供真实触感，Catalog Terminal 只承担未来检索信号。
-3. **Landmarks before decoration** — 阅读桌、Catalog Terminal 和 Lab 出口必须先形成三角识别关系，再添加梯子、纸箱或生活痕迹。
+3. **Landmarks before decoration** — 阅读桌、Catalog Terminal 和 Lab 出口保持三角识别关系；Return Slot 作为依附左侧书架的次级发现点，不与三个主地标竞争。
 4. **Walkable negative space** — 中央及下半部保持大面积清晰地板，玩家不需要在高密度小物件之间绕行。
 5. **One-world continuity** — 青色出口与终端连接 Main Lab；黄铜、纸张和琥珀光建立 Library 自己的身份。
 
@@ -26,7 +26,7 @@ Archive Library 是 Main Lab 的安静反面：它仍属于同一座地下 AI La
 | Reading table | `x 390–570 / y 268–338` | 暖光主焦点；桌面轮廓必须适配 180 × 70 碰撞 |
 | Catalog terminal | `x 672–768 / y 352–414` | 冷色次焦点；屏幕朝向玩家活动区 |
 | Main Lab exit | `x 416–544 / y 428–500` | 青色短途通道，不复制首次入场电梯 |
-| Player spawn | `480 / 400` | 出生时可立即识别三个互动点，且不在出口触发区内 |
+| Player spawn | `480 / 400` | 出生时可立即识别三个主互动点，且不在出口触发区内；Return Slot 留给继续探索的访客发现 |
 
 ## 4. Concept v1 Review
 
