@@ -1,9 +1,11 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { blogPostBySlug, blogPosts } from '../content/blog'
 import { restoreFocus } from './focusReturn'
+import { getCatalogCategories, selectCatalogPosts } from './libraryCatalog'
+import type { CatalogSort } from './libraryCatalog'
 
 export type LibrarySurface =
   | { type: 'catalog' }
@@ -25,6 +27,15 @@ export function LibraryContent({
 }: LibraryContentProps) {
   const layer = useRef<HTMLElement>(null)
   const closeButton = useRef<HTMLButtonElement>(null)
+  const searchInput = useRef<HTMLInputElement>(null)
+  const [catalogQuery, setCatalogQuery] = useState('')
+  const [catalogCategory, setCatalogCategory] = useState('All records')
+  const [catalogSort, setCatalogSort] = useState<CatalogSort>('recommended')
+  const catalogCategories = useMemo(() => getCatalogCategories(blogPosts), [])
+  const catalogPosts = useMemo(
+    () => selectCatalogPosts(blogPosts, catalogQuery, catalogCategory, catalogSort),
+    [catalogCategory, catalogQuery, catalogSort],
+  )
 
   useEffect(() => {
     if (!surface) return
@@ -35,6 +46,16 @@ export function LibraryContent({
     closeButton.current?.focus()
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target
+      const isEditing = target instanceof HTMLInputElement
+        || target instanceof HTMLTextAreaElement
+        || target instanceof HTMLSelectElement
+        || (target instanceof HTMLElement && target.isContentEditable)
+      if (surface.type === 'catalog' && event.key === '/' && !isEditing) {
+        event.preventDefault()
+        searchInput.current?.focus()
+        return
+      }
       if (event.key === 'Escape') {
         event.preventDefault()
         onClose()
@@ -42,7 +63,7 @@ export function LibraryContent({
       }
       if (event.key !== 'Tab') return
       const focusable = layer.current?.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
       )
       if (!focusable?.length) return
       const first = focusable[0]
@@ -81,9 +102,51 @@ export function LibraryContent({
           </div>
           <button ref={closeButton} type="button" onClick={onClose}>Close <kbd>Esc</kbd></button>
         </header>
-        <p>The first shelf holds {blogPosts.length} public field notes. Scan by subject, then open the decision that matters to you.</p>
+        <p>The first shelf holds {blogPosts.length} public field notes. Search the decisions, or narrow the archive by classification.</p>
+        <section className="library-catalog__controls" aria-label="Catalog controls">
+          <label className="library-catalog__search">
+            <span>Search records</span>
+            <span>
+              <input
+                ref={searchInput}
+                type="search"
+                aria-label="Search records"
+                value={catalogQuery}
+                placeholder="Title, subject, or decision"
+                onChange={(event) => setCatalogQuery(event.target.value)}
+              />
+              <kbd>/</kbd>
+            </span>
+          </label>
+          <label className="library-catalog__sort">
+            <span>Sequence</span>
+            <select aria-label="Sequence" value={catalogSort} onChange={(event) => setCatalogSort(event.target.value as CatalogSort)}>
+              <option value="recommended">Recommended</option>
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </label>
+          <div className="library-catalog__categories" aria-label="Filter by classification">
+            {['All records', ...catalogCategories].map((category) => (
+              <button
+                key={category}
+                type="button"
+                aria-pressed={catalogCategory === category}
+                onClick={() => setCatalogCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+          <div className="library-catalog__results" aria-live="polite">
+            <span>{catalogPosts.length} {catalogPosts.length === 1 ? 'record' : 'records'} located</span>
+            {(catalogQuery || catalogCategory !== 'All records') && (
+              <button type="button" onClick={() => { setCatalogQuery(''); setCatalogCategory('All records') }}>Clear filters</button>
+            )}
+          </div>
+        </section>
         <div className="library-catalog__list">
-          {blogPosts.map((post) => (
+          {catalogPosts.map((post) => (
             <button
               key={post.slug}
               type="button"
@@ -93,6 +156,7 @@ export function LibraryContent({
               <span className="library-catalog__record">
                 <b>{post.index}</b>
                 <small>{post.readingTime}</small>
+                <small>{post.published}</small>
               </span>
               <span className="library-catalog__entry">
                 <i>{post.featured ? `Featured / ${post.category}` : post.category}</i>
@@ -103,10 +167,19 @@ export function LibraryContent({
               <i className="library-catalog__open" aria-hidden="true">→</i>
             </button>
           ))}
+          {catalogPosts.length === 0 && (
+            <div className="library-catalog__empty">
+              <span>NO MATCHING SIGNAL</span>
+              <strong>Nothing in this shelf matches those coordinates.</strong>
+              <button type="button" onClick={() => { setCatalogQuery(''); setCatalogCategory('All records'); searchInput.current?.focus() }}>
+                Reset catalog
+              </button>
+            </div>
+          )}
         </div>
         <footer>
           <span>CATALOG STATUS</span>
-          <b>{blogPosts.length} PUBLIC NOTES / FIRST SHELF</b>
+          <b>{catalogPosts.length} SHOWN / {blogPosts.length} PUBLIC NOTES</b>
         </footer>
       </aside>
     )
@@ -115,6 +188,7 @@ export function LibraryContent({
   const post = blogPostBySlug[surface.slug]
   if (!post) return null
   const postIndex = blogPosts.findIndex(({ slug }) => slug === post.slug)
+  const previousPost = blogPosts[(postIndex - 1 + blogPosts.length) % blogPosts.length]
   const nextPost = blogPosts[(postIndex + 1) % blogPosts.length]
   const sectionBodies = post.body.split(/^##\s+/m).slice(1).map((section) => {
     const [heading, ...content] = section.split('\n')
@@ -192,13 +266,10 @@ export function LibraryContent({
           ))}
           <footer>
             <span>END OF {post.index}</span>
-            <div>
+            <div className="blog-reader__navigation">
               <button type="button" className="blog-reader__return" onClick={onClose}>Return to library</button>
-              {nextPost.slug !== post.slug && (
-                <button type="button" onClick={() => onOpenArticle(nextPost.slug, surface.presentation)}>
-                  Next: {nextPost.index} <i aria-hidden="true">→</i>
-                </button>
-              )}
+              {previousPost.slug !== post.slug && <button type="button" onClick={() => onOpenArticle(previousPost.slug, surface.presentation)}><small>Previous record</small><strong>← {previousPost.index}</strong><span>{previousPost.title} · {previousPost.readingTime}</span></button>}
+              {nextPost.slug !== post.slug && <button type="button" onClick={() => onOpenArticle(nextPost.slug, surface.presentation)}><small>Next record</small><strong>{nextPost.index} →</strong><span>{nextPost.title} · {nextPost.readingTime}</span></button>}
             </div>
           </footer>
         </div>

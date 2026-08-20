@@ -430,6 +430,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - Library 底部中央原画门已升级为 A–02 双向转运端：从走廊抵达时播放短开合反馈，靠近显示 `Enter Main Lab Transfer`，返回时先开启双片门再进入走廊；reduced-motion 路径仍可直接切换。
 - Library 正式画面不再直接显示阅读桌、Catalog 与出口的大矩形触发范围；靠近或悬停时改为物件自身的局部光源、信号灯和轻微尺度反馈。碰撞、交互范围、世界边界与出生点统一收进 `F2` 调试层。
 - Catalog 三篇文章重新区分为 Architecture、Character Systems 与 Experience Design，并增加一句可扫描的核心判断；目录先帮助访客判断主题与阅读价值，再展开完整摘要。
+- Catalog 增加轻量元数据检索、分类过滤与推荐 / 新旧排序；支持 `/` 快速聚焦、筛选结果计数、无匹配恢复状态，并在文章结尾提供带标题和阅读时间的上一篇 / 下一篇导航。检索范围保持在公开记录元数据，不提前引入全文搜索服务。
 - Reading Table 现在读取内容数据中唯一的 `featured` 记录，不再把 `LOG-001` 写死在场景代码和地图提示中；首期推荐为 `LOG-003 · The Elevator Is Part of the Portfolio`，桌面档案牌、靠近提示、Catalog 标记与实际打开文章保持一致。
 - Blog Reader 试行混合 `Archive Reading Desk`：从 Library 内打开时保留暗化的房间视窗、记录元数据与章节轨道，正文使用偏暖的低反光档案底；直接文章链接与 900 px 以下屏幕隐藏空间侧栏，优先提供完整单栏阅读。结尾增加返回 Library 与同一呈现模式下的下一篇记录。
 - 实体门撤下后重新验收 World Index，修复其指针事件穿透到 Phaser 站点的问题，确保 Archive Library 的当前主入口不会误开底层 Lab 内容。
@@ -437,7 +438,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - 建立结构化 Blog 内容模型、语义化 Catalog / Article 阅读层与稳定直达路径；首篇文章为 `/blog/why-this-lab-uses-two-runtimes`。
 - 三篇现有文章已迁移为仓库内 Markdown；本地 `/author` 提供单作者工作台，覆盖草稿、实时预览、图片上传、发布、编辑、精选切换、可恢复删除与回收站恢复。该工具只在本地开发环境出现，不向线上访客暴露管理接口。
 - 文章打开时锁定 Phaser 输入，Escape 与返回按钮恢复 Library；直达文章不播放 Boot 或电梯。
-- 自动验证现为 26 个测试文件、79 项测试，覆盖 Main Lab 基线布局、Archive Wing 桌面 / 紧凑屏路由、Library 内容、Markdown 解析、唯一推荐记录与响应式阅读；类型检查、Lint、测试与生产构建保持通过。
+- 自动验证现为 27 个测试文件、82 项测试，覆盖 Main Lab 基线布局、Archive Wing 桌面 / 紧凑屏路由、Library 内容、Markdown 解析、Catalog 检索与排序、唯一推荐记录和响应式阅读；类型检查、Lint、测试与生产构建保持通过。
 
 本阶段确认书架保持环境叙事：三篇文章已有 Catalog 分类与章节导航，再增加分类书架只会形成重复入口。Archive Library 本轮需求到此收口；后续只有新增真实文章或证据时再扩充内容，不以空交互延长地图，也不同时启动 Observatory 与 After Hours。
 

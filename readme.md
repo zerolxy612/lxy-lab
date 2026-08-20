@@ -28,7 +28,7 @@ Current stable release: **v0.5 — complete**. Multi-room and Archive Library wo
 - Tiled-owned spatial data with tested spawn, collision, and station contracts
 - A minimal multi-room registry, session-scoped World Index, and independent Archive Library Phaser scene
 - A preserved Archive Wing art and interaction prototype, currently held outside the Main Lab map while its physical placement is redesigned
-- A semantic Blog catalog and direct article route that remain readable without controlling the character
+- A searchable, filterable Blog catalog with stable article routes and connected record navigation
 - A local-only Author Studio for drafting, previewing, uploading images, publishing, editing, and recoverable deletion
 
 ## Work represented
