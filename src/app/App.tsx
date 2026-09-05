@@ -29,6 +29,7 @@ import {
 import { readWorldSession, recordRoomVisit } from '../ui/worldSessionState'
 import { blogPostBySlug, getBlogSlug } from '../content/blog'
 import { LibraryContent, type LibrarySurface } from '../ui/LibraryContent'
+import { syncPageMetadata } from '../ui/pageMetadata'
 
 function readSessionStorage() {
   try {
@@ -54,7 +55,9 @@ export function App() {
   const [librarySurface, setLibrarySurface] = useState<LibrarySurface>(() => {
     const slug = getBlogSlug(window.location.pathname)
     if (slug && blogPostBySlug[slug]) return { type: 'article', slug, presentation: 'standalone' }
-    return window.location.pathname.startsWith('/blog/') ? { type: 'catalog' } : null
+    return window.location.pathname === '/blog' || window.location.pathname.startsWith('/blog/')
+      ? { type: 'catalog' }
+      : null
   })
   const [nearbyStation, setNearbyStation] = useState<StationId | null>(null)
   const [activeStation, setActiveStation] = useState<StationId | null>(null)
@@ -147,7 +150,7 @@ export function App() {
   }, [])
   const closeLibraryContent = useCallback(() => {
     setLibrarySurface(null)
-    if (window.location.pathname.startsWith('/blog/')) {
+    if (window.location.pathname === '/blog' || window.location.pathname.startsWith('/blog/')) {
       window.history.pushState(null, '', getRoomPath('library'))
     }
   }, [])
@@ -224,7 +227,8 @@ export function App() {
 
   useEffect(() => {
     labBridge.emit('ui:room-content-change', { open: librarySurface !== null })
-  }, [librarySurface])
+    syncPageMetadata(window.location.pathname)
+  }, [currentRoom, librarySurface])
 
   useEffect(() => {
     labBridge.emit('ui:visited-change', { visited: visitedStations })
@@ -308,7 +312,7 @@ export function App() {
         if (currentRoom !== 'library') requestRoom('library', 'content')
         return
       }
-      if (window.location.pathname.startsWith('/blog/')) {
+      if (window.location.pathname === '/blog' || window.location.pathname.startsWith('/blog/')) {
         setLibrarySurface({ type: 'catalog' })
         if (currentRoom !== 'library') requestRoom('library', 'content')
         return

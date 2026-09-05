@@ -21,6 +21,9 @@ describe('room registry', () => {
 
   it('routes blog and library paths into the library scene', () => {
     expect(resolveInitialRoom('/library')).toBe('library')
+    expect(resolveInitialRoom('/library/')).toBe('library')
+    expect(resolveInitialRoom('/blog')).toBe('library')
+    expect(resolveInitialRoom('/blog/')).toBe('library')
     expect(resolveInitialRoom('/blog/why-this-lab-uses-two-runtimes')).toBe('library')
     expect(resolveInitialRoom('/')).toBe('lab')
     expect(getRoomPath('lab')).toBe('/lab')

@@ -1,7 +1,7 @@
 # Xiangyu's AI Lab — Multi-room World Design
 
 最后更新：2026-08-12
-状态：**Phase 1 与 Library 首个正式垂直切片已完成；Main Lab 实体入口退回设计阶段**
+状态：**Phase 1 与 Archive Library 正式垂直切片已完成；A–02 双向转运路线已投入运行**
 
 ## 1. Product Decision
 
@@ -253,7 +253,7 @@ Session World State
 
 ### Phase 2 — Archive Library Vertical Slice
 
-状态：**首个正式切片已完成（2026-08-11）；内容扩充继续进行**
+状态：**正式切片已完成并收口（2026-09-05）；后续只随真实文章扩充**
 
 - 只制作一张阅读桌、一个分类书架和一个 Catalog Terminal。
 - 建立 Blog 内容模型、Blog Index 与一篇完整文章路由。
@@ -273,13 +273,11 @@ Session World State
 
 ## 12. Next Action
 
-Phase 1 与 Library 首个正式垂直切片已经通过：Main Lab 已注册为 `lab`，Room Registry、typed transition protocol、`sessionStorage` world state、World Index、独立 Library 场景、正式背景 / 道具和三篇真实 Blog 文章均已接入。Archive Wing 的左墙位置实验已撤回，Main Lab 恢复原始布局；World Index 与文章直达路径目前承担 Library 访问入口。
+Archive Library 本阶段已经收口：Main Lab 底部出口、A–02 Archive Wing、Library 双向门、World Index 和文章直达路径共同形成完整访问链路；Catalog、Reading Table、Return Slot、混合阅读界面、空间生命感与三篇真实文章均已完成。`/blog`、`/library` 和公开文章具备可刷新静态入口与分享元信息，本地 Author Studio 也覆盖发布前检查和完整单作者管理。
 
-Library 正式美术已接入，实体入口素材与组件已完成但暂不放入运行地图，环境方向记录于 [`archive-library-art-direction.md`](./archive-library-art-direction.md)。仍不同时生产三张完整房间背景：
+下一阶段不再为 Library 增加占位内容或重复入口：
 
-1. Library 的构图、正式背景、Reading Table 与 Catalog Terminal 已按 Tiled 几何收敛；Main Lab Archive Wing 需要先重新确定空间位置，再恢复 Tiled 入口。
-2. 三篇真实文章已经进入 Catalog；下一步审阅摘要节奏、分类密度与首屏扫描体验。
-3. 内容达到 4–5 篇后，再决定是否需要书架分类与 Catalog Index 分组。
-4. Library 视觉与内容验收后，再进入 Observatory 的屋顶垂直切片；After Hours 保持最后制作。
-
-当前切片已经具备正式视觉基线，但仍不是 Library 的完整内容版本；新增元素必须承担发现、阅读或叙事职责。
+1. 新文章由站点作者在本地 Author Studio 写作，经 Publication Gate 检查后随 Git 发布。
+2. 只有真实文章数量和信息结构证明有必要时，才扩充分组、书架或全文检索。
+3. 若继续扩展世界，下一张独立场景按既定顺序进入 Observatory 垂直切片；After Hours 保持最后制作。
+4. 未决定启动新阶段前，以内容维护、可访问性和线上回归为主，不同时生产额外房间美术。

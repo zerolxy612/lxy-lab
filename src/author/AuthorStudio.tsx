@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { AuthorDocument, AuthorPostResponse, AuthorPostSummary, AuthorTrashSummary } from './authorTypes'
+import { getPublicationChecks } from './publicationChecks'
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -207,6 +208,11 @@ export function AuthorStudio() {
 
   const publishedCount = posts.filter(({ draft }) => !draft).length
   const previewSections = useMemo(() => document?.body.match(/^##\s+.+$/gm)?.length ?? 0, [document?.body])
+  const publicationChecks = useMemo(
+    () => document ? getPublicationChecks(document, assets) : [],
+    [assets, document],
+  )
+  const publishingBlocked = Boolean(document && !document.draft && publicationChecks.some(({ status }) => status === 'error'))
 
   return (
     <main className="author-studio">
@@ -282,7 +288,9 @@ export function AuthorStudio() {
               </div>
               <div>
                 <button type="button" className="is-danger" disabled={busy} onClick={deletePost}>Move to trash</button>
-                <button type="button" disabled={busy || !dirty} onClick={savePost}>{busy ? 'Working…' : 'Save changes'}</button>
+                <button type="button" disabled={busy || !dirty || publishingBlocked} onClick={savePost}>
+                  {busy ? 'Working…' : publishingBlocked ? 'Resolve checks' : 'Save changes'}
+                </button>
               </div>
             </header>
 
@@ -304,6 +312,24 @@ export function AuthorStudio() {
                 <small>Publishing writes immediately after Save. Only one public record can be featured.</small>
               </div>
             </div>
+
+            <section className="author-studio__checks" aria-labelledby="publication-checks-title">
+              <header>
+                <div><span>PUBLICATION GATE</span><h3 id="publication-checks-title">Before this record leaves the desk</h3></div>
+                <strong data-ready={!publicationChecks.some(({ status }) => status === 'error')}>
+                  {publicationChecks.filter(({ status }) => status === 'error').length || 'READY'}
+                </strong>
+              </header>
+              <div>
+                {publicationChecks.map((check) => (
+                  <article key={check.id} data-status={check.status}>
+                    <span aria-hidden="true">{check.status === 'pass' ? '✓' : check.status === 'warning' ? '!' : '×'}</span>
+                    <div><strong>{check.label}</strong><small>{check.detail}</small></div>
+                  </article>
+                ))}
+              </div>
+              {document.draft && <p>Drafts may be saved with open checks. Publishing requires every red check to be resolved.</p>}
+            </section>
 
             <div className="author-studio__body">
               <div className="author-studio__markdown">

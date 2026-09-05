@@ -10,7 +10,7 @@ Xiangyu’s AI Lab turns a personal portfolio into a compact explorable world an
 
 This is a focused interactive website, not a full RPG. Atmosphere creates curiosity; readable project details, accessible navigation, and direct contact routes remain the foundation.
 
-Current stable release: **v0.5 — complete**. Multi-room and Archive Library work is currently a **v0.7 formal vertical slice**.
+Current stable release: **v0.5 — complete**. The Archive Library is now a **feature-complete v0.7 vertical slice**; the next optional world expansion is the Observatory.
 
 ## Highlights
 
@@ -30,7 +30,8 @@ Current stable release: **v0.5 — complete**. Multi-room and Archive Library wo
 - A preserved Archive Wing art and interaction prototype, currently held outside the Main Lab map while its physical placement is redesigned
 - A searchable, filterable Blog catalog with stable article routes and connected record navigation
 - A low-frequency Library atmosphere with shelf activity, terminal indexing, and a discoverable old-record Return Slot
-- A local-only Author Studio for drafting, previewing, uploading images, publishing, editing, and recoverable deletion
+- Direct, refresh-safe Library, Catalog, and article entries with per-page search/social metadata and optional sitemap generation
+- A local-only Author Studio for drafting, previewing, uploading images, publishing, editing, recoverable deletion, and pre-publication checks
 
 ## Work represented
 
@@ -71,6 +72,8 @@ npm test
 npm run build
 npm run blog:check
 ```
+
+Set `VITE_SITE_URL` to the final public origin before a production deployment to emit canonical URLs, `og:url`, and `sitemap.xml`. See `.env.example` and the Blog authoring guide.
 
 ## Controls
 

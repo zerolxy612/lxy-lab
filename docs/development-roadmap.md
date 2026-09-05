@@ -408,7 +408,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 ## 9. Current Prototype — v0.7 Multi-room Foundation
 
-状态：**Archive Library 首个正式纵向切片与阅读体验优化已完成**
+状态：**Archive Library 正式纵向切片已收口**
 
 - 增加固定的 `RoomId` / Room Registry，当前可用房间为 Main Lab 与 Archive Library；After Hours 和 Observatory 只在 World Index 中显示为 planned。
 - typed bridge 已覆盖 `room:request`、`room:leaving`、`room:entered`、`room:nearby` 与 `room:error`；房间切换使用短 Phaser camera fade，不重播 Boot、电梯或 Visitor Entry。
@@ -438,8 +438,10 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - Quick Access 已升级为 World Index，桌面与移动端都可以不操控角色直接切换可用房间；计划房间保持不可点击。
 - 建立结构化 Blog 内容模型、语义化 Catalog / Article 阅读层与稳定直达路径；首篇文章为 `/blog/why-this-lab-uses-two-runtimes`。
 - 三篇现有文章已迁移为仓库内 Markdown；本地 `/author` 提供单作者工作台，覆盖草稿、实时预览、图片上传、发布、编辑、精选切换、可恢复删除与回收站恢复。该工具只在本地开发环境出现，不向线上访客暴露管理接口。
+- Author Studio 增加 Publication Gate：公开保存前检查摘要、Core signal、正文层级、图片替代文本、本地图片缺失和闲置素材；存在阻塞项时前端与本地写入接口都会拒绝发布。
+- `/library`、`/blog` 与每篇公开文章现在拥有构建期静态入口，可直接访问与刷新；运行时和静态页面均按路由写入标题、摘要、robots、Open Graph、Twitter 与文章结构化数据。配置 `VITE_SITE_URL` 后同时生成 canonical URL 与 `sitemap.xml`。
 - 文章打开时锁定 Phaser 输入，Escape 与返回按钮恢复 Library；直达文章不播放 Boot 或电梯。
-- 自动验证现为 28 个测试文件、85 项测试，覆盖 Main Lab 基线布局、Archive Wing 桌面 / 紧凑屏路由、Library 内容、Markdown 解析、Catalog 检索与排序、Return Slot 旧记录轮换、唯一推荐记录和响应式阅读；类型检查、Lint、测试与生产构建保持通过。
+- 自动验证现为 31 个测试文件、94 项测试，覆盖 Main Lab 基线布局、Archive Wing 桌面 / 紧凑屏路由、Library 内容、Markdown 解析、Catalog 检索与排序、Return Slot 旧记录轮换、唯一推荐记录、Publication Gate、页面元信息、静态直达入口和响应式阅读；类型检查、Lint、测试与生产构建保持通过。
 
 本阶段确认书架保持环境叙事：三篇文章已有 Catalog 分类与章节导航，再增加分类书架只会形成重复入口。Archive Library 本轮需求到此收口；后续只有新增真实文章或证据时再扩充内容，不以空交互延长地图，也不同时启动 Observatory 与 After Hours。
 
@@ -451,6 +453,11 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - Archive Library 确认为 Blog 空间；Observatory 确认为屋顶未来思考空间；After Hours 保留为放松和个人兴趣空间。
 - Main Lab 表达现在，Library 表达积累，After Hours 表达工作之外，Observatory 表达未来；四个空间不重复职业内容。
 - Room Registry、房间转场协议、会话世界状态、World Index 与 Library 正式美术切片已完成；Main Lab 实体入口退回设计阶段，现有素材保留但不占用运行地图。下一步先确定入口的空间逻辑，不直接生成另外两个房间。
+
+### 2026-09-05
+
+- Archive Library 以 Catalog、混合阅读桌、空间生命感、A–02 双向走廊、单作者工作台、发布检查和可分享静态文章路由完成本阶段收口。
+- Library 后续只随真实文章与证据增长，不继续添加空交互；下一个独立产品阶段为 Observatory，是否启动由新的内容目标决定。
 
 ### 2026-07-28
 

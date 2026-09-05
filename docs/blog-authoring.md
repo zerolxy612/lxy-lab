@@ -21,9 +21,9 @@ npm run dev
 3. 在 Markdown 区写正文。每篇文章至少包含一个二级标题，例如 `## The decision`。
 4. 对照右侧实时预览检查标题层级、列表、引用、链接和图片。
 5. 上传 PNG、JPEG、WebP 或 GIF。工作台会把图片保存到文章专属目录，并在正文末尾插入 Markdown；请把 `Describe this image` 改成有意义的替代文本。
-6. 写作期间保持 Draft，随时保存。准备公开时勾选 Published，再保存一次。
+6. 写作期间保持 Draft，随时保存。准备公开时勾选 Published，并让 Publication Gate 中的阻塞项全部通过后再保存。摘要、Core signal、正文结构、图片替代文本和本地图片引用都会在这里检查。
 7. 如需把文章放到 Reading Table，勾选 Featured reading。系统会自动取消上一篇精选；所有公开文章中必须恰好有一篇精选。
-8. 打开 Library 和文章直达页做最终检查，然后运行 `npm run blog:check`。
+8. 打开 Library、`/blog` Catalog 和文章直达页做最终检查，然后运行 `npm run blog:check`。
 9. 查看 Git 变更并提交。部署仍沿用项目现有的 Git 发布流程。
 
 ## 编辑、删除与恢复
@@ -44,5 +44,17 @@ npm run dev
 - 标题最多 120 个字符，摘要最多 240 个字符，Core signal 最多 90 个字符。
 - 单张图片不超过 8 MB；不要上传私密资料、客户数据或未获授权的素材。
 - Draft 不会出现在公开 Catalog，也不会进入生产文章数据。
+
+## 发布与链接
+
+生产构建会为 `/library`、`/blog` 和每篇公开文章生成可直接打开、刷新与分享的静态入口，并为文章写入标题、摘要、社交分享卡片信息和结构化数据。草稿不会生成公开入口。
+
+正式部署前，在本地环境文件中设置最终站点地址：
+
+```bash
+VITE_SITE_URL=https://your-domain.example
+```
+
+设置后构建会补全 canonical URL、`og:url` 和 `sitemap.xml`。域名未确定时可以留空，不会生成错误的公开地址。
 
 若工作台暂时不可用，也可以直接编辑 Markdown 文件；保存后本地页面会自动刷新，数据契约仍由 `npm run blog:check` 验证。

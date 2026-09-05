@@ -3,6 +3,7 @@ import path from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Plugin } from 'vite'
 import type { AuthorDocument, AuthorPostSummary, AuthorTrashSummary } from './src/author/authorTypes'
+import { getBlockingPublicationChecks } from './src/author/publicationChecks'
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const assetPattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:png|jpe?g|webp|gif)$/i
@@ -260,6 +261,15 @@ export function authorStudioPlugin(): Plugin {
           if (request.method === 'PUT' && parts.length === 3) {
             const candidate = validateDocument(await readBody(request))
             if (candidate.slug !== slug) throw new Error('Changing a slug after creation is not supported.')
+            const assetDirectory = path.join(assetRoot, slug)
+            const assets = (await readdir(assetDirectory).catch(() => []))
+              .filter((name) => assetPattern.test(name))
+            if (!candidate.draft) {
+              const blockingChecks = getBlockingPublicationChecks(candidate, assets)
+              if (blockingChecks.length > 0) {
+                throw new Error(`Publishing checks failed: ${blockingChecks.map(({ label }) => label).join(', ')}.`)
+              }
+            }
             const documents = await readAll()
             let nextDocuments = documents.map((document) => document.slug === slug ? candidate : document)
             if (candidate.featured && !candidate.draft) {

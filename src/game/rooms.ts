@@ -61,7 +61,8 @@ export function isAvailableRoom(roomId: RoomId): roomId is AvailableRoomId {
 }
 
 export function resolveInitialRoom(pathname: string): AvailableRoomId {
-  if (pathname === '/library' || pathname.startsWith('/blog/')) return 'library'
+  const normalizedPath = pathname !== '/' ? pathname.replace(/\/+$/, '') : '/'
+  if (normalizedPath === '/library' || normalizedPath === '/blog' || normalizedPath.startsWith('/blog/')) return 'library'
   return 'lab'
 }
 
