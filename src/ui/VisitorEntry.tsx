@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { contactLinks } from '../content/contact'
 import { experienceTimeline } from '../content/experience'
+import { education, independentBuild, researchSignals } from '../content/personal'
 import { profile } from '../content/profile'
 import { selectedProjects } from '../content/projects'
 
@@ -155,8 +156,9 @@ export function VisitorEntry({ view, onOpenBriefing, onExplore }: VisitorEntryPr
           <nav>
             <a href="#brief-about">01 About</a>
             <a href="#brief-work">02 Work</a>
-            <a href="#brief-cv">03 CV</a>
-            <a href="#brief-contact">04 Contact</a>
+            <a href="#brief-personal">03 Beyond CV</a>
+            <a href="#brief-cv">04 CV</a>
+            <a href="#brief-contact">05 Contact</a>
           </nav>
           <i>PUBLIC RECORD</i>
         </aside>
@@ -172,6 +174,7 @@ export function VisitorEntry({ view, onOpenBriefing, onExplore }: VisitorEntryPr
             <h2 id="visitor-briefing-title">{profile.name}</h2>
             <strong>{profile.introduction}</strong>
             <p>{profile.currentFocus}</p>
+            <blockquote>{profile.pointOfView}</blockquote>
             <ul aria-label="Core capabilities">
               {profile.capabilities.map((capability) => <li key={capability}>{capability}</li>)}
             </ul>
@@ -191,8 +194,29 @@ export function VisitorEntry({ view, onOpenBriefing, onExplore }: VisitorEntryPr
             </div>
           </section>
 
+          <section id="brief-personal" className="visitor-briefing__section visitor-briefing__personal">
+            <header><span>03</span><h3>Beyond the company brief</h3></header>
+            <div className="visitor-briefing__independent">
+              <span>{independentBuild.index} / {independentBuild.label}</span>
+              <h4>{independentBuild.title}</h4>
+              <p>{independentBuild.summary}</p>
+              <strong>{independentBuild.signals[0]}</strong>
+            </div>
+            <div className="visitor-briefing__research">
+              {researchSignals.map((signal) => (
+                <article key={signal.index}>
+                  <span>{signal.index}</span>
+                  <div>
+                    <h4>{signal.title}</h4>
+                    <p>{signal.context}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section id="brief-cv" className="visitor-briefing__section">
-            <header><span>03</span><h3>CV snapshot</h3></header>
+            <header><span>04</span><h3>CV snapshot</h3></header>
             <div className="visitor-briefing__timeline">
               {experienceTimeline.map((entry) => (
                 <article key={`${entry.period}-${entry.organization}`}>
@@ -204,11 +228,19 @@ export function VisitorEntry({ view, onOpenBriefing, onExplore }: VisitorEntryPr
                   </div>
                 </article>
               ))}
+              <article>
+                <span>{education.period}</span>
+                <div>
+                  <h4>{education.institution}</h4>
+                  <strong>{education.degree}</strong>
+                  <p>{education.detail}</p>
+                </div>
+              </article>
             </div>
           </section>
 
           <section id="brief-contact" className="visitor-briefing__section visitor-briefing__contact">
-            <header><span>04</span><h3>Open a channel</h3></header>
+            <header><span>05</span><h3>Open a channel</h3></header>
             <div>
               {contactLinks.map((link) => (
                 <a

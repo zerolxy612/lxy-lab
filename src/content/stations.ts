@@ -70,11 +70,11 @@ export const stations: readonly StationContent[] = [
     accent: '#ff7867',
     title: 'Future Gate',
     eyebrow: 'In progress',
-    summary: 'Open questions, current experiments, and directions still taking shape.',
+    summary: 'Independent work, research signals, and questions that do not fit inside a conventional résumé.',
     details: [
       'AI-native applications and agent systems.',
       'Research translated into products people can actually use.',
-      'A full résumé will join the public release; direct contact is already open.',
+      'A public résumé record can stay factual while this room remains personal.',
     ],
   },
 ]

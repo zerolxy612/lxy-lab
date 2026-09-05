@@ -3,6 +3,7 @@ import type { CSSProperties, RefObject } from 'react'
 import type { StationId } from '../content/stations'
 import { stationById } from '../content/stations'
 import { ExperienceArchive } from './ExperienceArchive'
+import { FutureNotebook } from './FutureNotebook'
 import { LabCompanion } from './LabCompanion'
 import { SelectedWork } from './SelectedWork'
 import { restoreFocus } from './focusReturn'
@@ -100,6 +101,8 @@ export function PanelHost({
         <ExperienceArchive />
       ) : stationId === 'projects' ? (
         <SelectedWork />
+      ) : stationId === 'future' ? (
+        <FutureNotebook />
       ) : (
         <ul>
           {station.details.map((detail) => <li key={detail}>{detail}</li>)}

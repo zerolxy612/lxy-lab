@@ -458,6 +458,8 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 - Archive Library 以 Catalog、混合阅读桌、空间生命感、A–02 双向走廊、单作者工作台、发布检查和可分享静态文章路由完成本阶段收口。
 - Library 后续只随真实文章与证据增长，不继续添加空交互；下一个独立产品阶段为 Observatory，是否启动由新的内容目标决定。
+- Main Lab 开始个人内容升级：公司经历只承担可验证事实，网站不复制简历条目；Future Gate 转为个人工作台，承载独立制作的 AI Lab、当前工程问题与科研信号。
+- Quick Briefing 增加 `Beyond the company brief`，并修正 HKGAI、Tencent 与教育时间线。完整职责、技能清单和手机号码不进入主叙事；公开 Resume 下载需等待独立的公开安全导出文件。
 
 ### 2026-07-28
 

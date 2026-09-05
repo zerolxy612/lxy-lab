@@ -24,10 +24,11 @@ Current stable release: **v0.5 — complete**. The Archive Library is now a **fe
 - Loading-driven cinematic desktop boot sequence with skip and reduced-motion support
 - A five-second B1–B7 cyberpunk elevator arrival, with Xiangyu visibly riding into the lab
 - A session-aware visitor entry that branches into a 90-second professional briefing or free lab exploration
+- A layered personal narrative that separates verified company work from independent building, research signals, and open engineering questions
 - Game-style ROOK and MIRA encounters with ambient barks, progressive dialogue, repeat reactions, and mobile adaptation
 - Tiled-owned spatial data with tested spawn, collision, and station contracts
 - A minimal multi-room registry, session-scoped World Index, and independent Archive Library Phaser scene
-- A preserved Archive Wing art and interaction prototype, currently held outside the Main Lab map while its physical placement is redesigned
+- A bidirectional A–02 Archive Wing connecting the Main Lab and Archive Library without crowding either room
 - A searchable, filterable Blog catalog with stable article routes and connected record navigation
 - A low-frequency Library atmosphere with shelf activity, terminal indexing, and a discoverable old-record Return Slot
 - Direct, refresh-safe Library, Catalog, and article entries with per-page search/social metadata and optional sitemap generation
@@ -41,6 +42,8 @@ The public Selected Work area currently references two professional directions:
 - An anonymized government-facing Legal AI application focused on streaming responses, citations, document workflows, and production frontend infrastructure
 
 Sensitive project names, client identities, internal documents, data, and private interfaces are intentionally excluded.
+
+The Future Gate carries what a conventional résumé cannot: the AI Lab as an independent product, current questions about agent progress and evidence, and public research signals. The 90-second briefing keeps a concise CV snapshot, while deeper stations explain judgment and process.
 
 ## Technology
 

@@ -8,31 +8,31 @@ export interface ExperienceEntry {
 
 export const experienceTimeline: readonly ExperienceEntry[] = [
   {
-    period: '2025 — Present',
+    period: '2025.06 — Present',
     organization: 'HKGAI · HKUST-affiliated',
-    role: 'AI Application Engineering',
-    context: 'Leading the frontend of government-facing Legal AI experiences from interaction foundations to production workflows.',
+    role: 'Frontend Owner · AI Application Engineering',
+    context: 'Owning the frontend delivery of government-facing Legal AI products, from product and technical review through production troubleshooting.',
     focus: [
-      'Streaming answers and source citations',
-      'Document generation and multi-step workflows',
-      'Reusable frontend foundations',
+      'Streaming, citations, tool calls, and long-running agent state',
+      'Legal documents, research workflows, and complex visualisation',
+      'CI/CD, containers, security policy, and private deployment',
     ],
   },
   {
-    period: '2024',
-    organization: 'Tencent IEG',
-    role: 'Interactive Web Experience',
-    context: 'Building a TON-ecosystem Web3 game where React interfaces and Phaser systems move as one product.',
+    period: '2024.07 — 2025.05',
+    organization: 'Tencent IEG · Shenzhen',
+    role: 'Frontend Development Intern',
+    context: 'Building Web3 games and interactive products across React interfaces, Phaser worlds, Three.js scenes, and TON ecosystem integrations.',
     focus: [
       'React-to-Phaser event bridge',
-      'Asset loading and fast entry',
-      'Reusable UI systems',
+      'Asset loading, caching, and rendering performance',
+      'Wallet connection and reusable product foundations',
     ],
   },
 ]
 
 export const experiencePrinciples = [
   'Start from the product problem, not the technology label.',
-  'Make system behavior legible to the people using it.',
-  'Treat frontend quality and AI architecture as one product experience.',
+  'Give progress, evidence, and failure states an interface people can understand.',
+  'Treat frontend quality, AI architecture, and delivery constraints as one product system.',
 ] as const

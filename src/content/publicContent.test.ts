@@ -3,6 +3,7 @@ import { companionPrompts } from './companion'
 import { contactLinks } from './contact'
 import { selectedProjects } from './projects'
 import { npcs, selectNpcOpening } from './npcs'
+import { currentQuestions, independentBuild, researchSignals } from './personal'
 
 describe('public portfolio content', () => {
   it('keeps Selected Work focused on approved anonymous project identities', () => {
@@ -25,6 +26,13 @@ describe('public portfolio content', () => {
     expect(selectedProjects.find(({ id }) => id === 'government-legal-ai')?.publicBoundary).toContain(
       'Project name, client identity, data, documents, and internal interfaces are not public.',
     )
+  })
+
+  it('keeps independent work and research distinct from company projects', () => {
+    expect(independentBuild.title).toBe('Xiangyu’s AI Lab')
+    expect(independentBuild.label).toContain('Independent product')
+    expect(currentQuestions).toHaveLength(3)
+    expect(researchSignals.map(({ index }) => index)).toEqual(['R01', 'R02'])
   })
 
   it('routes each Companion question to a distinct real station', () => {
