@@ -30,6 +30,8 @@ import { readWorldSession, recordRoomVisit } from '../ui/worldSessionState'
 import { blogPostBySlug, getBlogSlug } from '../content/blog'
 import { LibraryContent, type LibrarySurface } from '../ui/LibraryContent'
 import { syncPageMetadata } from '../ui/pageMetadata'
+import { PipelineRecovery } from '../ui/PipelineRecovery'
+import type { LabActivityId } from '../game/activities'
 
 function readSessionStorage() {
   try {
@@ -72,9 +74,13 @@ export function App() {
   const [gameFailed, setGameFailed] = useState(false)
   const [visitorEntryView, setVisitorEntryView] = useState<VisitorEntryView>('closed')
   const [quickAccessOpen, setQuickAccessOpen] = useState(false)
+  const [nearbyActivity, setNearbyActivity] = useState<LabActivityId | null>(null)
+  const [activityLabel, setActivityLabel] = useState<string | null>(null)
+  const [activeActivity, setActiveActivity] = useState<LabActivityId | null>(null)
   const labChromeVisible = (gameReady || gameFailed)
     && visitorEntryView === 'closed'
     && librarySurface === null
+    && activeActivity === null
     && !roomTransit
   const visitedStationSet = useMemo(() => new Set(visitedStations), [visitedStations])
   const visitedRoomSet = useMemo(() => new Set(visitedRooms), [visitedRooms])
@@ -90,6 +96,7 @@ export function App() {
     setActiveBark(null)
     setDialogueAnchor(null)
     setLibrarySurface(null)
+    setActiveActivity(null)
     if (roomId === currentRoom) return
     labBridge.emit('room:request', { roomId, source })
   }, [currentRoom])
@@ -123,6 +130,7 @@ export function App() {
     setActiveNpc(null)
     setActiveBark(null)
     setDialogueAnchor(null)
+    setActiveActivity(null)
     setVisitorEntryView('briefing')
   }, [])
   const exploreLab = useCallback(() => {
@@ -154,6 +162,14 @@ export function App() {
       window.history.pushState(null, '', getRoomPath('library'))
     }
   }, [])
+  const openActivity = useCallback((activityId: LabActivityId) => {
+    setActiveStation(null)
+    setActiveNpc(null)
+    setActiveBark(null)
+    setDialogueAnchor(null)
+    setActiveActivity(activityId)
+  }, [])
+  const closeActivity = useCallback(() => setActiveActivity(null), [])
 
   useEffect(() => {
     const removeNearbyListener = labBridge.on(
@@ -191,6 +207,17 @@ export function App() {
       'player:first-move',
       () => setHasMoved(true),
     )
+    const removeActivityNearbyListener = labBridge.on(
+      'activity:nearby',
+      ({ activityId, label }) => {
+        setNearbyActivity(activityId)
+        setActivityLabel(label)
+      },
+    )
+    const removeActivityActivateListener = labBridge.on(
+      'activity:activate',
+      ({ activityId }) => openActivity(activityId),
+    )
 
     return () => {
       removeNearbyListener()
@@ -198,8 +225,10 @@ export function App() {
       removeNpcNearbyListener()
       removeNpcActivateListener()
       removeFirstMoveListener()
+      removeActivityNearbyListener()
+      removeActivityActivateListener()
     }
-  }, [openNpc, openStation])
+  }, [openActivity, openNpc, openStation])
 
   useEffect(() => {
     labBridge.emit('ui:panel-change', {
@@ -224,6 +253,10 @@ export function App() {
   useEffect(() => {
     labBridge.emit('ui:index-change', { open: quickAccessOpen })
   }, [quickAccessOpen])
+
+  useEffect(() => {
+    labBridge.emit('ui:minigame-change', { open: activeActivity !== null })
+  }, [activeActivity])
 
   useEffect(() => {
     labBridge.emit('ui:room-content-change', { open: librarySurface !== null })
@@ -371,6 +404,8 @@ export function App() {
             npcId={nearbyNpc}
             visited={nearbyStation ? visitedStationSet.has(nearbyStation) : false}
             roomTargetLabel={roomTargetLabel}
+            activityId={nearbyActivity}
+            activityLabel={activityLabel}
           />
         )}
         <section className="mobile-guide" aria-label="Mobile archive guide">
@@ -393,6 +428,7 @@ export function App() {
         onNavigate={openStation}
         onOpenNpc={requestNpc}
         onEnterRoom={(roomId) => requestRoom(roomId, 'content')}
+        onStartActivity={openActivity}
       />
       {activeBark && !activeNpc && !activeStation && (
         <NpcBark key={activeBark.id} bark={activeBark} />
@@ -412,6 +448,9 @@ export function App() {
         onClose={closeLibraryContent}
         onOpenArticle={openArticle}
       />
+      {activeActivity === 'pipeline-recovery' && (
+        <PipelineRecovery onClose={closeActivity} />
+      )}
     </main>
   )
 }

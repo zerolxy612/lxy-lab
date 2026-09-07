@@ -2,6 +2,7 @@ import type { StationId } from '../content/stations'
 import type { NpcId } from '../content/npcs'
 import type { GameLoadingPhase } from './gameLoading'
 import type { AvailableRoomId } from './rooms'
+import type { LabActivityId } from './activities'
 
 export interface NpcDialogueAnchor {
   x: number
@@ -16,6 +17,8 @@ interface LabEventMap {
   'player:first-move': { input: 'keyboard' }
   'station:nearby': { stationId: StationId | null }
   'station:activate': { stationId: StationId }
+  'activity:nearby': { activityId: LabActivityId | null; label: string | null }
+  'activity:activate': { activityId: LabActivityId }
   'npc:nearby': { npcId: NpcId | null; anchor: NpcDialogueAnchor | null }
   'npc:activate': { npcId: NpcId; anchor: NpcDialogueAnchor }
   'ui:npc-request': { npcId: NpcId }
@@ -33,6 +36,7 @@ interface LabEventMap {
   'room:error': { roomId: AvailableRoomId; message: string }
   'library:open': { surface: 'catalog' | 'article'; slug?: string }
   'ui:room-content-change': { open: boolean }
+  'ui:minigame-change': { open: boolean }
 }
 
 type Listener<K extends keyof LabEventMap> = (payload: LabEventMap[K]) => void

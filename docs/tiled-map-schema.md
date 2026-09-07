@@ -2,7 +2,7 @@
 
 最后更新：2026-08-12
 
-运行时地图位于 `public/assets/game/maps/lab-v1.tmj`。它是 Main Lab 站点、碰撞与初始出生点的唯一来源；不要在 `LabScene.ts` 或 `labLayout.ts` 中复制这些坐标。
+运行时地图位于 `public/assets/game/maps/lab-v1.tmj`。它是 Main Lab 站点、实验活动、碰撞与初始出生点的唯一来源；不要在 `LabScene.ts` 或 `labLayout.ts` 中复制这些坐标。
 
 ## Map Contract
 
@@ -14,7 +14,7 @@
 | Schema property | `schemaVersion = 1` |
 | Runtime URL | `/assets/game/maps/lab-v1.tmj` |
 
-当前地图同时包含生产对象层和首版视觉 tile layers。v0.5 起，`lab-room-background-v1.png` 负责运行时建筑、地板与香港窗景；Tiled 继续作为出生点、碰撞、障碍物、五个站点、NPC 固定点与巡逻路线的唯一空间数据来源。
+当前地图同时包含生产对象层和首版视觉 tile layers。v0.5 起，`lab-room-background-v1.png` 负责运行时建筑、地板与香港窗景；Tiled 继续作为出生点、碰撞、障碍物、五个站点、可选实验活动、NPC 固定点与巡逻路线的唯一空间数据来源。
 
 ## Visual Tile Layers
 
@@ -74,6 +74,10 @@ future
 | `movement` | string | `patrol` 或 `stationary` |
 | `interactionPadding` | int | sprite 外扩后的对话触发范围 |
 
+### `Activities`
+
+Main Lab 中不承载职业资料、也不计入五站访问进度的短玩法放在本层。当前只允许 `pipeline-recovery`：矩形覆盖右上角 RAG 机架，并提供非空 `label` 与 `interactionPadding`。活动使用同一套距离优先交互协议，但通过独立 bridge event 打开，不伪装成内容站点。
+
 ### `NpcRoutes`
 
 巡逻点使用 Point 对象；`npcId` 指向 NPC，`order` 为路线顺序。`patrol` 至少需要两个点，`stationary` 不得拥有路线。ROOK 当前使用 Living AI Core 右侧地板上的五点闭环，MIRA 没有路线。NPC 不使用 Arcade Physics 推挤，因此解析器会拒绝任何落在静态或站点碰撞块中的锚点与路线点。
@@ -94,9 +98,10 @@ future
 `src/game/layout/labLayout.ts` 在场景创建前解析地图，并拒绝以下情况：
 
 - schema version 或 16 px tile size 不匹配；
-- 缺少 `World`、`Collision`、`Stations`、`NPCs` 或 `NpcRoutes`；
+- 缺少 `World`、`Collision`、`Stations`、`Activities`、`NPCs` 或 `NpcRoutes`；
 - 缺少出生点、世界边界或任一内容站点；
 - 未知或重复的 `StationId`；
+- 未知、重复或缺失的实验活动；
 - 站点缺少独立碰撞；
 - 无效颜色、坐标或非正数矩形尺寸。
 - 未知 / 重复 NPC、无效移动模式、巡逻点不足或固定 NPC 错配路线。

@@ -5,6 +5,7 @@ import { labBridge } from '../bridge'
 import type { NpcDialogueAnchor } from '../bridge'
 import type { Player } from '../entities/Player'
 import type { AvailableRoomId } from '../rooms'
+import type { LabActivityId } from '../activities'
 
 export interface InteractiveStation {
   id: StationId
@@ -23,10 +24,17 @@ export interface InteractiveRoomRoute {
   zone: Phaser.GameObjects.Zone
 }
 
+export interface InteractiveActivity {
+  id: LabActivityId
+  label: string
+  zone: Phaser.GameObjects.Zone
+}
+
 type NearbyTarget =
   | { kind: 'station'; id: StationId }
   | { kind: 'npc'; id: NpcId }
   | { kind: 'room'; id: AvailableRoomId }
+  | { kind: 'activity'; id: LabActivityId }
 
 export class InteractionSystem {
   private nearbyTarget: NearbyTarget | null = null
@@ -38,6 +46,7 @@ export class InteractionSystem {
     private readonly stations: readonly InteractiveStation[],
     private readonly npcs: readonly InteractiveNpc[],
     private readonly roomRoutes: readonly InteractiveRoomRoute[] = [],
+    private readonly activities: readonly InteractiveActivity[] = [],
     private readonly roomId: AvailableRoomId = 'lab',
   ) {
     this.interactKeys = [
@@ -63,6 +72,13 @@ export class InteractionSystem {
           ? this.npcs.find(({ id }) => id === nextTarget.id)?.getDialogueAnchor() ?? null
           : null,
       })
+      const activity = nextTarget?.kind === 'activity'
+        ? this.activities.find(({ id }) => id === nextTarget.id)
+        : undefined
+      labBridge.emit('activity:nearby', {
+        activityId: activity?.id ?? null,
+        label: activity?.label ?? null,
+      })
       const roomRoute = nextTarget?.kind === 'room'
         ? this.roomRoutes.find(({ id }) => id === nextTarget.id)
         : undefined
@@ -87,8 +103,10 @@ export class InteractionSystem {
             anchor: npc.getDialogueAnchor(),
           })
         }
-      } else {
+      } else if (nextTarget.kind === 'room') {
         labBridge.emit('room:request', { roomId: nextTarget.id, source: 'world' })
+      } else {
+        labBridge.emit('activity:activate', { activityId: nextTarget.id })
       }
     }
   }
@@ -107,6 +125,10 @@ export class InteractionSystem {
       })),
       ...this.roomRoutes.map(({ id, zone }) => ({
         target: { kind: 'room' as const, id },
+        zone,
+      })),
+      ...this.activities.map(({ id, zone }) => ({
+        target: { kind: 'activity' as const, id },
         zone,
       })),
     ].filter(({ zone }) =>

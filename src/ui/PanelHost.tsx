@@ -9,6 +9,7 @@ import { SelectedWork } from './SelectedWork'
 import { restoreFocus } from './focusReturn'
 import type { NpcId } from '../content/npcs'
 import type { AvailableRoomId } from '../game/rooms'
+import type { LabActivityId } from '../game/activities'
 
 interface PanelHostProps {
   stationId: StationId | null
@@ -17,6 +18,7 @@ interface PanelHostProps {
   onNavigate: (stationId: StationId) => void
   onOpenNpc: (npcId: NpcId) => void
   onEnterRoom: (roomId: AvailableRoomId) => void
+  onStartActivity: (activityId: LabActivityId) => void
 }
 
 export function PanelHost({
@@ -26,6 +28,7 @@ export function PanelHost({
   onNavigate,
   onOpenNpc,
   onEnterRoom,
+  onStartActivity,
 }: PanelHostProps) {
   const panel = useRef<HTMLElement>(null)
   const closeButton = useRef<HTMLButtonElement>(null)
@@ -116,6 +119,16 @@ export function PanelHost({
         >
           <span>Character channel</span>
           Talk to {stationId === 'systems' ? 'ROOK' : 'MIRA'} <i aria-hidden="true">→</i>
+        </button>
+      )}
+      {stationId === 'systems' && (
+        <button
+          type="button"
+          className="activity-launch-link"
+          onClick={() => onStartActivity('pipeline-recovery')}
+        >
+          <span>Maintenance drill / optional</span>
+          Run Pipeline Recovery <i aria-hidden="true">→</i>
         </button>
       )}
       {stationId === 'experience' && (

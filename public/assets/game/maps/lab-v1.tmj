@@ -513,10 +513,36 @@
       "visible": true,
       "x": 0,
       "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 9,
+      "name": "Activities",
+      "objects": [
+        {
+          "height": 74,
+          "id": 26,
+          "name": "pipeline-recovery",
+          "properties": [
+            { "name": "label", "type": "string", "value": "Run Pipeline Recovery" },
+            { "name": "interactionPadding", "type": "int", "value": 30 }
+          ],
+          "type": "activity",
+          "visible": true,
+          "width": 158,
+          "x": 723,
+          "y": 130
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
     }
   ],
-  "nextlayerid": 9,
-  "nextobjectid": 26,
+  "nextlayerid": 10,
+  "nextobjectid": 27,
   "orientation": "orthogonal",
   "properties": [
     {

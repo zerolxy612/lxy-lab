@@ -441,7 +441,7 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - Author Studio 增加 Publication Gate：公开保存前检查摘要、Core signal、正文层级、图片替代文本、本地图片缺失和闲置素材；存在阻塞项时前端与本地写入接口都会拒绝发布。
 - `/library`、`/blog` 与每篇公开文章现在拥有构建期静态入口，可直接访问与刷新；运行时和静态页面均按路由写入标题、摘要、robots、Open Graph、Twitter 与文章结构化数据。配置 `VITE_SITE_URL` 后同时生成 canonical URL 与 `sitemap.xml`。
 - 文章打开时锁定 Phaser 输入，Escape 与返回按钮恢复 Library；直达文章不播放 Boot 或电梯。
-- 自动验证现为 31 个测试文件、94 项测试，覆盖 Main Lab 基线布局、Archive Wing 桌面 / 紧凑屏路由、Library 内容、Markdown 解析、Catalog 检索与排序、Return Slot 旧记录轮换、唯一推荐记录、Publication Gate、页面元信息、静态直达入口和响应式阅读；类型检查、Lint、测试与生产构建保持通过。
+- 自动验证现为 32 个测试文件、100 项测试，覆盖 Main Lab 基线布局、Pipeline Recovery 规则与本地记录、Archive Wing 桌面 / 紧凑屏路由、Library 内容、Markdown 解析、Catalog 检索与排序、Return Slot 旧记录轮换、唯一推荐记录、Publication Gate、页面元信息、静态直达入口和响应式阅读；类型检查、Lint、测试与生产构建保持通过。
 
 本阶段确认书架保持环境叙事：三篇文章已有 Catalog 分类与章节导航，再增加分类书架只会形成重复入口。Archive Library 本轮需求到此收口；后续只有新增真实文章或证据时再扩充内容，不以空交互延长地图，也不同时启动 Observatory 与 After Hours。
 
@@ -458,6 +458,13 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 
 - Archive Library 以 Catalog、混合阅读桌、空间生命感、A–02 双向走廊、单作者工作台、发布检查和可分享静态文章路由完成本阶段收口。
 - Library 后续只随真实文章与证据增长，不继续添加空交互；下一个独立产品阶段为 Observatory，是否启动由新的内容目标决定。
+
+### 2026-09-07 — Main Lab Pipeline Recovery
+
+- 右上角 RAG 机架从纯环境装饰升级为可选的 `Pipeline Recovery` 实验活动；它不计入五个正式职业站点，也不影响 Quick Access 的资料路径。
+- 一局包含 12 个可识别事件包，玩家在 45 秒内把 DOC、TOOL、TXT 与 ERR 分别送往 Evidence、Tool Bus、Response 和 Quarantine；符号与文字承担主要识别，颜色只作为辅助。
+- 计分、稳定度、连击、准确率和本地最佳记录由独立纯 TypeScript 规则层负责；React 提供语义化操作、数字键、触控、Escape、焦点循环与结算，Phaser 继续负责地图靠近和点击入口。
+- Living AI Core 面板提供移动端等价入口；小游戏始终可退出、不解锁职业内容、不建立货币、任务或升级系统。
 - Main Lab 开始个人内容升级：公司经历只承担可验证事实，网站不复制简历条目；Future Gate 转为个人工作台，承载独立制作的 AI Lab、当前工程问题与科研信号。
 - Quick Briefing 增加 `Beyond the company brief`，并修正 HKGAI、Tencent 与教育时间线。完整职责、技能清单和手机号码不进入主叙事；公开 Resume 下载需等待独立的公开安全导出文件。
 

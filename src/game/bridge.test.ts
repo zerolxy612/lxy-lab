@@ -90,4 +90,24 @@ describe('LabBridge', () => {
     expect(request).toHaveBeenCalledWith({ roomId: 'library', source: 'index' })
     expect(entered).toHaveBeenCalledWith({ roomId: 'library', from: 'lab' })
   })
+
+  it('carries an optional lab activity without adding a content station', () => {
+    const bridge = new LabBridge()
+    const nearby = vi.fn()
+    const activate = vi.fn()
+    bridge.on('activity:nearby', nearby)
+    bridge.on('activity:activate', activate)
+
+    bridge.emit('activity:nearby', {
+      activityId: 'pipeline-recovery',
+      label: 'Run Pipeline Recovery',
+    })
+    bridge.emit('activity:activate', { activityId: 'pipeline-recovery' })
+
+    expect(nearby).toHaveBeenCalledWith({
+      activityId: 'pipeline-recovery',
+      label: 'Run Pipeline Recovery',
+    })
+    expect(activate).toHaveBeenCalledWith({ activityId: 'pipeline-recovery' })
+  })
 })

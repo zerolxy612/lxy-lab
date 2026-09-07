@@ -1,6 +1,7 @@
 import { stations, type StationId } from '../../content/stations'
 import { npcs, type NpcId } from '../../content/npcs'
 import { rooms, type AvailableRoomId } from '../rooms'
+import { labActivities, type LabActivityId } from '../activities'
 
 export const LAB_MAP_KEY = 'lab-map-v1'
 export const LAB_MAP_URL = '/assets/game/maps/lab-v1.tmj'
@@ -27,6 +28,12 @@ export interface StaticObstacleLayout extends RectangleLayout {
   id: string
 }
 
+export interface ActivityLayout extends RectangleLayout {
+  id: LabActivityId
+  label: string
+  interactionPadding: number
+}
+
 export interface NpcLayout {
   id: NpcId
   x: number
@@ -51,6 +58,7 @@ export interface LabLayout {
   playerSpawn: Readonly<{ x: number; y: number }>
   staticObstacles: readonly StaticObstacleLayout[]
   stations: readonly StationLayout[]
+  activities: readonly ActivityLayout[]
   npcs: readonly NpcLayout[]
   roomRoutes: readonly RoomRouteLayout[]
 }
@@ -87,6 +95,7 @@ interface TiledMap {
 
 const stationIds = new Set<StationId>(stations.map(({ id }) => id))
 const npcIds = new Set<NpcId>(npcs.map(({ id }) => id))
+const activityIds = new Set<LabActivityId>(labActivities.map(({ id }) => id))
 const availableRoomIds = new Set<string>(
   rooms.filter(({ status }) => status === 'available').map(({ id }) => id),
 )
@@ -223,6 +232,14 @@ const toNpcId = (value: unknown, label: string): NpcId => {
   return id as NpcId
 }
 
+const toActivityId = (value: unknown, label: string): LabActivityId => {
+  const id = assertString(value, label)
+  if (!activityIds.has(id as LabActivityId)) {
+    throw new Error(`Invalid Tiled map: unknown activity id "${id}"`)
+  }
+  return id as LabActivityId
+}
+
 const toRoomId = (value: unknown, label: string): AvailableRoomId => {
   const id = assertString(value, label)
   if (id === 'lab' || !availableRoomIds.has(id)) {
@@ -270,6 +287,7 @@ export function parseLabMap(source: unknown): LabLayout {
   const worldLayer = requireLayer(map, 'World')
   const collisionLayer = requireLayer(map, 'Collision')
   const stationLayer = requireLayer(map, 'Stations')
+  const activityLayer = requireLayer(map, 'Activities')
   const npcLayer = requireLayer(map, 'NPCs')
   const npcRouteLayer = requireLayer(map, 'NpcRoutes')
   const roomRouteLayer = map.layers.find(({ name }) => name === 'RoomRoutes')
@@ -357,6 +375,31 @@ export function parseLabMap(source: unknown): LabLayout {
       .map(({ id }) => id)
       .filter((id) => !parsedStationIds.has(id))
     throw new Error(`Invalid Tiled map: missing stations ${missing.join(', ')}`)
+  }
+
+  const parsedActivityIds = new Set<LabActivityId>()
+  const parsedActivities = activityLayer.objects.map((object): ActivityLayout => {
+    const id = toActivityId(object.name, `${object.name} activity id`)
+    if (parsedActivityIds.has(id)) {
+      throw new Error(`Invalid Tiled map: duplicate activity "${id}"`)
+    }
+    parsedActivityIds.add(id)
+    return {
+      ...toCenteredRectangle(object),
+      id,
+      label: assertString(getProperty(object.properties, 'label'), `${id}.label`),
+      interactionPadding: assertNumber(
+        getProperty(object.properties, 'interactionPadding'),
+        `${id}.interactionPadding`,
+      ),
+    }
+  })
+
+  if (parsedActivityIds.size !== activityIds.size) {
+    const missing = labActivities
+      .map(({ id }) => id)
+      .filter((id) => !parsedActivityIds.has(id))
+    throw new Error(`Invalid Tiled map: missing activities ${missing.join(', ')}`)
   }
 
   const routes = new Map<NpcId, Array<{ order: number; x: number; y: number }>>()
@@ -509,6 +552,7 @@ export function parseLabMap(source: unknown): LabLayout {
     playerSpawn,
     staticObstacles,
     stations: parsedStations,
+    activities: parsedActivities,
     npcs: parsedNpcs,
     roomRoutes,
   }

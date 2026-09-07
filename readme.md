@@ -21,6 +21,7 @@ Current stable release: **v0.5 — complete**. The Archive Library is now a **fe
 - Content-first mobile layout without a low-quality virtual joystick
 - Opt-in procedural ambience with rain, machine hum, and sparse system signals
 - Two restrained discovery details connecting the Hong Kong window, Living AI Core, and RAG Pipeline
+- An optional 45-second Pipeline Recovery drill that turns streaming, tool, evidence, and failure events into a small routing game
 - Loading-driven cinematic desktop boot sequence with skip and reduced-motion support
 - A five-second B1–B7 cyberpunk elevator arrival, with Xiangyu visibly riding into the lab
 - A session-aware visitor entry that branches into a 90-second professional briefing or free lab exploration
@@ -85,6 +86,7 @@ Set `VITE_SITE_URL` to the final public origin before a production deployment to
 - Interact: `E` or `Space`
 - Choose an NPC question: `1`, `2`, or `3`
 - Choose an entry route: `Q` / `1` for the briefing, `E` / `2` for exploration
+- Route Pipeline Recovery packets: `1`–`4` or tap the labelled ports
 - Collision debug: `F2`
 - Close panels / skip intro: `Escape`
 - Sound: use the `Ambience` / `SND` control; first visit is always muted

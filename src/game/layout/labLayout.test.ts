@@ -72,6 +72,14 @@ describe('labLayout', () => {
     })
     expect(labLayout.playerSpawn).toEqual({ x: 480, y: 430 })
     expect(labLayout.staticObstacles).toHaveLength(4)
+    expect(labLayout.activities).toEqual([
+      expect.objectContaining({
+        id: 'pipeline-recovery',
+        label: 'Run Pipeline Recovery',
+        x: 802,
+        y: 167,
+      }),
+    ])
     expect(labLayout.roomRoutes).toEqual([
       expect.objectContaining({
         id: 'library',

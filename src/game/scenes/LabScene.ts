@@ -37,6 +37,7 @@ import {
   InteractionSystem,
   type InteractiveStation,
   type InteractiveNpc,
+  type InteractiveActivity,
 } from '../systems/InteractionSystem'
 import { transitionToRoom, type RoomTransitionData } from '../roomTransition'
 import type { AvailableRoomId } from '../rooms'
@@ -61,6 +62,7 @@ export class LabScene extends Phaser.Scene {
   private npcDialogueOpen = false
   private visitorEntryOpen = false
   private quickAccessOpen = false
+  private minigameOpen = false
   private removePanelListener?: () => void
   private removeNearbyListener?: () => void
   private removeVisitedListener?: () => void
@@ -70,6 +72,7 @@ export class LabScene extends Phaser.Scene {
   private removeNpcNearbyListener?: () => void
   private removeNpcRequestListener?: () => void
   private removeRoomRequestListener?: () => void
+  private removeMinigameListener?: () => void
   private readonly stationVisuals = new Map<StationId, StationVisual>()
   private readonly visitedStations = new Set<StationId>()
   private nearbyStation: StationId | null = null
@@ -106,6 +109,7 @@ export class LabScene extends Phaser.Scene {
     this.npcDialogueOpen = false
     this.visitorEntryOpen = false
     this.quickAccessOpen = false
+    this.minigameOpen = false
     this.nearbyStation = null
     this.hoveredStation = null
     this.activeStation = null
@@ -173,12 +177,14 @@ export class LabScene extends Phaser.Scene {
     const stations = stationLayouts.map((layout) => this.createStation(layout))
     const npcs = npcLayouts.map((layout) => this.createNpc(layout))
     const doors = roomRoutes.map((layout) => this.createRoomDoor(layout))
+    const activities = this.layout.activities.map((layout) => this.createActivity(layout))
     this.interactionSystem = new InteractionSystem(
       this,
       this.player,
       stations,
       npcs,
       doors,
+      activities,
       'lab',
     )
     this.createDebugOverlay()
@@ -200,6 +206,10 @@ export class LabScene extends Phaser.Scene {
     })
     this.removeIndexListener = labBridge.on('ui:index-change', ({ open }) => {
       this.quickAccessOpen = open
+      this.refreshControlsEnabled()
+    })
+    this.removeMinigameListener = labBridge.on('ui:minigame-change', ({ open }) => {
+      this.minigameOpen = open
       this.refreshControlsEnabled()
     })
     this.removeNearbyListener = labBridge.on('station:nearby', ({ stationId }) => {
@@ -261,6 +271,7 @@ export class LabScene extends Phaser.Scene {
       this.removeNpcNearbyListener?.()
       this.removeNpcRequestListener?.()
       this.removeRoomRequestListener?.()
+      this.removeMinigameListener?.()
     })
   }
 
@@ -290,6 +301,7 @@ export class LabScene extends Phaser.Scene {
       && !this.npcDialogueOpen
       && !this.visitorEntryOpen
       && !this.quickAccessOpen
+      && !this.minigameOpen
       && !this.transitioning
   }
 
@@ -329,6 +341,29 @@ export class LabScene extends Phaser.Scene {
       }
     })
     return door
+  }
+
+  private createActivity(layout: LabLayout['activities'][number]): InteractiveActivity {
+    const zoneWidth = layout.width + layout.interactionPadding
+    const zoneHeight = layout.height + layout.interactionPadding
+    const zone = this.add.zone(layout.x, layout.y, zoneWidth, zoneHeight)
+      .setInteractive({ useHandCursor: true })
+
+    this.interactionDebugRects.push(
+      new Phaser.Geom.Rectangle(
+        layout.x - zoneWidth / 2,
+        layout.y - zoneHeight / 2,
+        zoneWidth,
+        zoneHeight,
+      ),
+    )
+    zone.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (this.controlsEnabled && this.isCanvasPointer(pointer)) {
+        labBridge.emit('activity:activate', { activityId: layout.id })
+      }
+    })
+
+    return { id: layout.id, label: layout.label, zone }
   }
 
   private drawRoomBackdrop() {
