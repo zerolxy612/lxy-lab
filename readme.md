@@ -25,6 +25,7 @@ Current stable release: **v0.5 — complete**. The Archive Library is now a **fe
 - A five-second B1–B7 cyberpunk elevator arrival, with Xiangyu visibly riding into the lab
 - A session-aware visitor entry that branches into a 90-second professional briefing or free lab exploration
 - A layered personal narrative that separates verified company work from independent building, research signals, and open engineering questions
+- Distinct in-world reading surfaces: pull-out personnel files for experience, a dual-bay diagnostic reader for projects, and a restrained field dossier for the fast path
 - Game-style ROOK and MIRA encounters with ambient barks, progressive dialogue, repeat reactions, and mobile adaptation
 - Tiled-owned spatial data with tested spawn, collision, and station contracts
 - A minimal multi-room registry, session-scoped World Index, and independent Archive Library Phaser scene

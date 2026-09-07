@@ -110,7 +110,7 @@ export function VisitorEntry({ view, onOpenBriefing, onExplore }: VisitorEntryPr
               <span className="visitor-entry__route-number">01</span>
               <span className="visitor-entry__route-copy">
                 <b>Quick briefing</b>
-                <small>About, selected work, CV snapshot, and contact.</small>
+                <small>Position, proof, independent work, and CV snapshot.</small>
               </span>
               <span className="visitor-entry__route-meta">
                 <i>~90 sec</i>
@@ -165,7 +165,7 @@ export function VisitorEntry({ view, onOpenBriefing, onExplore }: VisitorEntryPr
 
         <div className="visitor-briefing__document">
           <header className="visitor-briefing__topline">
-            <span>QUICK BRIEFING / ~90 SEC</span>
+            <span>FIELD DOSSIER / ~90 SEC</span>
             <button type="button" onClick={onExplore}>Close <kbd>Esc</kbd></button>
           </header>
 

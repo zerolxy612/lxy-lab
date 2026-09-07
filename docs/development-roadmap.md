@@ -461,6 +461,11 @@ v0.3 美术与地图技术范围已经完成。Experience Archive 不再显示�
 - Main Lab 开始个人内容升级：公司经历只承担可验证事实，网站不复制简历条目；Future Gate 转为个人工作台，承载独立制作的 AI Lab、当前工程问题与科研信号。
 - Quick Briefing 增加 `Beyond the company brief`，并修正 HKGAI、Tencent 与教育时间线。完整职责、技能清单和手机号码不进入主叙事；公开 Resume 下载需等待独立的公开安全导出文件。
 
+### 2026-09-07
+
+- Main Lab 的长文本不再共用同一种霓虹卡片模板：Experience Archive 改为可抽取的人员档案，只同时展开一段经历；Selected Work 改为双模块诊断台，通过 Brief、System、Decisions、Outcome 频道渐进展示；Quick Briefing 改为暖色纸质 Field Dossier。
+- 本轮刻意保留每个内容载体的材质差异，但统一关闭、键盘焦点、移动端单列和语义化 DOM。去除 AI 模板感不等于移除实验室色彩，而是减少无意义的发光、网格、标签和同构卡片。
+
 ### 2026-07-28
 
 - 采用一个固定房间而不是 Peter Oravec 式开放地图。
